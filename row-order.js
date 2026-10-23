@@ -1,4 +1,5 @@
-/* 行順はこのブラウザ内に保存。2列グリッド対応、隙間のマス（スペーサー）の追加・移動・保存に対応。 */
+/* 行順はこのブラウザ内に保存。
+   2列グリッド対応、ドラッグ時のFLIPスライドアニメーション、隙間のマス（スペーサー）に対応。 */
 (function () {
   'use strict';
   const body = document.querySelector('table tbody');
@@ -106,6 +107,14 @@
   } catch (_) { /* 壊れた保存値は初期順へ戻す。 */ }
   refresh();
 
+  function cleanupTransforms() {
+    rows().forEach(r => {
+      r.style.transform = '';
+      r.style.transition = '';
+    });
+  }
+
+  // FLIPアニメーションで移動先オブジェクトを滑らかに退避
   function place(x, y) {
     const other = rows().filter(r => r !== drag.row);
     const next = other.find(r => {
@@ -115,9 +124,41 @@
         if (x < box.left + box.width / 2) return true;
       }
       return false;
+    }) || null;
+
+    // 挿入位置が変わっていないならDOM変更・アニメーションを行わない
+    if (drag.row.nextElementSibling === next) {
+      return;
+    }
+
+    // 1. First: 移動前の全カードの矩形位置を記録
+    const firstRects = new Map();
+    rows().forEach(r => {
+      firstRects.set(r, r.getBoundingClientRect());
     });
-    body.insertBefore(drag.row, next || null);
+
+    // 2. DOMの順序変更
+    body.insertBefore(drag.row, next);
     refresh();
+
+    // 3. Last & Invert & Play: 移動したカードをスライドアニメーション
+    rows().forEach(r => {
+      if (r === drag.row) return; // 掴んでいるカード自身は別スタイリング
+      const first = firstRects.get(r);
+      if (!first) return;
+      const last = r.getBoundingClientRect();
+      const dx = first.left - last.left;
+      const dy = first.top - last.top;
+
+      if (dx !== 0 || dy !== 0) {
+        r.style.transition = 'none';
+        r.style.transform = `translate(${dx}px, ${dy}px)`;
+        // 強制リフローで transform を適用
+        r.offsetHeight;
+        r.style.transition = 'transform 0.22s cubic-bezier(0.2, 0, 0, 1)';
+        r.style.transform = '';
+      }
+    });
   }
 
   function tick() {
@@ -142,6 +183,7 @@
     try {
       if (d.handle.hasPointerCapture(d.id)) d.handle.releasePointerCapture(d.id);
     } catch (_) {}
+    cleanupTransforms();
     refresh();
     if (d.active) {
       suppressClick = true;
@@ -200,6 +242,7 @@
   body.addEventListener('pointercancel', e => { if (drag && e.pointerId === drag.id) finish(true); });
   window.addEventListener('blur', () => finish(true));
 
+  // キーボード移動時もFLIPアニメーションを適用
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && drag) { e.preventDefault(); finish(true); return; }
     const handle = e.target.closest('.row-handle');
@@ -209,7 +252,28 @@
     const isPrev = e.key === 'ArrowUp' || e.key === 'ArrowLeft';
     const sibling = isPrev ? row.previousElementSibling : row.nextElementSibling;
     if (!sibling) return;
+
+    const firstRects = new Map();
+    rows().forEach(r => firstRects.set(r, r.getBoundingClientRect()));
+
     body.insertBefore(row, isPrev ? sibling : sibling.nextElementSibling);
+    refresh();
+
+    rows().forEach(r => {
+      const first = firstRects.get(r);
+      if (!first) return;
+      const last = r.getBoundingClientRect();
+      const dx = first.left - last.left;
+      const dy = first.top - last.top;
+      if (dx !== 0 || dy !== 0) {
+        r.style.transition = 'none';
+        r.style.transform = `translate(${dx}px, ${dy}px)`;
+        r.offsetHeight;
+        r.style.transition = 'transform 0.22s cubic-bezier(0.2, 0, 0, 1)';
+        r.style.transform = '';
+      }
+    });
+
     handle.focus();
     save('順序を保存しました。');
   });

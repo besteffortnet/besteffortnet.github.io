@@ -167,6 +167,7 @@
       border: 1px solid var(--line);
       border-radius: 10px;
       box-shadow: var(--card-shadow);
+      will-change: transform;
       transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease;
     }
 
@@ -449,8 +450,12 @@
       outline: 2px solid var(--accent) !important;
       outline-offset: -2px;
       background: var(--hover) !important;
-      opacity: .95;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, .18) !important;
+      opacity: .88 !important;
+      transform: scale(1.03);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, .24) !important;
+      z-index: 20;
+      position: relative;
+      transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
     }
     .ordering, .ordering * { cursor:grabbing!important; user-select:none; }
     #order-status { min-height:1.5em; color:var(--muted); font-size:.82rem; }
@@ -772,6 +777,6 @@
       });
     })();
   </script>
-<script src="row-order.js?v=5"></script>
+<script src="row-order.js?v=6"></script>
 </body>
 </html>
