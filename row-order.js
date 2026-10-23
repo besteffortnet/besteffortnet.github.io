@@ -1,5 +1,6 @@
 /* 行順はこのブラウザ内に保存。
-   2列グリッド対応、ドラッグ時のFLIPスライドアニメーション、隙間のマス（スペーサー）に対応。 */
+   2列グリッド対応、マウス追従フローティングドラッグ、
+   リアルタイムプレースホルダー、FLIPスライドアニメーション、隙間マス対応。 */
 (function () {
   'use strict';
   const body = document.querySelector('table tbody');
@@ -9,8 +10,8 @@
   const status = document.getElementById('order-status');
   const reset = document.getElementById('reset-order');
   const addSpacer = document.getElementById('add-spacer');
-  const rows = () => Array.from(body.rows);
-  let drag = null, frame = 0, suppressClick = false;
+  const rows = () => Array.from(body.rows).filter(r => !r.classList.contains('drag-placeholder'));
+  let drag = null, suppressClick = false;
 
   function initAppRow(row) {
     row.classList.add('app-card');
@@ -108,42 +109,70 @@
   refresh();
 
   function cleanupTransforms() {
-    rows().forEach(r => {
+    Array.from(body.rows).forEach(r => {
       r.style.transform = '';
       r.style.transition = '';
     });
   }
 
-  // FLIPアニメーションで移動先オブジェクトを滑らかに退避
-  function place(x, y) {
-    const other = rows().filter(r => r !== drag.row);
-    const next = other.find(r => {
-      const box = r.getBoundingClientRect();
-      if (y < box.top) return true;
-      if (y <= box.bottom) {
-        if (x < box.left + box.width / 2) return true;
-      }
-      return false;
-    }) || null;
+  // プレースホルダーの挿入位置更新とFLIPアニメーション
+  function updatePlaceholder(x, y) {
+    if (!drag || !drag.placeholder) return;
+    const currentRows = rows();
+    const other = currentRows.filter(r => r !== drag.row);
+    if (other.length === 0) return;
 
-    // 挿入位置が変わっていないならDOM変更・アニメーションを行わない
-    if (drag.row.nextElementSibling === next) {
+    let closest = null;
+    let minDistance = Infinity;
+
+    other.forEach(r => {
+      const box = r.getBoundingClientRect();
+      const cx = box.left + box.width / 2;
+      const cy = box.top + box.height / 2;
+      const dist = Math.hypot(x - cx, y - cy);
+      if (dist < minDistance) {
+        minDistance = dist;
+        closest = { row: r, box, cx, cy };
+      }
+    });
+
+    if (!closest) return;
+
+    const placeholderIndex = Array.from(body.children).indexOf(drag.placeholder);
+    const targetIndex = Array.from(body.children).indexOf(closest.row);
+    let isAfter = false;
+
+    if (y > closest.box.bottom + 4) {
+      isAfter = true;
+    } else if (y < closest.box.top - 4) {
+      isAfter = false;
+    } else {
+      if (placeholderIndex < targetIndex) {
+        isAfter = x > (closest.box.left + closest.box.width * 0.35);
+      } else {
+        isAfter = x > (closest.box.left + closest.box.width * 0.65);
+      }
+    }
+
+    const nextSibling = isAfter ? closest.row.nextElementSibling : closest.row;
+
+    if (drag.placeholder.nextElementSibling === nextSibling) {
       return;
     }
 
-    // 1. First: 移動前の全カードの矩形位置を記録
+    // FLIP: 移動前の全要素の位置を記録
     const firstRects = new Map();
-    rows().forEach(r => {
-      firstRects.set(r, r.getBoundingClientRect());
+    Array.from(body.children).forEach(r => {
+      if (r !== drag.row) firstRects.set(r, r.getBoundingClientRect());
     });
 
-    // 2. DOMの順序変更
-    body.insertBefore(drag.row, next);
+    // プレースホルダーをDOM移動
+    body.insertBefore(drag.placeholder, nextSibling);
     refresh();
 
-    // 3. Last & Invert & Play: 移動したカードをスライドアニメーション
-    rows().forEach(r => {
-      if (r === drag.row) return; // 掴んでいるカード自身は別スタイリング
+    // 他のカードをスライドアニメーション
+    Array.from(body.children).forEach(r => {
+      if (r === drag.row || r === drag.placeholder) return;
       const first = firstRects.get(r);
       if (!first) return;
       const last = r.getBoundingClientRect();
@@ -153,38 +182,42 @@
       if (dx !== 0 || dy !== 0) {
         r.style.transition = 'none';
         r.style.transform = `translate(${dx}px, ${dy}px)`;
-        // 強制リフローで transform を適用
-        r.offsetHeight;
+        r.offsetHeight; // 強制リフロー
         r.style.transition = 'transform 0.22s cubic-bezier(0.2, 0, 0, 1)';
         r.style.transform = '';
       }
     });
   }
 
-  function tick() {
-    if (!drag) return;
-    if (drag.active) {
-      const edge = 65, y = drag.y;
-      const dy = y < edge ? -12 : y > innerHeight - edge ? 12 : 0;
-      if (dy) { window.scrollBy(0, dy); place(drag.x, y); }
-    }
-    frame = requestAnimationFrame(tick);
-  }
-
   function finish(cancelled) {
     if (!drag) return;
-    const d = drag; drag = null; cancelAnimationFrame(frame);
+    const d = drag; drag = null;
+
+    if (d.placeholder) {
+      if (!cancelled) {
+        body.insertBefore(d.row, d.placeholder);
+      }
+      d.placeholder.remove();
+    }
+
     if (cancelled) {
       body.replaceChildren();
       d.before.forEach(r => body.append(r));
     }
+
     d.row.classList.remove('row-dragging');
+    d.row.style.transform = '';
+    d.row.style.zIndex = '';
+    d.row.style.pointerEvents = '';
     document.documentElement.classList.remove('ordering');
+
     try {
       if (d.handle.hasPointerCapture(d.id)) d.handle.releasePointerCapture(d.id);
     } catch (_) {}
+
     cleanupTransforms();
     refresh();
+
     if (d.active) {
       suppressClick = true;
       setTimeout(() => { suppressClick = false; }, 120);
@@ -210,39 +243,64 @@
     if (e.target.closest('.spacer-remove')) return;
     const handle = e.target.closest('.row-handle');
     if (!handle || e.button !== 0 || !e.isPrimary || drag) return;
+    const row = handle.closest('tr');
     drag = {
-      row: handle.closest('tr'),
+      row,
       handle,
       id: e.pointerId,
       startX: e.clientX,
       startY: e.clientY,
-      x: e.clientX,
-      y: e.clientY,
       before: rows(),
-      active: false
+      active: false,
+      placeholder: null
     };
   });
 
   body.addEventListener('pointermove', e => {
     if (!drag || e.pointerId !== drag.id) return;
-    drag.x = e.clientX;
-    drag.y = e.clientY;
+    const dx = e.clientX - drag.startX;
+    const dy = e.clientY - drag.startY;
+
     if (!drag.active) {
-      if (Math.hypot(e.clientX - drag.startX, e.clientY - drag.startY) < 6) return;
+      if (Math.hypot(dx, dy) < 6) return;
       drag.active = true;
-      try { drag.handle.setPointerCapture(e.pointerId); } catch (_) {}
+
+      // プレースホルダーの生成
+      const box = drag.row.getBoundingClientRect();
+      const ph = document.createElement('tr');
+      ph.className = 'drag-placeholder ' + (drag.row.classList.contains('spacer-slot') ? 'spacer-placeholder' : 'app-placeholder');
+      const td = document.createElement('td');
+      td.colSpan = 4;
+      ph.append(td);
+      ph.style.minHeight = box.height + 'px';
+
+      drag.placeholder = ph;
+      body.insertBefore(ph, drag.row);
+
+      // ドラッグ中の行のスタイリング
       drag.row.classList.add('row-dragging');
+      drag.row.style.pointerEvents = 'none';
       document.documentElement.classList.add('ordering');
-      frame = requestAnimationFrame(tick);
+      try { drag.handle.setPointerCapture(e.pointerId); } catch (_) {}
     }
-    place(e.clientX, e.clientY);
+
+    // 掴んでいるObjectをマウスカーソルにリアルタイム追従！
+    drag.row.style.transform = `translate3d(${dx}px, ${dy}px, 0) scale(1.03)`;
+
+    // 画面端のスクロール
+    const edge = 65, y = e.clientY;
+    if (y < edge) window.scrollBy(0, -10);
+    else if (y > innerHeight - edge) window.scrollBy(0, 10);
+
+    // プレースホルダーの位置更新
+    updatePlaceholder(e.clientX, e.clientY);
   });
 
   body.addEventListener('pointerup', e => { if (drag && e.pointerId === drag.id) finish(false); });
   body.addEventListener('pointercancel', e => { if (drag && e.pointerId === drag.id) finish(true); });
   window.addEventListener('blur', () => finish(true));
 
-  // キーボード移動時もFLIPアニメーションを適用
+  // キーボード移動時もFLIPアニメーション
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && drag) { e.preventDefault(); finish(true); return; }
     const handle = e.target.closest('.row-handle');
