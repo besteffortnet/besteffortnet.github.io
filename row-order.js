@@ -1,5 +1,5 @@
 /* 行順はこのブラウザ内に保存。
-   2列グリッド対応、マウス追従フローティングドラッグ、
+   2列グリッド対応、position:fixedフローティングドラッグ（瞬間移動・ズレの完全防止）、
    リアルタイムプレースホルダー、FLIPスライドアニメーション、隙間マス対応。 */
 (function () {
   'use strict';
@@ -10,7 +10,7 @@
   const status = document.getElementById('order-status');
   const reset = document.getElementById('reset-order');
   const addSpacer = document.getElementById('add-spacer');
-  const rows = () => Array.from(body.rows).filter(r => !r.classList.contains('drag-placeholder'));
+  const rows = () => Array.from(body.rows).filter(r => !r.classList.contains('drag-placeholder') && r.style.position !== 'fixed');
   let drag = null, suppressClick = false;
 
   function initAppRow(row) {
@@ -109,9 +109,11 @@
   refresh();
 
   function cleanupTransforms() {
-    Array.from(body.rows).forEach(r => {
-      r.style.transform = '';
-      r.style.transition = '';
+    Array.from(body.children).forEach(r => {
+      if (!drag || r !== drag.row) {
+        r.style.transform = '';
+        r.style.transition = '';
+      }
     });
   }
 
@@ -119,13 +121,12 @@
   function updatePlaceholder(x, y) {
     if (!drag || !drag.placeholder) return;
     const currentRows = rows();
-    const other = currentRows.filter(r => r !== drag.row);
-    if (other.length === 0) return;
+    if (currentRows.length === 0) return;
 
     let closest = null;
     let minDistance = Infinity;
 
-    other.forEach(r => {
+    currentRows.forEach(r => {
       const box = r.getBoundingClientRect();
       const cx = box.left + box.width / 2;
       const cy = box.top + box.height / 2;
@@ -138,8 +139,9 @@
 
     if (!closest) return;
 
-    const placeholderIndex = Array.from(body.children).indexOf(drag.placeholder);
-    const targetIndex = Array.from(body.children).indexOf(closest.row);
+    const gridChildren = Array.from(body.children).filter(r => r !== drag.row);
+    const placeholderIndex = gridChildren.indexOf(drag.placeholder);
+    const targetIndex = gridChildren.indexOf(closest.row);
     let isAfter = false;
 
     if (y > closest.box.bottom + 4) {
@@ -156,14 +158,15 @@
 
     const nextSibling = isAfter ? closest.row.nextElementSibling : closest.row;
 
-    if (drag.placeholder.nextElementSibling === nextSibling) {
+    // プレースホルダーがすでにその位置にあるならスキップ
+    if (drag.placeholder === nextSibling || drag.placeholder.nextElementSibling === nextSibling) {
       return;
     }
 
-    // FLIP: 移動前の全要素の位置を記録
+    // FLIP: 移動前の全グリッド要素の位置を記録
     const firstRects = new Map();
-    Array.from(body.children).forEach(r => {
-      if (r !== drag.row) firstRects.set(r, r.getBoundingClientRect());
+    gridChildren.forEach(r => {
+      firstRects.set(r, r.getBoundingClientRect());
     });
 
     // プレースホルダーをDOM移動
@@ -171,8 +174,8 @@
     refresh();
 
     // 他のカードをスライドアニメーション
-    Array.from(body.children).forEach(r => {
-      if (r === drag.row || r === drag.placeholder) return;
+    gridChildren.forEach(r => {
+      if (r === drag.placeholder) return;
       const first = firstRects.get(r);
       if (!first) return;
       const last = r.getBoundingClientRect();
@@ -205,9 +208,16 @@
       d.before.forEach(r => body.append(r));
     }
 
+    // fixed スタイルを完全にリセット
     d.row.classList.remove('row-dragging');
-    d.row.style.transform = '';
+    d.row.style.position = '';
+    d.row.style.left = '';
+    d.row.style.top = '';
+    d.row.style.width = '';
+    d.row.style.height = '';
+    d.row.style.margin = '';
     d.row.style.zIndex = '';
+    d.row.style.transform = '';
     d.row.style.pointerEvents = '';
     document.documentElement.classList.remove('ordering');
 
@@ -252,7 +262,8 @@
       startY: e.clientY,
       before: rows(),
       active: false,
-      placeholder: null
+      placeholder: null,
+      initialBox: null
     };
   });
 
@@ -265,34 +276,47 @@
       if (Math.hypot(dx, dy) < 6) return;
       drag.active = true;
 
-      // プレースホルダーの生成
+      // 移動前の矩形を正確に記録
       const box = drag.row.getBoundingClientRect();
+      drag.initialBox = box;
+
+      // プレースホルダーの生成と配置
       const ph = document.createElement('tr');
       ph.className = 'drag-placeholder ' + (drag.row.classList.contains('spacer-slot') ? 'spacer-placeholder' : 'app-placeholder');
       const td = document.createElement('td');
       td.colSpan = 4;
       ph.append(td);
+      ph.style.height = box.height + 'px';
       ph.style.minHeight = box.height + 'px';
 
       drag.placeholder = ph;
+      // 元の位置にプレースホルダーを配置
       body.insertBefore(ph, drag.row);
 
-      // ドラッグ中の行のスタイリング
+      // ドラッグ要素をグリッドフローから完全に切り離し、fixed で浮かせる（瞬間移動・ズレの完全防止）
       drag.row.classList.add('row-dragging');
+      drag.row.style.position = 'fixed';
+      drag.row.style.left = box.left + 'px';
+      drag.row.style.top = box.top + 'px';
+      drag.row.style.width = box.width + 'px';
+      drag.row.style.height = box.height + 'px';
+      drag.row.style.margin = '0';
+      drag.row.style.zIndex = '9999';
       drag.row.style.pointerEvents = 'none';
+
       document.documentElement.classList.add('ordering');
       try { drag.handle.setPointerCapture(e.pointerId); } catch (_) {}
     }
 
-    // 掴んでいるObjectをマウスカーソルにリアルタイム追従！
+    // fixed な要素を移動量 (dx, dy) でピタッとマウスに追従！
     drag.row.style.transform = `translate3d(${dx}px, ${dy}px, 0) scale(1.03)`;
 
-    // 画面端のスクロール
+    // 画面端の自動スクロール
     const edge = 65, y = e.clientY;
     if (y < edge) window.scrollBy(0, -10);
     else if (y > innerHeight - edge) window.scrollBy(0, 10);
 
-    // プレースホルダーの位置更新
+    // プレースホルダーの移動と周囲要素のFLIPスライド
     updatePlaceholder(e.clientX, e.clientY);
   });
 
