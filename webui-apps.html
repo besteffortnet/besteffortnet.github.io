@@ -70,9 +70,9 @@
       transition: background-color .15s ease, color .15s ease;
     }
 
-    main { max-width: 960px; margin: 0 auto; padding: 40px 20px 64px; }
+    main { max-width: 720px; margin: 0 auto; padding: 32px 16px 56px; }
 
-    header { margin-bottom: 24px; }
+    header { margin-bottom: 20px; }
 
     .header-top {
       display: flex;
@@ -131,8 +131,8 @@
     :root[data-theme="dark"] .theme-toggle .icon-sun { display: block; }
     :root[data-theme="dark"] .theme-toggle .icon-moon { display: none; }
 
-    h1 { margin: 8px 0 10px; font-size: clamp(1.8rem, 3.5vw, 2.75rem); line-height: 1.15; }
-    .intro { max-width: 720px; margin: 0; color: var(--muted); font-size: .95rem; }
+    h1 { margin: 6px 0 8px; font-size: clamp(1.6rem, 3.2vw, 2.4rem); line-height: 1.15; }
+    .intro { max-width: 640px; margin: 0; color: var(--muted); font-size: .9rem; }
 
     .panel {
       overflow: visible;
@@ -148,70 +148,140 @@
     tbody {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
+      gap: 10px;
     }
 
-    tbody tr {
+    /* アプリカード（オブジェクト） */
+    tbody tr.app-card {
       display: grid;
       grid-template-columns: auto 1fr;
       grid-template-areas:
         "num app"
         "repo repo"
         "desc desc";
-      row-gap: 8px;
-      column-gap: 10px;
+      row-gap: 6px;
+      column-gap: 8px;
       align-items: center;
-      padding: 14px 16px;
+      padding: 10px 12px;
       background: var(--paper);
       border: 1px solid var(--line);
-      border-radius: 12px;
+      border-radius: 10px;
       box-shadow: var(--card-shadow);
       transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease;
     }
 
-    tbody tr:hover {
+    tbody tr.app-card:hover {
       background: var(--hover);
       border-color: var(--accent);
     }
 
-    tbody tr td {
+    tbody tr.app-card td {
       padding: 0;
       border: 0;
       text-align: left;
     }
 
-    tbody tr td:first-child {
+    tbody tr.app-card td:first-child {
       grid-area: num;
       width: auto;
       color: var(--muted);
-      font-size: .88rem;
+      font-size: .82rem;
       font-weight: 700;
       font-variant-numeric: tabular-nums;
     }
 
-    tbody tr td:first-child .row-number {
+    tbody tr.app-card td:first-child .row-number {
       display: inline-block;
-      min-width: 18px;
+      min-width: 16px;
     }
 
-    tbody tr td:nth-child(2) {
+    tbody tr.app-card td:nth-child(2) {
       grid-area: app;
       min-width: 0;
     }
 
-    tbody tr td:nth-child(3) {
+    tbody tr.app-card td:nth-child(3) {
       grid-area: repo;
       min-width: 0;
-      font-size: .86rem;
+      font-size: .82rem;
       word-break: break-all;
     }
 
-    tbody tr td:last-child {
+    tbody tr.app-card td:last-child {
       grid-area: desc;
       border-top: 1px dashed var(--line);
-      padding-top: 8px;
+      padding-top: 6px;
       margin-top: 2px;
       color: var(--desc-ink);
+    }
+
+    /* 隙間のマス（オブジェクトより小さいマス） */
+    tbody tr.spacer-slot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 36px;
+      padding: 4px 10px;
+      background: var(--bg);
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      transition: background-color .15s ease, border-color .15s ease, opacity .15s ease;
+      opacity: .8;
+    }
+
+    tbody tr.spacer-slot:hover {
+      border-color: var(--accent);
+      background: var(--hover);
+      opacity: 1;
+    }
+
+    tbody tr.spacer-slot:active {
+      cursor: grabbing;
+    }
+
+    tbody tr.spacer-slot td {
+      padding: 0;
+      border: 0;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: .78rem;
+    }
+
+    .spacer-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      pointer-events: none;
+    }
+
+    .spacer-label::before {
+      content: "⋯";
+      font-size: 14px;
+      letter-spacing: 2px;
+      opacity: .6;
+    }
+
+    .spacer-remove {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 13px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      line-height: 1;
+    }
+
+    .spacer-remove:hover {
+      color: #e5484d;
+      background: rgba(229, 72, 77, .12);
     }
 
     a { color: var(--accent); text-decoration: none; }
@@ -220,12 +290,13 @@
     .service-link {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 6px 12px;
+      gap: 6px;
+      padding: 5px 10px;
       margin-right: 0;
       max-width: 100%;
+      font-size: .92rem;
       border: 1px solid var(--line);
-      border-radius: 8px;
+      border-radius: 7px;
       background: var(--emboss-bg);
       box-shadow: var(--emboss-shadow);
       color: var(--accent);
@@ -241,11 +312,11 @@
     .service-link::before {
       content: "";
       display: inline-block;
-      width: 8px;
-      height: 14px;
+      width: 7px;
+      height: 12px;
       opacity: .45;
-      background-image: radial-gradient(circle, currentColor 1.2px, transparent 1.3px);
-      background-size: 4px 5px;
+      background-image: radial-gradient(circle, currentColor 1.1px, transparent 1.2px);
+      background-size: 3.5px 4px;
       background-repeat: repeat;
       flex-shrink: 0;
       transition: opacity .15s ease;
@@ -269,8 +340,8 @@
       transform: translateY(1px);
     }
 
-    .repo-link { font-weight: 600; }
-    .note { color: var(--muted); font-size: .84rem; font-weight: 400; }
+    .repo-link { font-weight: 600; font-size: .82rem; }
+    .note { color: var(--muted); font-size: .8rem; font-weight: 400; }
 
     .desc-toggle-row {
       display: flex;
@@ -280,7 +351,7 @@
     }
 
     .desc-title {
-      font-size: .78rem;
+      font-size: .75rem;
       font-weight: 600;
       color: var(--muted);
       letter-spacing: .02em;
@@ -288,17 +359,17 @@
     }
 
     .desc-text {
-      margin-top: 8px;
-      font-size: .84rem;
-      line-height: 1.55;
+      margin-top: 6px;
+      font-size: .82rem;
+      line-height: 1.5;
       color: var(--desc-ink);
     }
 
     .switch {
       position: relative;
       display: inline-block;
-      width: 32px;
-      height: 18px;
+      width: 30px;
+      height: 16px;
       cursor: pointer;
       flex-shrink: 0;
     }
@@ -315,20 +386,20 @@
       top: 0; left: 0; right: 0; bottom: 0;
       background-color: var(--line);
       transition: background-color .15s ease;
-      border-radius: 18px;
+      border-radius: 16px;
     }
 
     .slider::before {
       position: absolute;
       content: "";
-      height: 14px;
-      width: 14px;
+      height: 12px;
+      width: 12px;
       left: 2px;
       bottom: 2px;
       background-color: #ffffff;
       transition: transform .15s ease;
       border-radius: 50%;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, .3);
     }
 
     .switch input:checked + .slider {
@@ -344,17 +415,35 @@
       outline-offset: 2px;
     }
 
-    footer { margin-top: 24px; color: var(--muted); font-size: .88rem; }
+    footer { margin-top: 24px; color: var(--muted); font-size: .85rem; }
 
-    @media (max-width: 720px) {
-      main { padding: 32px 14px 48px; }
+    @media (max-width: 620px) {
+      main { padding: 24px 12px 40px; }
       tbody { grid-template-columns: 1fr; }
     }
 
-    .order-tools { display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin:16px 0; }
-    .order-tools p { margin:0; color:var(--muted); font-size:.85rem; }
-    #reset-order { font:inherit; color:var(--ink); background:var(--paper); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; }
-    #reset-order:focus-visible { outline:3px solid var(--outline); outline-offset:2px; }
+    .order-tools { display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; margin:14px 0; }
+    .order-tools p { margin:0; color:var(--muted); font-size:.82rem; }
+    .order-buttons { display:flex; gap:8px; align-items:center; }
+    .tool-btn {
+      font: inherit;
+      color: var(--ink);
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 5px 10px;
+      font-size: .8rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: background-color .15s ease, border-color .15s ease;
+    }
+    .tool-btn:hover {
+      background: var(--hover);
+      border-color: var(--accent);
+    }
+    .tool-btn:focus-visible { outline: 3px solid var(--outline); outline-offset: 2px; }
     #reset-order:disabled { opacity:.5; cursor:default; }
     .row-dragging {
       outline: 2px solid var(--accent) !important;
@@ -364,7 +453,7 @@
       box-shadow: 0 8px 24px rgba(0, 0, 0, .18) !important;
     }
     .ordering, .ordering * { cursor:grabbing!important; user-select:none; }
-    #order-status { min-height:1.5em; color:var(--muted); font-size:.85rem; }
+    #order-status { min-height:1.5em; color:var(--muted); font-size:.82rem; }
   </style>
 </head>
 <body>
@@ -386,7 +475,13 @@
       <p class="intro">besteffortnet が開発・運用するWebUIアプリのサービス提供先とGitHubリポジトリをまとめています。</p>
     </header>
 
-    <div class="order-tools"><p id="order-help">サービス名を上下左右にドラッグして並べ替え。順序はこのブラウザに保存します。</p><button type="button" id="reset-order">初期順に戻す</button></div>
+    <div class="order-tools">
+      <p id="order-help">サービス名を上下左右にドラッグして並べ替え。順序はこのブラウザに保存します。</p>
+      <div class="order-buttons">
+        <button type="button" id="add-spacer" class="tool-btn">＋ 隙間を追加</button>
+        <button type="button" id="reset-order" class="tool-btn">初期順に戻す</button>
+      </div>
+    </div>
     <p id="order-status" role="status" aria-live="polite"></p>
     <section class="panel" aria-label="WebUIアプリ一覧">
       <div class="table-wrap">
@@ -677,6 +772,6 @@
       });
     })();
   </script>
-<script src="row-order.js?v=4"></script>
+<script src="row-order.js?v=5"></script>
 </body>
 </html>
