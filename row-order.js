@@ -1,4 +1,4 @@
-/* 行順はこのブラウザ内に保存。リンク操作とドラッグ操作を分離する。 */
+/* 行順はこのブラウザ内に保存。サービス名のドラッグ操作とリンク遷移を両立する。 */
 (function () {
   'use strict';
   const body = document.querySelector('table tbody');
@@ -8,32 +8,42 @@
   const status = document.getElementById('order-status');
   const reset = document.getElementById('reset-order');
   const rows = () => Array.from(body.rows);
-  let drag = null, frame = 0;
+  let drag = null, frame = 0, suppressClick = false;
+
   original.forEach(row => {
     const link = row.querySelector('.repo-link');
     row.dataset.orderId = link.href;
+
     const cell = row.cells[0];
     cell.replaceChildren();
     const number = document.createElement('span');
     number.className = 'row-number';
-    const handle = document.createElement('button');
-    handle.type = 'button'; handle.className = 'row-handle'; handle.textContent = '⠿';
-    const name = row.querySelector('.service-link').textContent;
-    handle.setAttribute('aria-label', name + 'の順序を変更');
-    handle.setAttribute('aria-describedby', 'order-help');
-    handle.title = 'ドラッグ、または Alt＋↑／↓ で移動';
-    cell.append(number, handle);
+    cell.append(number);
+
+    const handle = row.querySelector('.service-link');
+    if (handle) {
+      handle.classList.add('row-handle');
+      handle.setAttribute('draggable', 'false');
+      handle.setAttribute('aria-describedby', 'order-help');
+      handle.title = 'ドラッグ、または Option＋↑／↓ で移動（クリックで開く）';
+    }
   });
+
   function refresh() {
-    rows().forEach((r, i) => r.querySelector('.row-number').textContent = i + 1);
-    reset.disabled = rows().every((r, i) => r === original[i]);
+    rows().forEach((r, i) => {
+      const num = r.querySelector('.row-number');
+      if (num) num.textContent = i + 1;
+    });
+    if (reset) reset.disabled = rows().every((r, i) => r === original[i]);
   }
+
   function save(message) {
     refresh();
     try { localStorage.setItem(key, JSON.stringify(rows().map(r => r.dataset.orderId))); }
     catch (_) { message += ' このブラウザでは保存できないため、再読込で元に戻ります。'; }
-    status.textContent = message;
+    if (status) status.textContent = message;
   }
+
   try {
     const saved = JSON.parse(localStorage.getItem(key));
     if (Array.isArray(saved)) {
@@ -43,12 +53,14 @@
     }
   } catch (_) { /* 壊れた保存値は初期順へ戻す。 */ }
   refresh();
+
   function place(y) {
     const other = rows().filter(r => r !== drag.row);
     const next = other.find(r => { const box = r.getBoundingClientRect(); return y < box.top + box.height / 2; });
     body.insertBefore(drag.row, next || null);
     refresh();
   }
+
   function tick() {
     if (!drag) return;
     if (drag.active) {
@@ -58,48 +70,87 @@
     }
     frame = requestAnimationFrame(tick);
   }
+
   function finish(cancelled) {
     if (!drag) return;
     const d = drag; drag = null; cancelAnimationFrame(frame);
     if (cancelled) d.before.forEach(r => body.append(r));
     d.row.classList.remove('row-dragging');
     document.documentElement.classList.remove('ordering');
-    if (d.handle.hasPointerCapture(d.id)) d.handle.releasePointerCapture(d.id);
-    refresh(); d.handle.focus({preventScroll:true});
-    if (d.active && !cancelled) save('順序を保存しました。' + (rows().indexOf(d.row) + 1) + '番目に移動しました。');
-    if (cancelled) status.textContent = '移動を取り消しました。';
+    try {
+      if (d.handle.hasPointerCapture(d.id)) d.handle.releasePointerCapture(d.id);
+    } catch (_) {}
+    refresh();
+    if (d.active) {
+      suppressClick = true;
+      setTimeout(() => { suppressClick = false; }, 120);
+      d.handle.focus({preventScroll:true});
+      if (!cancelled) save('順序を保存しました。' + (rows().indexOf(d.row) + 1) + '番目に移動しました。');
+    }
+    if (cancelled && status) status.textContent = '移動を取り消しました。';
   }
+
+  body.addEventListener('dragstart', e => {
+    if (e.target.closest('.row-handle')) e.preventDefault();
+  });
+
+  body.addEventListener('click', e => {
+    if (suppressClick && e.target.closest('.row-handle')) {
+      e.preventDefault();
+      e.stopPropagation();
+      suppressClick = false;
+    }
+  }, true);
+
   body.addEventListener('pointerdown', e => {
     const handle = e.target.closest('.row-handle');
     if (!handle || e.button !== 0 || !e.isPrimary || drag) return;
-    e.preventDefault(); handle.focus();
-    drag = {row:handle.closest('tr'), handle, id:e.pointerId, y:e.clientY, start:e.clientY, before:rows(), active:false};
-    handle.setPointerCapture(e.pointerId); frame = requestAnimationFrame(tick);
+    drag = {
+      row: handle.closest('tr'),
+      handle,
+      id: e.pointerId,
+      startX: e.clientX,
+      startY: e.clientY,
+      y: e.clientY,
+      before: rows(),
+      active: false
+    };
   });
+
   body.addEventListener('pointermove', e => {
     if (!drag || e.pointerId !== drag.id) return;
     drag.y = e.clientY;
-    if (!drag.active && Math.abs(drag.y - drag.start) < 5) return;
-    drag.active = true;
-    drag.row.classList.add('row-dragging'); document.documentElement.classList.add('ordering');
+    if (!drag.active) {
+      if (Math.hypot(e.clientX - drag.startX, e.clientY - drag.startY) < 6) return;
+      drag.active = true;
+      try { drag.handle.setPointerCapture(e.pointerId); } catch (_) {}
+      drag.row.classList.add('row-dragging');
+      document.documentElement.classList.add('ordering');
+      frame = requestAnimationFrame(tick);
+    }
     place(e.clientY);
-    // DOMの並べ替え後にもキャプチャを維持する。
-    drag.handle.setPointerCapture(e.pointerId);
   });
+
   body.addEventListener('pointerup', e => { if (drag && e.pointerId === drag.id) finish(false); });
   body.addEventListener('pointercancel', e => { if (drag && e.pointerId === drag.id) finish(true); });
   window.addEventListener('blur', () => finish(true));
+
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && drag) { e.preventDefault(); finish(true); return; }
     const handle = e.target.closest('.row-handle');
     if (!handle || !e.altKey || !['ArrowUp','ArrowDown'].includes(e.key) || drag) return;
-    e.preventDefault(); const row = handle.closest('tr');
+    e.preventDefault();
+    const row = handle.closest('tr');
     const sibling = e.key === 'ArrowUp' ? row.previousElementSibling : row.nextElementSibling;
     if (!sibling) return;
     body.insertBefore(row, e.key === 'ArrowUp' ? sibling : sibling.nextElementSibling);
-    handle.focus(); save((rows().indexOf(row) + 1) + '番目に移動して保存しました。');
+    handle.focus();
+    save((rows().indexOf(row) + 1) + '番目に移動して保存しました。');
   });
-  reset.addEventListener('click', () => {
-    finish(true); original.forEach(r => body.append(r)); save('初期順に戻しました。');
-  });
+
+  if (reset) {
+    reset.addEventListener('click', () => {
+      finish(true); original.forEach(r => body.append(r)); save('初期順に戻しました。');
+    });
+  }
 })();
