@@ -1,4 +1,4 @@
-/* 行順はこのブラウザ内に保存。サービス名のドラッグ操作とリンク遷移を両立する。 */
+/* 行順はこのブラウザ内に保存。サービス名のドラッグ操作とリンク遷移を両立し、2列グリッドに対応。 */
 (function () {
   'use strict';
   const body = document.querySelector('table tbody');
@@ -12,7 +12,7 @@
 
   original.forEach(row => {
     const link = row.querySelector('.repo-link');
-    row.dataset.orderId = link.href;
+    if (link) row.dataset.orderId = link.href;
 
     const cell = row.cells[0];
     cell.replaceChildren();
@@ -25,7 +25,7 @@
       handle.classList.add('row-handle');
       handle.setAttribute('draggable', 'false');
       handle.setAttribute('aria-describedby', 'order-help');
-      handle.title = 'ドラッグ、または Option＋↑／↓ で移動（クリックで開く）';
+      handle.title = 'ドラッグ、または Option＋矢印キーで移動（クリックで開く）';
     }
   });
 
@@ -54,9 +54,16 @@
   } catch (_) { /* 壊れた保存値は初期順へ戻す。 */ }
   refresh();
 
-  function place(y) {
+  function place(x, y) {
     const other = rows().filter(r => r !== drag.row);
-    const next = other.find(r => { const box = r.getBoundingClientRect(); return y < box.top + box.height / 2; });
+    const next = other.find(r => {
+      const box = r.getBoundingClientRect();
+      if (y < box.top) return true;
+      if (y <= box.bottom) {
+        if (x < box.left + box.width / 2) return true;
+      }
+      return false;
+    });
     body.insertBefore(drag.row, next || null);
     refresh();
   }
@@ -66,7 +73,7 @@
     if (drag.active) {
       const edge = 65, y = drag.y;
       const dy = y < edge ? -12 : y > innerHeight - edge ? 12 : 0;
-      if (dy) { window.scrollBy(0, dy); place(y); }
+      if (dy) { window.scrollBy(0, dy); place(drag.x, y); }
     }
     frame = requestAnimationFrame(tick);
   }
@@ -111,6 +118,7 @@
       id: e.pointerId,
       startX: e.clientX,
       startY: e.clientY,
+      x: e.clientX,
       y: e.clientY,
       before: rows(),
       active: false
@@ -119,6 +127,7 @@
 
   body.addEventListener('pointermove', e => {
     if (!drag || e.pointerId !== drag.id) return;
+    drag.x = e.clientX;
     drag.y = e.clientY;
     if (!drag.active) {
       if (Math.hypot(e.clientX - drag.startX, e.clientY - drag.startY) < 6) return;
@@ -128,7 +137,7 @@
       document.documentElement.classList.add('ordering');
       frame = requestAnimationFrame(tick);
     }
-    place(e.clientY);
+    place(e.clientX, e.clientY);
   });
 
   body.addEventListener('pointerup', e => { if (drag && e.pointerId === drag.id) finish(false); });
@@ -138,14 +147,26 @@
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && drag) { e.preventDefault(); finish(true); return; }
     const handle = e.target.closest('.row-handle');
-    if (!handle || !e.altKey || !['ArrowUp','ArrowDown'].includes(e.key) || drag) return;
+    if (!handle || !e.altKey || !['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key) || drag) return;
     e.preventDefault();
     const row = handle.closest('tr');
-    const sibling = e.key === 'ArrowUp' ? row.previousElementSibling : row.nextElementSibling;
+    const isPrev = e.key === 'ArrowUp' || e.key === 'ArrowLeft';
+    const sibling = isPrev ? row.previousElementSibling : row.nextElementSibling;
     if (!sibling) return;
-    body.insertBefore(row, e.key === 'ArrowUp' ? sibling : sibling.nextElementSibling);
+    body.insertBefore(row, isPrev ? sibling : sibling.nextElementSibling);
     handle.focus();
     save((rows().indexOf(row) + 1) + '番目に移動して保存しました。');
+  });
+
+  // 概要トグルスイッチの開閉制御
+  body.addEventListener('change', e => {
+    if (e.target.matches('.desc-switch')) {
+      const cell = e.target.closest('td');
+      if (cell) {
+        const text = cell.querySelector('.desc-text');
+        if (text) text.hidden = !e.target.checked;
+      }
+    }
   });
 
   if (reset) {
