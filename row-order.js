@@ -25,7 +25,7 @@
       handle.classList.add('row-handle');
       handle.setAttribute('draggable', 'false');
       handle.setAttribute('aria-describedby', 'order-help');
-      handle.title = 'ドラッグ、または Option＋矢印キーで移動（クリックで開く）';
+      handle.title = 'ドラッグで移動（クリックで開く）';
     }
   });
 
