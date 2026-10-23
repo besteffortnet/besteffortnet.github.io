@@ -5,16 +5,47 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="besteffortnet が開発・運用するWebUIアプリ一覧">
   <title>WebUIアプリ一覧 | besteffortnet</title>
+  <script>
+    (function () {
+      var saved = 'light';
+      try {
+        saved = localStorage.getItem('webui.theme') || 'light';
+      } catch (e) {}
+      var theme = saved === 'system'
+        ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+        : saved;
+      document.documentElement.dataset.theme = theme;
+    })();
+  </script>
   <style>
-    :root {
+    :root, :root[data-theme="light"] {
+      color-scheme: light;
+      --bg: #f3f1ec;
+      --paper: #ffffff;
+      --panel-header: #f5f3ec;
+      --hover: #f5faf8;
+      --ink: #2b2e31;
+      --desc-ink: #2b2e31;
+      --muted: #4a4f53;
+      --line: #aaa79e;
+      --accent: #0a6b61;
+      --shadow: 0 16px 40px rgba(43, 46, 49, .08);
+      --outline: #8ccbc2;
+    }
+
+    :root[data-theme="dark"] {
       color-scheme: dark;
-      --ink: #edf2ff;
-      --muted: #9daac4;
-      --line: #2b3852;
-      --surface: #151d2d;
-      --accent: #8eafff;
-      --accent-soft: #1d2b4c;
-      --background: #0b1120;
+      --bg: #2a2d30;
+      --paper: #222426;
+      --panel-header: #1a1c1d;
+      --hover: #2f3336;
+      --ink: #c4c6c1;
+      --desc-ink: #c4c6c1;
+      --muted: #a3a7a2;
+      --line: #5f6367;
+      --accent: #74bda9;
+      --shadow: 0 16px 40px rgba(0, 0, 0, .35);
+      --outline: #74bda9;
     }
 
     * { box-sizing: border-box; }
@@ -22,14 +53,23 @@
     body {
       margin: 0;
       color: var(--ink);
-      background: var(--background);
+      background: var(--bg);
       font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
       line-height: 1.65;
+      transition: background-color .15s ease, color .15s ease;
     }
 
-    main { max-width: 1180px; margin: 0 auto; padding: 56px 24px 72px; }
+    main { max-width: 1180px; margin: 0 auto; padding: 48px 24px 72px; }
 
     header { margin-bottom: 28px; }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 4px;
+    }
 
     .eyebrow {
       color: var(--accent);
@@ -39,27 +79,54 @@
       text-transform: uppercase;
     }
 
+    .theme-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .theme-switch select {
+      font: inherit;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 6px 10px;
+      background: var(--paper);
+      color: var(--ink);
+      cursor: pointer;
+      height: 36px;
+      transition: border-color .15s ease;
+    }
+
+    .theme-switch select:focus-visible,
+    a:focus-visible {
+      outline: 3px solid var(--outline);
+      outline-offset: 2px;
+    }
+
     h1 { margin: 8px 0 10px; font-size: clamp(2rem, 4vw, 3.25rem); line-height: 1.15; }
     .intro { max-width: 720px; margin: 0; color: var(--muted); }
 
     .panel {
       overflow: hidden;
-      background: var(--surface);
+      background: var(--paper);
       border: 1px solid var(--line);
       border-radius: 18px;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, .28);
+      box-shadow: var(--shadow);
     }
 
     .table-wrap { overflow-x: auto; }
     table { width: 100%; min-width: 820px; border-collapse: collapse; }
     th, td { padding: 18px 20px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
-    th { color: var(--muted); background: #11192a; font-size: .82rem; font-weight: 700; white-space: nowrap; }
+    th { color: var(--muted); background: var(--panel-header); font-size: .82rem; font-weight: 700; white-space: nowrap; }
     tbody tr:last-child td { border-bottom: 0; }
-    tbody tr:hover { background: #1a263c; }
+    tbody tr:hover { background: var(--hover); }
     td:first-child { width: 56px; color: var(--muted); font-variant-numeric: tabular-nums; }
     td:nth-child(2) { min-width: 240px; font-weight: 700; }
     td:nth-child(3) { min-width: 240px; }
-    td:last-child { color: #c0cbe0; }
+    td:last-child { color: var(--desc-ink); }
 
     a { color: var(--accent); text-decoration: none; }
     a:hover, a:focus-visible { text-decoration: underline; }
@@ -70,15 +137,25 @@
     footer { margin-top: 18px; color: var(--muted); font-size: .88rem; }
 
     @media (max-width: 640px) {
-      main { padding: 36px 14px 48px; }
+      main { padding: 32px 14px 48px; }
       th, td { padding: 14px 12px; }
+      .header-top { flex-wrap: wrap; }
     }
   </style>
 </head>
 <body>
   <main>
     <header>
-      <div class="eyebrow">Web applications</div>
+      <div class="header-top">
+        <div class="eyebrow">Web applications</div>
+        <label class="theme-switch">テーマ
+          <select id="theme" aria-label="画面のテーマ">
+            <option value="system">端末設定</option>
+            <option value="light" selected>ライト（やわらかい明るい配色）</option>
+            <option value="dark">ダーク（やわらかい暗い配色）</option>
+          </select>
+        </label>
+      </div>
       <h1>WebUIアプリ一覧</h1>
       <p class="intro">besteffortnet が開発・運用するWebUIアプリのサービス提供先とGitHubリポジトリをまとめています。</p>
     </header>
@@ -178,7 +255,35 @@
       </div>
     </section>
 
-    <footer>最終更新: 2026-10-19</footer>
+    <footer>最終更新: 2026-10-23</footer>
   </main>
+  <script>
+    (function () {
+      const select = document.getElementById('theme');
+      const media = window.matchMedia('(prefers-color-scheme: dark)');
+
+      function applyTheme() {
+        const value = select.value;
+        const effective = value === 'system' ? (media.matches ? 'dark' : 'light') : value;
+        document.documentElement.dataset.theme = effective;
+        try {
+          localStorage.setItem('webui.theme', value);
+        } catch (e) {}
+      }
+
+      let saved = 'light';
+      try {
+        saved = localStorage.getItem('webui.theme') || 'light';
+      } catch (e) {}
+      if (['system', 'light', 'dark'].includes(saved)) {
+        select.value = saved;
+      }
+      select.addEventListener('change', applyTheme);
+      media.addEventListener('change', function () {
+        if (select.value === 'system') applyTheme();
+      });
+      applyTheme();
+    })();
+  </script>
 </body>
 </html>
