@@ -7,13 +7,14 @@
   <title>WebUIアプリ一覧 | besteffortnet</title>
   <script>
     (function () {
-      var saved = 'light';
+      var saved = null;
       try {
-        saved = localStorage.getItem('webui.theme') || 'light';
+        saved = localStorage.getItem('webui.theme');
       } catch (e) {}
-      var theme = saved === 'system'
-        ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-        : saved;
+      var theme = saved;
+      if (!theme || (theme !== 'light' && theme !== 'dark')) {
+        theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
       document.documentElement.dataset.theme = theme;
     })();
   </script>
@@ -79,32 +80,46 @@
       text-transform: uppercase;
     }
 
-    .theme-switch {
+    .theme-toggle {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--muted);
-    }
-
-    .theme-switch select {
-      font: inherit;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      padding: 0;
       border: 1px solid var(--line);
-      border-radius: 7px;
-      padding: 6px 10px;
+      border-radius: 8px;
       background: var(--paper);
-      color: var(--ink);
+      color: var(--accent);
       cursor: pointer;
-      height: 36px;
-      transition: border-color .15s ease;
+      transition: background-color .15s ease, border-color .15s ease, color .15s ease, transform .1s ease;
     }
 
-    .theme-switch select:focus-visible,
+    .theme-toggle:hover {
+      background: var(--hover);
+      border-color: var(--accent);
+    }
+
+    .theme-toggle:active {
+      transform: scale(0.95);
+    }
+
+    .theme-toggle:focus-visible,
     a:focus-visible {
       outline: 3px solid var(--outline);
       outline-offset: 2px;
     }
+
+    .theme-toggle svg {
+      display: block;
+      pointer-events: none;
+    }
+
+    :root[data-theme="light"] .theme-toggle .icon-sun { display: none; }
+    :root[data-theme="light"] .theme-toggle .icon-moon { display: block; }
+
+    :root[data-theme="dark"] .theme-toggle .icon-sun { display: block; }
+    :root[data-theme="dark"] .theme-toggle .icon-moon { display: none; }
 
     h1 { margin: 8px 0 10px; font-size: clamp(2rem, 4vw, 3.25rem); line-height: 1.15; }
     .intro { max-width: 720px; margin: 0; color: var(--muted); }
@@ -139,7 +154,6 @@
     @media (max-width: 640px) {
       main { padding: 32px 14px 48px; }
       th, td { padding: 14px 12px; }
-      .header-top { flex-wrap: wrap; }
     }
   </style>
 </head>
@@ -148,13 +162,15 @@
     <header>
       <div class="header-top">
         <div class="eyebrow">Web applications</div>
-        <label class="theme-switch">テーマ
-          <select id="theme" aria-label="画面のテーマ">
-            <option value="system">端末設定</option>
-            <option value="light" selected>ライト（やわらかい明るい配色）</option>
-            <option value="dark">ダーク（やわらかい暗い配色）</option>
-          </select>
-        </label>
+        <button type="button" id="theme-toggle" class="theme-toggle" aria-label="ダークモードに切り替え" title="ダークモードに切り替え">
+          <svg class="icon-sun" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+          </svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+          </svg>
+        </button>
       </div>
       <h1>WebUIアプリ一覧</h1>
       <p class="intro">besteffortnet が開発・運用するWebUIアプリのサービス提供先とGitHubリポジトリをまとめています。</p>
@@ -259,30 +275,51 @@
   </main>
   <script>
     (function () {
-      const select = document.getElementById('theme');
+      const toggle = document.getElementById('theme-toggle');
       const media = window.matchMedia('(prefers-color-scheme: dark)');
 
-      function applyTheme() {
-        const value = select.value;
-        const effective = value === 'system' ? (media.matches ? 'dark' : 'light') : value;
-        document.documentElement.dataset.theme = effective;
+      function updateAria(theme) {
+        if (!toggle) return;
+        const isDark = theme === 'dark';
+        const label = isDark ? 'ライトモードに切り替え' : 'ダークモードに切り替え';
+        toggle.setAttribute('aria-label', label);
+        toggle.setAttribute('title', label);
+      }
+
+      function applyTheme(theme) {
+        document.documentElement.dataset.theme = theme;
+        updateAria(theme);
         try {
-          localStorage.setItem('webui.theme', value);
+          localStorage.setItem('webui.theme', theme);
         } catch (e) {}
       }
 
-      let saved = 'light';
+      let saved = null;
       try {
-        saved = localStorage.getItem('webui.theme') || 'light';
+        saved = localStorage.getItem('webui.theme');
       } catch (e) {}
-      if (['system', 'light', 'dark'].includes(saved)) {
-        select.value = saved;
+
+      let initial = saved;
+      if (!initial || (initial !== 'light' && initial !== 'dark')) {
+        initial = media.matches ? 'dark' : 'light';
       }
-      select.addEventListener('change', applyTheme);
-      media.addEventListener('change', function () {
-        if (select.value === 'system') applyTheme();
+      applyTheme(initial);
+
+      if (toggle) {
+        toggle.addEventListener('click', function () {
+          const current = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+          const next = current === 'dark' ? 'light' : 'dark';
+          applyTheme(next);
+        });
+      }
+
+      media.addEventListener('change', function (e) {
+        try {
+          if (!localStorage.getItem('webui.theme')) {
+            applyTheme(e.matches ? 'dark' : 'light');
+          }
+        } catch (_) {}
       });
-      applyTheme();
     })();
   </script>
 </body>
