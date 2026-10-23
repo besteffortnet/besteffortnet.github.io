@@ -155,6 +155,16 @@
       main { padding: 32px 14px 48px; }
       th, td { padding: 14px 12px; }
     }
+  
+    .order-tools { display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin:16px 0; }
+    .order-tools p { margin:0; color:var(--muted); font-size:.85rem; }
+    .row-handle, #reset-order { font:inherit; color:var(--ink); background:var(--paper); border:1px solid var(--line); border-radius:8px; padding:6px 10px; cursor:pointer; }
+    .row-handle { display:block; min-width:36px; min-height:36px; font-size:22px; cursor:grab; touch-action:none; margin-top:6px; }
+    .row-handle:focus-visible, #reset-order:focus-visible { outline:3px solid var(--outline); outline-offset:2px; }
+    #reset-order:disabled { opacity:.5; cursor:default; }
+    .row-dragging { outline:2px solid var(--accent); outline-offset:-2px; background:var(--hover); }
+    .ordering, .ordering * { cursor:grabbing!important; user-select:none; }
+    #order-status { min-height:1.5em; color:var(--muted); font-size:.85rem; }
   </style>
 </head>
 <body>
@@ -176,6 +186,8 @@
       <p class="intro">besteffortnet が開発・運用するWebUIアプリのサービス提供先とGitHubリポジトリをまとめています。</p>
     </header>
 
+    <div class="order-tools"><p id="order-help">左の⠿を上下にドラッグして並べ替え。キーボードは⠿にフォーカスして Alt＋↑／↓。順序はこのブラウザに保存します。</p><button type="button" id="reset-order">初期順に戻す</button></div>
+    <p id="order-status" role="status" aria-live="polite"></p>
     <section class="panel" aria-label="WebUIアプリ一覧">
       <div class="table-wrap">
         <table>
@@ -322,5 +334,6 @@
       });
     })();
   </script>
+<script src="row-order.js?v=1"></script>
 </body>
 </html>
