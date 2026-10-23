@@ -118,63 +118,71 @@
   }
 
   // プレースホルダーの挿入位置更新とFLIPアニメーション
-  function updatePlaceholder(x, y) {
+  function updatePlaceholder(clientX, clientY) {
     if (!drag || !drag.placeholder) return;
-    const currentRows = rows();
-    if (currentRows.length === 0) return;
 
-    let closest = null;
+    const bodyRect = body.getBoundingClientRect();
+    const mx = clientX - bodyRect.left;
+    const my = clientY - bodyRect.top;
+
+    // グリッド内の全要素（プレースホルダーを含む、ドラッグ中のfixed行は除く）
+    const gridItems = Array.from(body.children).filter(r => r !== drag.row);
+    if (gridItems.length <= 1) return;
+
+    const pIndex = gridItems.indexOf(drag.placeholder);
+    if (pIndex === -1) return;
+
+    // 各要素の静的中心座標（offsetLeft/offsetTop は CSS transform の影響を受けない）
+    let closestItem = null;
     let minDistance = Infinity;
 
-    currentRows.forEach(r => {
-      const box = r.getBoundingClientRect();
-      const cx = box.left + box.width / 2;
-      const cy = box.top + box.height / 2;
-      const dist = Math.hypot(x - cx, y - cy);
+    gridItems.forEach((r, idx) => {
+      const cx = r.offsetLeft + r.offsetWidth / 2;
+      const cy = r.offsetTop + r.offsetHeight / 2;
+      let dist = Math.hypot(mx - cx, my - cy);
+
+      // 現在のプレースホルダー位置に吸着バイアス（ヒステリシス）を付与
+      // 別のカードの中心に明確に近づくまで、現在の位置をキープする
+      if (idx === pIndex) {
+        dist *= 0.65; // 35%の吸着バイアスでチャタリング・ちらつきを完全防止
+      }
+
       if (dist < minDistance) {
         minDistance = dist;
-        closest = { row: r, box, cx, cy };
+        closestItem = r;
       }
     });
 
-    if (!closest) return;
-
-    const gridChildren = Array.from(body.children).filter(r => r !== drag.row);
-    const placeholderIndex = gridChildren.indexOf(drag.placeholder);
-    const targetIndex = gridChildren.indexOf(closest.row);
-    let isAfter = false;
-
-    if (y > closest.box.bottom + 4) {
-      isAfter = true;
-    } else if (y < closest.box.top - 4) {
-      isAfter = false;
-    } else {
-      if (placeholderIndex < targetIndex) {
-        isAfter = x > (closest.box.left + closest.box.width * 0.35);
-      } else {
-        isAfter = x > (closest.box.left + closest.box.width * 0.65);
-      }
+    // 最も近いのが現在のプレースホルダーなら、何もしない（安定静止）
+    if (!closestItem || closestItem === drag.placeholder) {
+      return;
     }
 
-    const nextSibling = isAfter ? closest.row.nextElementSibling : closest.row;
+    const tIndex = gridItems.indexOf(closestItem);
+    // 挿入先の計算:
+    // プレースホルダーより後方の要素に向かって移動したなら、その要素の後ろへ
+    // プレースホルダーより前方の要素に向かって移動したなら、その要素の前へ
+    const nextSibling = (pIndex < tIndex) ? closestItem.nextElementSibling : closestItem;
 
-    // プレースホルダーがすでにその位置にあるならスキップ
+    // すでにその位置にある場合は何もしない
     if (drag.placeholder === nextSibling || drag.placeholder.nextElementSibling === nextSibling) {
       return;
     }
 
-    // FLIP: 移動前の全グリッド要素の位置を記録
+    // FLIP: 移動前の全グリッド要素の画面上Rectを記録
     const firstRects = new Map();
-    gridChildren.forEach(r => {
-      firstRects.set(r, r.getBoundingClientRect());
+    gridItems.forEach(r => {
+      if (r !== drag.placeholder) {
+        firstRects.set(r, r.getBoundingClientRect());
+      }
     });
 
-    // プレースホルダーをDOM移動
+    // DOM 移動
     body.insertBefore(drag.placeholder, nextSibling);
     refresh();
 
-    // 他のカードをスライドアニメーション
-    gridChildren.forEach(r => {
+    // FLIP アニメーション適用（滑らかに退避移動）
+    gridItems.forEach(r => {
       if (r === drag.placeholder) return;
       const first = firstRects.get(r);
       if (!first) return;
@@ -184,8 +192,8 @@
 
       if (dx !== 0 || dy !== 0) {
         r.style.transition = 'none';
-        r.style.transform = `translate(${dx}px, ${dy}px)`;
-        r.offsetHeight; // 強制リフロー
+        r.style.transform = `translate3d(${dx}px, ${dy}px, 0)`;
+        r.offsetHeight; // 強制リフローで初期位置を確定
         r.style.transition = 'transform 0.22s cubic-bezier(0.2, 0, 0, 1)';
         r.style.transform = '';
       }
