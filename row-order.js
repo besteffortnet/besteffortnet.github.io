@@ -354,10 +354,10 @@
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && drag) { e.preventDefault(); finish(true); return; }
     const handle = e.target.closest('.row-handle');
-    if (!handle || !e.altKey || !['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key) || drag) return;
+    if (!handle || !e.altKey || !['ArrowUp', 'ArrowDown'].includes(e.key) || drag) return;
     e.preventDefault();
     const row = handle.closest('tr');
-    const isPrev = e.key === 'ArrowUp' || e.key === 'ArrowLeft';
+    const isPrev = e.key === 'ArrowUp';
     const sibling = isPrev ? row.previousElementSibling : row.nextElementSibling;
     if (!sibling) return;
 
