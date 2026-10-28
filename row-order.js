@@ -11,7 +11,8 @@
   const reset = document.getElementById('reset-order');
   const addSpacer = document.getElementById('add-spacer');
   const rows = () => Array.from(body.rows).filter(r => !r.classList.contains('drag-placeholder') && r.style.position !== 'fixed');
-  let drag = null, suppressClick = false;
+  const maxSpacers = 100;
+  let drag = null, suppressClick = false, invalidSavedOrder = false;
 
   function initAppRow(row) {
     row.classList.add('app-card');
@@ -79,24 +80,38 @@
     if (reset) {
       const current = rows();
       const hasSpacer = current.some(r => r.classList.contains('spacer-slot'));
-      reset.disabled = !hasSpacer && current.every((r, i) => r === original[i]);
+      reset.disabled = !invalidSavedOrder && !hasSpacer && current.every((r, i) => r === original[i]);
     }
   }
 
   function save(message) {
     refresh();
+    if (invalidSavedOrder) {
+      if (status) status.textContent = message + ' 保存済みの順序を保護しています。保存を再開するには初期順に戻してください。';
+      return;
+    }
     try { localStorage.setItem(key, JSON.stringify(rows().map(r => r.dataset.orderId))); }
     catch (_) { message += ' このブラウザでは保存できないため、再読込で元に戻ります。'; }
     if (status) status.textContent = message;
   }
 
   try {
-    const saved = JSON.parse(localStorage.getItem(key));
-    if (Array.isArray(saved)) {
+    const raw = localStorage.getItem(key);
+    const saved = raw === null ? null : JSON.parse(raw);
+    const ids = original.map(r => r.dataset.orderId);
+    const duplicateIds = new Set(ids).size !== ids.length || ids.some(id => !id);
+    const invalidList = saved !== null && (!Array.isArray(saved) ||
+      saved.some(id => typeof id !== 'string') ||
+      saved.filter(id => id.startsWith('spacer:')).length > maxSpacers ||
+      new Set(saved).size !== saved.length);
+    if (duplicateIds || invalidList) {
+      invalidSavedOrder = true;
+      if (status) status.textContent = '保存順を安全に復元できないため初期順で表示しています。保存データは保持しています。';
+    } else if (saved) {
       const remaining = new Map(original.map(r => [r.dataset.orderId, r]));
       body.replaceChildren();
       for (const id of saved) {
-        if (typeof id === 'string' && id.startsWith('spacer:')) {
+        if (id.startsWith('spacer:')) {
           body.append(createSpacerRow(id));
         } else if (remaining.has(id)) {
           body.append(remaining.get(id));
@@ -105,7 +120,10 @@
       }
       remaining.forEach(r => body.append(r));
     }
-  } catch (_) { /* 壊れた保存値は初期順へ戻す。 */ }
+  } catch (_) {
+    invalidSavedOrder = true;
+    if (status) status.textContent = '保存順を読み取れないため初期順で表示しています。保存データは保持しています。';
+  }
   refresh();
 
   function cleanupTransforms() {
@@ -382,6 +400,10 @@
   // 隙間のマスを追加するボタン
   if (addSpacer) {
     addSpacer.addEventListener('click', () => {
+      if (rows().filter(r => r.classList.contains('spacer-slot')).length >= maxSpacers) {
+        if (status) status.textContent = '隙間は100個まで追加できます。';
+        return;
+      }
       const spacer = createSpacerRow();
       body.append(spacer);
       refresh();
@@ -395,6 +417,8 @@
       finish(true);
       body.replaceChildren();
       original.forEach(r => body.append(r));
+      const ids = original.map(r => r.dataset.orderId);
+      invalidSavedOrder = ids.some(id => !id) || new Set(ids).size !== ids.length;
       save('初期順に戻しました。');
     });
   }
