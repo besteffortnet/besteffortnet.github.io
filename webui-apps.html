@@ -133,6 +133,9 @@
 
     h1 { margin: 6px 0 8px; font-size: clamp(1.6rem, 3.2vw, 2.4rem); line-height: 1.15; }
     .intro { max-width: 640px; margin: 0; color: var(--muted); font-size: .9rem; }
+    .featured-app { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; padding: 7px 12px; color: var(--accent); background: var(--paper); border: 1px solid var(--line); border-radius: 8px; font-size: .9rem; font-weight: 700; text-decoration: none; }
+    .featured-app:hover { background: var(--hover); border-color: var(--accent); }
+    .featured-app:focus-visible { outline: 3px solid var(--outline); outline-offset: 2px; }
 
     .panel {
       overflow: visible;
@@ -502,6 +505,7 @@
       </div>
       <h1>WebUIアプリ一覧</h1>
       <p class="intro">besteffortnet が開発・運用するWebUIアプリのサービス提供先とGitHubリポジトリをまとめています。</p>
+      <a class="featured-app" href="https://192.168.68.221:8013/" target="_blank" rel="noopener">Webアプリ共通化 ↗</a>
     </header>
 
     <div class="order-tools">
