@@ -100,7 +100,7 @@
     const saved = raw === null ? null : JSON.parse(raw);
     const ids = original.map(r => r.dataset.orderId);
     const duplicateIds = new Set(ids).size !== ids.length || ids.some(id => !id);
-    const invalidList = saved !== null && (!Array.isArray(saved) ||
+    const invalidList = raw !== null && (!Array.isArray(saved) ||
       saved.some(id => typeof id !== 'string') ||
       saved.filter(id => id.startsWith('spacer:')).length > maxSpacers ||
       new Set(saved).size !== saved.length);
