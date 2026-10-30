@@ -2,6 +2,18 @@
   "schema": 1,
   "versions": [
     {
+      "version": "2026.10.30.2",
+      "ref": "webui-apps-v2026.10.30.2",
+      "timestamp": "2026-10-30T20:11+09:00",
+      "actor": "Codex",
+      "summary": "一覧を広い画面では3列、スマートフォンなどの狭い画面では2列に変更。カード内の文字の折り返しも調整。",
+      "files": [
+        "webui-apps.html",
+        "webui-release-history.json",
+        "webui-releases.js"
+      ]
+    },
+    {
       "version": "2026.10.30.1",
       "ref": "webui-apps-v2026.10.30.1",
       "timestamp": "2026-10-30T10:20+09:00",

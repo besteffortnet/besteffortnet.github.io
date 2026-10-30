@@ -11,7 +11,7 @@
       const data=await response.json();if(data.schema!==1||!Array.isArray(data.versions))throw new Error('履歴形式が不正です');
       const fragment=document.createDocumentFragment();
       for(const version of data.versions){
-        if(typeof version.version!=='string'||!(/^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/.test(version.version))||typeof version.ref!=='string'||!(/^[0-9a-f]{40}$/.test(version.ref)||version.ref==='webui-apps-v2026.10.30.1')||typeof version.summary!=='string'||typeof version.actor!=='string')throw new Error('履歴に不正な項目があります');
+        if(typeof version.version!=='string'||!(/^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/.test(version.version))||typeof version.ref!=='string'||!(/^[0-9a-f]{40}$/.test(version.ref)||/^webui-apps-v[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.[0-9]+$/.test(version.ref))||typeof version.summary!=='string'||typeof version.actor!=='string')throw new Error('履歴に不正な項目があります');
         const date=new Date(version.timestamp);if(Number.isNaN(date.getTime()))throw new Error('履歴の日時が不正です');
         const li=el('li'),heading=el('h2','版 '+version.version),meta=el('p');
         const time=el('time',new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(date));time.dateTime=version.timestamp;meta.append(time,document.createTextNode(' · 担当：'+version.actor));
