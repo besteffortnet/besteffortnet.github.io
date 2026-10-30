@@ -1,0 +1,470 @@
+{
+  "schema": 1,
+  "versions": [
+    {
+      "version": "2026.10.30.1",
+      "ref": "webui-apps-v2026.10.30.1",
+      "timestamp": "2026-10-30T10:20+09:00",
+      "actor": "Codex",
+      "summary": "トップの版番号、降順の履歴と、復元用ブランチの準備手順を追加。",
+      "files": [
+        "webui-apps.html",
+        "webui-releases.html",
+        "webui-release-history.json",
+        "tools/prepare-webui-restore.py"
+      ]
+    },
+    {
+      "version": "e0db8fd49f61",
+      "ref": "e0db8fd49f61fee75c2421bac804dd4051b89a7a",
+      "timestamp": "2026-10-30T09:17:52+09:00",
+      "actor": "Codex",
+      "summary": "Keep theme switch in sticky header",
+      "files": [
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "2b5ce07867ba",
+      "ref": "2b5ce07867ba9931b5add9caae86ddb7ccb26dd8",
+      "timestamp": "2026-10-29T16:52:01+09:00",
+      "actor": "Codex",
+      "summary": "Preserve invalid null row order data",
+      "files": [
+        "row-order.js",
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "023b3565dd55",
+      "ref": "023b3565dd559b46a39104f68d37fd51e93bf774",
+      "timestamp": "2026-10-29T03:54:30+09:00",
+      "actor": "未記録",
+      "summary": "Preserve browser history shortcuts in app ordering",
+      "files": [
+        "row-order.js",
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "11219d61b5ee",
+      "ref": "11219d61b5ee2c302f54318cceb5b72050c5e135",
+      "timestamp": "2026-10-29T03:49:25+09:00",
+      "actor": "未記録",
+      "summary": "Preserve app rows when saved order is invalid",
+      "files": [
+        "row-order.js",
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "db8079c6c604",
+      "ref": "db8079c6c604ee50c48dbc2e62b6b540ddb9341b",
+      "timestamp": "2026-10-28T17:46:42+09:00",
+      "actor": "未記録",
+      "summary": "Make Web app commonization accessible at top",
+      "files": [
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "bcce37903cf2",
+      "ref": "bcce37903cf20b148fd4462864dfe33cbc7cf763",
+      "timestamp": "2026-10-28T16:20:47+09:00",
+      "actor": "未記録",
+      "summary": "Refresh Web app commonization listing",
+      "files": [
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "4a803df501b9",
+      "ref": "4a803df501b97c46f48f488a7b3927140ef96db9",
+      "timestamp": "2026-10-28T12:09:30+09:00",
+      "actor": "未記録",
+      "summary": "Rename LAN transfer listing",
+      "files": [
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "dae69b737a71",
+      "ref": "dae69b737a71c4cfe79d3f2557b3594b4793b41b",
+      "timestamp": "2026-10-28T12:08:28+09:00",
+      "actor": "未記録",
+      "summary": "List LAN Direct Transfer MVP",
+      "files": [
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "e57bd52b5653",
+      "ref": "e57bd52b5653f282ef30537e101f862851483513",
+      "timestamp": "2026-10-26T19:54:25+09:00",
+      "actor": "未記録",
+      "summary": "Add summary visibility switch for AI Activity",
+      "files": [
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "ff4a155ddca7",
+      "ref": "ff4a155ddca7624b5ccfb0f1636d6361438d517d",
+      "timestamp": "2026-10-26T18:59:53+09:00",
+      "actor": "未記録",
+      "summary": "Add AI Activity dashboard to WebUI apps",
+      "files": [
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "f9f91e09fb17",
+      "ref": "f9f91e09fb17316a76120b45520bc6f216068849",
+      "timestamp": "2026-10-25T18:22:21+09:00",
+      "actor": "未記録",
+      "summary": "Describe Common UI site adoption diagnostics v0.3.0",
+      "files": [
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "573933b1ae51",
+      "ref": "573933b1ae51c668c35c800001f438baca2c3759",
+      "timestamp": "2026-10-25T18:21:15+09:00",
+      "actor": "未記録",
+      "summary": "Describe Comic Shelf mobile reading and display improvements",
+      "files": [
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "a3e138f559d1",
+      "ref": "a3e138f559d1d173cc16470528cc0398407728ad",
+      "timestamp": "2026-10-25T17:13:23+09:00",
+      "actor": "未記録",
+      "summary": "Update Common UI catalog to v0.2.0 with 50 improvements",
+      "files": [
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "973dd0d58cca",
+      "ref": "973dd0d58cca20325ea90fb609017633eef4a4d9",
+      "timestamp": "2026-10-25T16:44:24+09:00",
+      "actor": "未記録",
+      "summary": "List Comic Shelf multiple rename rules",
+      "files": [
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "f73b6dc935f4",
+      "ref": "f73b6dc935f4036647dcd28d23c55a26b279b592",
+      "timestamp": "2026-10-25T16:32:04+09:00",
+      "actor": "未記録",
+      "summary": "Update Common UI theme baseline and version",
+      "files": [
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "e98cb0634d30",
+      "ref": "e98cb0634d30c812a852c4fac2d9966159cab2a6",
+      "timestamp": "2026-10-25T12:39:59+09:00",
+      "actor": "未記録",
+      "summary": "Describe Comic Shelf bulk name replacement",
+      "files": [
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "991be92a47c9",
+      "ref": "991be92a47c9bd35b7890b3bb0a9c9e0bc5648b5",
+      "timestamp": "2026-10-25T09:38:00+09:00",
+      "actor": "未記録",
+      "summary": "List Comic Shelf in WebUI applications",
+      "files": [
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "88589807d2b9",
+      "ref": "88589807d2b9be41aa04ff8575aab3367be3bce7",
+      "timestamp": "2026-10-24T21:18:12+09:00",
+      "actor": "未記録",
+      "summary": "Update Common UI catalog version to 0.1.1",
+      "files": [
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "d717ca2ce527",
+      "ref": "d717ca2ce527bccfe1849a1811ce97b9832c2145",
+      "timestamp": "2026-10-24T19:06:04+09:00",
+      "actor": "未記録",
+      "summary": "List Webアプリ共通化 on reserved HTTPS port 8013",
+      "files": [
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "ec76d42e7a65",
+      "ref": "ec76d42e7a650b0e840cdefec9b58226390fed80",
+      "timestamp": "2026-10-23T17:36:54+09:00",
+      "actor": "未記録",
+      "summary": "Fix target object jitter: use static layout offsets and placeholder attraction bias to eliminate chattering",
+      "files": [
+        "row-order.js",
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "7e861f3a7bdb",
+      "ref": "7e861f3a7bdbdf546aa258687e0c0e4396d81fb2",
+      "timestamp": "2026-10-23T17:15:50+09:00",
+      "actor": "未記録",
+      "summary": "Fix floating drag: use position:fixed to completely prevent snap-jump/offset displacement during drag",
+      "files": [
+        "row-order.js",
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "bdb01799057c",
+      "ref": "bdb01799057cdea19efebb56216f3cdb9de55574",
+      "timestamp": "2026-10-23T16:52:57+09:00",
+      "actor": "未記録",
+      "summary": "Implement real-time floating drag following mouse cursor with landing placeholder and FLIP avoidance animation",
+      "files": [
+        "row-order.js",
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "588c8af838d1",
+      "ref": "588c8af838d1cb520e775a635b8492a975ce42cc",
+      "timestamp": "2026-10-23T16:47:09+09:00",
+      "actor": "未記録",
+      "summary": "Add smooth FLIP reorder animations showing displaced objects sliding into place",
+      "files": [
+        "row-order.js",
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "60b02aed0cf9",
+      "ref": "60b02aed0cf96f86b41650e7bbe87780740d7200",
+      "timestamp": "2026-10-23T16:28:17+09:00",
+      "actor": "未記録",
+      "summary": "Narrow layout width (720px) and add draggable small spacer slots between objects",
+      "files": [
+        "row-order.js",
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "15388397ac5e",
+      "ref": "15388397ac5eec98c6bcfd088e1d0394adf100af",
+      "timestamp": "2026-10-23T16:23:32+09:00",
+      "actor": "未記録",
+      "summary": "Remove keyboard shortcut note from help text",
+      "files": [
+        "row-order.js",
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "afcc52bb3831",
+      "ref": "afcc52bb38312a4ca42e785cebb0f84a8a98e4b6",
+      "timestamp": "2026-10-23T16:12:58+09:00",
+      "actor": "未記録",
+      "summary": "Layout: compact 2-column grid, toggle switch for description (hidden by default), trimmed app names",
+      "files": [
+        "row-order.js",
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "8dd4b7be565c",
+      "ref": "8dd4b7be565c97a6bfd530b7767d4dbce070299b",
+      "timestamp": "2026-10-23T16:02:05+09:00",
+      "actor": "未記録",
+      "summary": "Add embossed container with grip indicator for app names to show draggable handle clearly",
+      "files": [
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "173ce5ed62a8",
+      "ref": "173ce5ed62a82ca27054522a01ed5bd65e588b6b",
+      "timestamp": "2026-10-23T15:57:10+09:00",
+      "actor": "未記録",
+      "summary": "Use service name as drag handle and update keyboard shortcut guide for Mac (Option+Arrow)",
+      "files": [
+        "row-order.js",
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "94124b77bef8",
+      "ref": "94124b77bef86a5787d2ad7fdf6ec14ea0a57f78",
+      "timestamp": "2026-10-23T15:34:16+09:00",
+      "actor": "未記録",
+      "summary": "Clean up row ordering markup whitespace",
+      "files": [
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "d3363145fc4c",
+      "ref": "d3363145fc4c4f95ff78e773f6defb6de2fa1dad",
+      "timestamp": "2026-10-23T15:16:44+09:00",
+      "actor": "未記録",
+      "summary": "一覧のドラッグ並べ替えとブラウザ内の順序保存を追加",
+      "files": [
+        "row-order.js",
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "c0954f1bafbb",
+      "ref": "c0954f1bafbb99159d2442a032af777ce199f755",
+      "timestamp": "2026-10-23T14:50:04+09:00",
+      "actor": "未記録",
+      "summary": "Use compact icon toggle button for light/dark theme switch",
+      "files": [
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "8ba251b95ec5",
+      "ref": "8ba251b95ec544e17420a2454197ed1f5dcaf0eb",
+      "timestamp": "2026-10-23T14:46:54+09:00",
+      "actor": "未記録",
+      "summary": "Add light/dark mode theme switch matching 8010 palette",
+      "files": [
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "fd01beb4c1aa",
+      "ref": "fd01beb4c1aab75f1bba1132e1ed93fb7026e2fc",
+      "timestamp": "2026-10-21T06:07:01+09:00",
+      "actor": "未記録",
+      "summary": "Open vr-video-manager sorted by created date, newest first",
+      "files": [
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "378e5a81bba8",
+      "ref": "378e5a81bba8f46042f6057772c36cf5a4050694",
+      "timestamp": "2026-10-19T13:04:00+09:00",
+      "actor": "未記録",
+      "summary": "Add Photo Editing to public WebUI directory",
+      "files": [
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "33f4ddab8c1c",
+      "ref": "33f4ddab8c1cb7310db0daeace629a27a522f3fb",
+      "timestamp": "2026-10-19T09:43:32+09:00",
+      "actor": "未記録",
+      "summary": "List E資格 Practice as WebUI app number 2",
+      "files": [
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "d7506c9742a5",
+      "ref": "d7506c9742a5a8f1557a39d9c8f00bcc529ddcd0",
+      "timestamp": "2026-10-17T18:13:14+09:00",
+      "actor": "未記録",
+      "summary": "Link TOEIC app to private webtest repository and AI handoff docs",
+      "files": [
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "7149161a092b",
+      "ref": "7149161a092b0998fe7ee4ddbd6791ea30118289",
+      "timestamp": "2026-10-15T15:28:49+09:00",
+      "actor": "未記録",
+      "summary": "Rename TOEIC link and move it to first position",
+      "files": [
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "514fb72c84eb",
+      "ref": "514fb72c84eb56936822a440a40eaf5ae3e34b04",
+      "timestamp": "2026-10-13T19:26:58+09:00",
+      "actor": "未記録",
+      "summary": "Update TOEIC Study question total to 600",
+      "files": [
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "dcc1549d0f37",
+      "ref": "dcc1549d0f372e0c91301c300d3111acd8262290",
+      "timestamp": "2026-10-13T18:31:08+09:00",
+      "actor": "未記録",
+      "summary": "Link running TOEIC Study HTTPS service",
+      "files": [
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "06f8550f5055",
+      "ref": "06f8550f50551156eb1f848fb7854515360b951c",
+      "timestamp": "2026-10-13T17:27:47+09:00",
+      "actor": "未記録",
+      "summary": "List TOEIC Part 5 study site as preparing on LAN 221:8009",
+      "files": [
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "cb709eaba47e",
+      "ref": "cb709eaba47e720e7d6efdfcd5cca8a183c367a4",
+      "timestamp": "2026-10-09T13:16:17+09:00",
+      "actor": "未記録",
+      "summary": "Add uekiakio.com to WebUI apps list",
+      "files": [
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "df76046c6c7f",
+      "ref": "df76046c6c7f4805022157a0c5a2ea65725945ab",
+      "timestamp": "2026-10-07T20:01:55+09:00",
+      "actor": "未記録",
+      "summary": "docs: update Fireworks Dify target and mark migration pending",
+      "files": [
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "16c1fd8d5540",
+      "ref": "16c1fd8d55403e0124b3e73a8b5d3a814c1bc940",
+      "timestamp": "2026-10-07T17:01:18+09:00",
+      "actor": "未記録",
+      "summary": "Update BSMapGen link to 192.168.68.221:8007",
+      "files": [
+        "webui-apps.html"
+      ]
+    },
+    {
+      "version": "23ad1349d199",
+      "ref": "23ad1349d199abd9b2a837ebc524f639a9137670",
+      "timestamp": "2026-10-07T13:34:11+09:00",
+      "actor": "未記録",
+      "summary": "Publish WebUI apps directory on GitHub Pages",
+      "files": [
+        "webui-apps.html"
+      ]
+    }
+  ]
+}
