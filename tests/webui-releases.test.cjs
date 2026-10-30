@@ -16,3 +16,7 @@ setImmediate(()=>{
  const command=first.children.at(-1).children.find(x=>x.tag==='code').textContent;assert.match(command,/--repo \. --worktree-path \.+\/webui-restore-2026\.10\.30\.1 --branch restore\/webui-2026\.10\.30\.1/);
  console.log('history render, order and theme checks passed');
 });
+const invalidStatus=new Node('status'), invalidList=new Node('ol'), invalidButton=new Node('button'), invalidRoot=new Node('root');invalidRoot.dataset.theme='light';
+const invalidDoc={documentElement:invalidRoot,getElementById:id=>({theme:invalidButton,status:invalidStatus,versions:invalidList})[id],createElement:n=>new Node(n),createDocumentFragment:()=>new Node('fragment'),createTextNode:t=>({textContent:t})};
+vm.runInNewContext(source,{document:invalidDoc,localStorage:{setItem(){}},fetch:async()=>({ok:true,json:async()=>({schema:1,versions:[{...data.versions[0],version:'bad;echo unsafe'}]})}),Intl,Date});
+setImmediate(()=>{assert.match(invalidStatus.textContent,/読み込めません/);assert.equal(invalidList.children.length,0);console.log('invalid version cannot generate a shell command');});
