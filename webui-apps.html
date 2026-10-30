@@ -90,12 +90,23 @@
       text-transform: uppercase;
     }
 
+    .theme-bar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      justify-content: flex-end;
+      padding: max(4px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 4px max(16px, env(safe-area-inset-left));
+      background: var(--bg);
+      border-bottom: 1px solid var(--line);
+    }
+
     .theme-toggle {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 32px;
-      height: 32px;
+      width: 44px;
+      height: 44px;
       padding: 0;
       border: 1px solid var(--line);
       border-radius: 8px;
@@ -489,11 +500,8 @@
   </style>
 </head>
 <body>
-  <main>
-    <header>
-      <div class="header-top">
-        <div class="eyebrow">Web applications</div>
-        <button type="button" id="theme-toggle" class="theme-toggle" aria-label="ダークモードに切り替え" title="ダークモードに切り替え">
+  <nav class="theme-bar" aria-label="表示設定">
+    <button type="button" id="theme-toggle" class="theme-toggle" aria-label="ダークモードに切り替え" title="ダークモードに切り替え">
           <svg class="icon-sun" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
             <circle cx="12" cy="12" r="4"></circle>
             <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
@@ -502,6 +510,12 @@
             <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
           </svg>
         </button>
+  </nav>
+  <main>
+    <header>
+      <div class="header-top">
+        <div class="eyebrow">Web applications</div>
+
       </div>
       <h1>WebUIアプリ一覧</h1>
       <p class="intro">besteffortnet が開発・運用するWebUIアプリのサービス提供先とGitHubリポジトリをまとめています。</p>
