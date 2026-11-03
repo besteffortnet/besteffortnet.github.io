@@ -16,8 +16,12 @@ class ServiceCards(HTMLParser):
         attrs = dict(attrs)
         classes = attrs.get('class', '').split()
         if tag == 'a' and 'service-link' in classes:
-            self.card = {'url': attrs.get('href', ''), 'badges': []}
+            self.card = {'urls': [attrs.get('href', '')], 'badges': []}
             self.cards.append(self.card)
+        elif tag == 'a' and 'alternate-service-link' in classes:
+            if self.card is None:
+                raise ValueError('追加のサービスリンクがアプリのセル外にあります')
+            self.card['urls'].append(attrs.get('href', ''))
         elif tag == 'span' and 'port-badge' in classes and self.card is not None:
             self.badge = {'text': '', 'label': attrs.get('aria-label', ''), 'classes': classes}
             self.card['badges'].append(self.badge)
@@ -40,21 +44,22 @@ class PortBadgesTest(unittest.TestCase):
         self.assertTrue(parser.cards, '一覧にサービスリンクがありません')
         for index, card in enumerate(parser.cards, 1):
             with self.subTest(card=index):
-                url = urlsplit(card['url'])
-                self.assertIn(url.scheme, ('http', 'https'))
-                self.assertTrue(url.hostname)
-                self.assertEqual(len(card['badges']), 1, 'バッジは1件ずつ必要です')
-                badge = card['badges'][0]
-                port = url.port or (443 if url.scheme == 'https' else 80)
-                self.assertEqual(badge['text'].split()[-1], str(port))
-                self.assertIn(str(port), badge['label'])
-                if url.port is None:
-                    self.assertIn('port-badge-standard', badge['classes'])
-                    self.assertIn('標準', badge['label'])
-                    self.assertIn(url.scheme.upper(), badge['text'])
-                else:
-                    self.assertNotIn('port-badge-standard', badge['classes'])
-                    self.assertTrue(badge['text'].startswith('PORT '))
+                self.assertEqual(len(card['badges']), len(card['urls']), '各接続先にバッジが必要です')
+                for raw_url, badge in zip(card['urls'], card['badges']):
+                    with self.subTest(url=raw_url):
+                        url = urlsplit(raw_url)
+                        self.assertIn(url.scheme, ('http', 'https'))
+                        self.assertTrue(url.hostname)
+                        port = url.port or (443 if url.scheme == 'https' else 80)
+                        self.assertEqual(badge['text'].split()[-1], str(port))
+                        self.assertIn(str(port), badge['label'])
+                        if url.port is None:
+                            self.assertIn('port-badge-standard', badge['classes'])
+                            self.assertIn('標準', badge['label'])
+                            self.assertIn(url.scheme.upper(), badge['text'])
+                        else:
+                            self.assertNotIn('port-badge-standard', badge['classes'])
+                            self.assertTrue(badge['text'].startswith('PORT '))
 
 
 if __name__ == '__main__':
