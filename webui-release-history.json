@@ -2,6 +2,21 @@
   "schema": 1,
   "versions": [
     {
+      "version": "2026.11.04.1",
+      "ref": "webui-apps-v2026.11.04.1",
+      "timestamp": "2026-11-04T05:17:30+09:00",
+      "actor": "Codex",
+      "summary": "登録IDが一意に対応するアプリに状態への直接リンクを追加。利用者操作でLANの観測時刻を取得し、古い結果や未確認を区別する。一覧の復元対象に観測時刻用スクリプトを追加。",
+      "files": [
+        "webui-apps.html",
+        "webui-release-history.json",
+        "webui-releases.js",
+        "observation-times.js",
+        "tools/prepare-webui-restore.py",
+        "tests/test_prepare_webui_restore.py"
+      ]
+    },
+    {
       "version": "2026.11.03.5",
       "ref": "webui-apps-v2026.11.03.5",
       "timestamp": "2026-11-03T17:58+09:00",

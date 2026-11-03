@@ -8,12 +8,15 @@ vm.runInNewContext(source,ctx);
 setImmediate(()=>{
  assert.equal(status.textContent,`${data.versions.length}件の履歴`);
  assert.equal(list.children[0].children.length,data.versions.length);
- assert.deepEqual(data.versions.slice(1).map(x=>Date.parse(x.timestamp)),data.versions.slice(1).map(x=>Date.parse(x.timestamp)).sort((a,b)=>b-a));
+ assert.deepEqual(data.versions.map(x=>Date.parse(x.timestamp)),data.versions.map(x=>Date.parse(x.timestamp)).sort((a,b)=>b-a));
  assert(data.versions.every(x=>x.actor&&x.timestamp&&x.ref&&x.summary));
  assert(data.versions.some(x=>x.actor==='未記録'));
  assert.equal(button.attrs['aria-label'],'ダークモードに切り替え');button.click();assert.equal(root.dataset.theme,'dark');assert.equal(stored['webui.theme'],'dark');assert.equal(button.attrs['aria-label'],'ライトモードに切り替え');
- const first=list.children[0].children[0];assert.equal(first.children[0].textContent,'版 '+data.versions[0].version);
- const command=first.children.at(-1).children.find(x=>x.tag==='code').textContent;assert.equal(command,`python3 tools/prepare-webui-restore.py ${data.versions[0].ref} --repo . --worktree-path ../webui-restore-${data.versions[0].version} --branch restore/webui-${data.versions[0].version}`);
+ const first=list.children[0].children[0];
+ assert.equal(first.children[0].textContent,'版 '+data.versions[0].version);
+ const command=first.children.at(-1).children.find(x=>x.tag==='code').textContent;
+ assert.equal(command,`python3 tools/prepare-webui-restore.py ${data.versions[0].ref} --repo . --worktree-path ../webui-restore-${data.versions[0].version} --branch restore/webui-${data.versions[0].version}`);
+ assert.match(first.children.at(-1).children.find(x=>x.tag==='p').textContent,/履歴ページは最新のまま/);
  console.log('history render, order and theme checks passed');
 });
 const invalidStatus=new Node('status'), invalidList=new Node('ol'), invalidButton=new Node('button'), invalidRoot=new Node('root');invalidRoot.dataset.theme='light';

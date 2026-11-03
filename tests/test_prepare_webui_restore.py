@@ -42,8 +42,14 @@ class PrepareWebUIRestoreTests(unittest.TestCase):
         self.v1 = self.commit("version with row order")
         git(self.repo, "tag", "catalog-with-row-order", self.v1)
 
+        (self.repo / "webui-apps.html").write_bytes(b"catalog v2\n")
+        (self.repo / "observation-times.js").write_bytes(b"observation script v2\n")
+        self.v2 = self.commit("version with observation script")
+        git(self.repo, "tag", "catalog-with-observations", self.v2)
+
         (self.repo / "webui-apps.html").write_bytes(b"catalog current\n")
         (self.repo / "row-order.js").write_bytes(b"row order current\n")
+        (self.repo / "observation-times.js").write_bytes(b"observation script current\n")
         (self.repo / "other.txt").write_bytes(b"other current\n")
         self.head = self.commit("current version")
 
@@ -93,7 +99,8 @@ class PrepareWebUIRestoreTests(unittest.TestCase):
         self.assertFalse((worktree / "row-order.js").exists())
         self.assertEqual((worktree / "other.txt").read_bytes(), b"other current\n")
         self.assertEqual(git(worktree, "rev-parse", "HEAD"), self.head)
-        self.assertEqual(set(git(worktree, "diff", "--name-only").splitlines()), {"webui-apps.html", "row-order.js"})
+        self.assertEqual(set(git(worktree, "diff", "--name-only").splitlines()), {"webui-apps.html", "row-order.js", "observation-times.js"})
+        self.assertFalse((worktree / "observation-times.js").exists())
 
         self.assertEqual((self.repo / "webui-apps.html").read_text(), dirty_html)
         self.assertEqual((self.repo / "row-order.js").read_text(), dirty_js)
@@ -115,10 +122,34 @@ class PrepareWebUIRestoreTests(unittest.TestCase):
         self.assertEqual((worktree / "row-order.js").read_bytes(), b"row order v1\n")
         self.assertEqual((worktree / "row-order.js").stat().st_mode & 0o777, 0o755)
         self.assertEqual((worktree / "other.txt").read_bytes(), b"other current\n")
-        self.assertEqual(set(git(worktree, "diff", "--name-only").splitlines()), {"webui-apps.html", "row-order.js"})
+        self.assertEqual(set(git(worktree, "diff", "--name-only").splitlines()), {"webui-apps.html", "row-order.js", "observation-times.js"})
         self.assertEqual(output["target_commit"], self.v1)
-        self.assertTrue(all(item["present"] for item in output["files"]))
+        self.assertEqual({item["path"]: item["present"] for item in output["files"]},
+                         {"webui-apps.html": True, "row-order.js": True, "observation-times.js": False})
         self.assertEqual((self.repo / "webui-apps.html").read_bytes(), b"user dirty catalog\n")
+
+    def test_observation_script_is_restored_with_matching_directory(self) -> None:
+        self.make_original_dirty()
+        worktree = self.root / "restore-v2"
+        result = self.invoke("catalog-with-observations", worktree, "restore/with-observations")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        output = json.loads(result.stdout)
+        self.assertEqual((worktree / "webui-apps.html").read_bytes(), b"catalog v2\n")
+        self.assertEqual((worktree / "observation-times.js").read_bytes(), b"observation script v2\n")
+        self.assertEqual((self.repo / "observation-times.js").read_bytes(), b"observation script current\n")
+        self.assertEqual(output["target_commit"], self.v2)
+        self.assertTrue(all(item["present"] for item in output["files"]))
+        self.assertIn("observation-times.js", output["changed_paths"])
+
+    def test_restored_script_missing_from_base_is_reported_as_a_change(self) -> None:
+        (self.repo / "observation-times.js").unlink()
+        self.commit("later version removed observation script")
+        worktree = self.root / "restore-reintroduced-script"
+        result = self.invoke("catalog-with-observations", worktree, "restore/reintroduced")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        output = json.loads(result.stdout)
+        self.assertEqual((worktree / "observation-times.js").read_bytes(), b"observation script v2\n")
+        self.assertIn("observation-times.js", output["changed_paths"])
 
     def test_invalid_ref_does_not_create_branch_or_worktree(self) -> None:
         worktree = self.root / "invalid-target"
