@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Create an isolated review worktree with two files restored from a commit/tag.
+"""Create an isolated review worktree for a historical application directory.
 
 This prepares a local diff only. It never commits, pushes, merges, or changes the
 caller's current worktree. The new worktree starts at the selected base commit
-(HEAD by default); only webui-apps.html and row-order.js are copied from the
-requested historical commit.
+(HEAD by default); the directory HTML and its ordering and observation scripts
+are restored from the requested historical commit. The release-history page
+and its data remain at the base version so that later releases remain visible.
 """
 
 from __future__ import annotations
@@ -21,7 +22,7 @@ import tempfile
 from pathlib import Path
 
 
-ALLOWED_PATHS = ("webui-apps.html", "row-order.js")
+ALLOWED_PATHS = ("webui-apps.html", "row-order.js", "observation-times.js")
 MAX_FILE_BYTES = 16 * 1024 * 1024
 
 
@@ -133,7 +134,7 @@ def apply_historical_files(repo: Path, worktree: Path, entries: dict[str, tuple[
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Prepare a two-file historical restore diff in a new Git worktree."
+        description="Prepare a historical directory restore diff in a new Git worktree."
     )
     parser.add_argument("ref", help="reachable Git commit SHA or tag")
     parser.add_argument("--repo", type=Path, required=True, help="the webui-apps Git checkout")
@@ -191,13 +192,15 @@ def main(argv: list[str] | None = None) -> int:
         created_worktree = destination
 
         manifest = apply_historical_files(repo, destination, entries)
-        changed = git(destination, "diff", "--name-only", "--", *ALLOWED_PATHS).stdout.decode("utf-8", "strict").splitlines()
         all_changed = git(destination, "status", "--porcelain=v1", "--untracked-files=all").stdout.decode("utf-8", "strict").splitlines()
+        changed = []
         unexpected = []
         for line in all_changed:
             path = line[3:] if len(line) >= 4 else ""
             if path not in ALLOWED_PATHS:
                 unexpected.append(path)
+            else:
+                changed.append(path)
         if unexpected:
             raise RestoreError("new worktree contains an unexpected change; it was preserved for inspection")
 
@@ -213,7 +216,7 @@ def main(argv: list[str] | None = None) -> int:
             "publish_push_merge_performed": False,
             "next_steps": [
                 f"git -C {shlex.quote(str(destination))} status --short",
-                f"git -C {shlex.quote(str(destination))} diff -- {shlex.quote(ALLOWED_PATHS[0])} {shlex.quote(ALLOWED_PATHS[1])}",
+                f"git -C {shlex.quote(str(destination))} diff -- {' '.join(shlex.quote(path) for path in ALLOWED_PATHS)}",
                 "Review the diff and run the repository's checks; then use the repository's normal commit/push/PR workflow.",
             ],
         }

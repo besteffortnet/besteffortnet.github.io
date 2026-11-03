@@ -13,12 +13,12 @@
       for(const version of data.versions){
         if(typeof version.version!=='string'||!(/^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/.test(version.version))||typeof version.ref!=='string'||!(/^[0-9a-f]{40}$/.test(version.ref)||/^webui-apps-v[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.[0-9]+$/.test(version.ref))||typeof version.summary!=='string'||typeof version.actor!=='string')throw new Error('履歴に不正な項目があります');
         const date=new Date(version.timestamp);if(Number.isNaN(date.getTime()))throw new Error('履歴の日時が不正です');
-        const li=el('li'),heading=el('h2','版 '+version.version),meta=el('p');
+        const li=el('li'),heading=el('h2','版 '+version.version+(version.candidate===true?'（候補）':'')),meta=el('p');
         const time=el('time',new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(date));time.dateTime=version.timestamp;meta.append(time,document.createTextNode(' · 担当：'+version.actor));
         const detail=el('p',version.summary),files=el('p','変更対象：'+(Array.isArray(version.files)?version.files.join('、'):'未記録'));
         const source=el('a','GitHubで実装差分を確認');source.href='https://github.com/besteffortnet/besteffortnet.github.io/'+(/^[0-9a-f]{40}$/.test(version.ref)?'commit/':'tree/')+encodeURIComponent(version.ref);source.target='_blank';source.rel='noopener noreferrer';
-        const disclosure=el('details'),summary=el('summary','この版へ戻す方法'),explain=el('p','リポジトリで以下を実行すると、対象版の復元用作業ツリーを新規作成します。既存の変更や公開サイトには触れません。');
-        const code=el('code','python3 tools/prepare-webui-restore.py '+version.ref+' --repo . --worktree-path ../webui-restore-'+version.version+' --branch restore/webui-'+version.version),next=el('p','生成された差分を確認し、案内に従ってプルリクエストを作成・反映してください。');disclosure.append(summary,explain,code,next);li.append(heading,meta,detail,files,source,disclosure);fragment.append(li);
+        const disclosure=el('details'),summary=el('summary','この版へ戻す方法'),explain=el('p','リポジトリで以下を実行すると、一覧HTMLと並べ替え・観測時刻のJSを対象版に戻した作業ツリーを新規作成します。履歴ページは最新のまま保持し、既存の変更や公開サイトには触れません。');
+        const code=el('code','python3 tools/prepare-webui-restore.py '+version.ref+' --repo . --worktree-path ../webui-restore-'+version.version+' --branch restore/webui-'+version.version),next=el('p','生成された差分を確認し、案内に従ってプルリクエストを作成・反映してください。');disclosure.append(summary,explain,code,next);li.append(heading,meta,detail,files);if(version.candidate===true)li.append(el("p","固定復元点：未発行"));else li.append(source,disclosure);fragment.append(li);
       }
       list.replaceChildren(fragment);status.textContent=data.versions.length+'件の履歴';
     }catch(error){status.textContent='履歴を読み込めませんでした。再読み込みしてください。';}
