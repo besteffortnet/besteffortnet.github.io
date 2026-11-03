@@ -218,6 +218,31 @@
     tbody tr.app-card td:nth-child(2) {
       grid-area: app;
       min-width: 0;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .port-badge {
+      display: inline-flex;
+      align-items: center;
+      white-space: nowrap;
+      padding: 2px 7px;
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      background: var(--accent);
+      color: var(--paper);
+      font-size: .78rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.4;
+      letter-spacing: .02em;
+    }
+
+    .port-badge-standard {
+      background: var(--paper);
+      color: var(--accent);
     }
 
     tbody tr.app-card td:nth-child(3) {
@@ -511,7 +536,7 @@
 </head>
 <body>
   <nav class="theme-bar" aria-label="表示設定">
-    <a class="version-link" href="webui-releases.html" aria-label="バージョン履歴と復元方法を開く">v2026.11.03.2</a>
+    <a class="version-link" href="webui-releases.html" aria-label="バージョン履歴と復元方法を開く">v2026.11.03.3</a>
     <button type="button" id="theme-toggle" class="theme-toggle" aria-label="ダークモードに切り替え" title="ダークモードに切り替え">
           <svg class="icon-sun" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
             <circle cx="12" cy="12" r="4"></circle>
@@ -529,7 +554,7 @@
 
       </div>
       <h1>WebUIアプリ一覧</h1>
-      <p class="intro">besteffortnet が開発・運用するWebUIアプリのサービス提供先とGitHubリポジトリをまとめています。</p>
+      <p class="intro">besteffortnet が開発・運用するWebUIアプリのサービス提供先とGitHubリポジトリをまとめています。 ポート表示はリンク先の接続ポートです。HTTPS 443 は標準ポートを示します。</p>
       <a class="featured-app" href="https://192.168.68.221:8013/" target="_blank" rel="noopener">Webアプリ共通化 ↗</a>
     </header>
 
@@ -555,7 +580,7 @@
           <tbody>
             <tr>
               <td>1</td>
-              <td><a class="service-link" href="https://192.168.68.221:8009/" target="_blank" rel="noopener">TOEIC Study</a></td>
+              <td><a class="service-link" href="https://192.168.68.221:8009/" target="_blank" rel="noopener">TOEIC Study</a><span class="port-badge" aria-label="ポート番号 8009" title="接続先の指定ポート">PORT 8009</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/webtest" target="_blank" rel="noopener">besteffortnet/webtest</a> <span class="note">Private · ソース・開発知識・AI引継ぎ</span></td>
               <td>
                 <div class="desc-toggle-row">
@@ -572,7 +597,7 @@
             </tr>
             <tr>
               <td>2</td>
-              <td><a class="service-link" href="https://192.168.68.221:8010/" target="_blank" rel="noopener">E資格 Practice</a></td>
+              <td><a class="service-link" href="https://192.168.68.221:8010/" target="_blank" rel="noopener">E資格 Practice</a><span class="port-badge" aria-label="ポート番号 8010" title="接続先の指定ポート">PORT 8010</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/equalification" target="_blank" rel="noopener">besteffortnet/equalification</a> <span class="note">Private</span></td>
               <td>
                 <div class="desc-toggle-row">
@@ -589,7 +614,7 @@
             </tr>
             <tr>
               <td>3</td>
-              <td><a class="service-link" href="http://192.168.68.221:8000/extensions/miniui/index.html">miniui</a></td>
+              <td><a class="service-link" href="http://192.168.68.221:8000/extensions/miniui/index.html">miniui</a><span class="port-badge" aria-label="ポート番号 8000" title="接続先の指定ポート">PORT 8000</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/miniui" target="_blank" rel="noopener">besteffortnet/miniui</a></td>
               <td>
                 <div class="desc-toggle-row">
@@ -606,7 +631,7 @@
             </tr>
             <tr>
               <td>4</td>
-              <td><a class="service-link" href="http://192.168.68.221:8006/?root=1&amp;sort=file_created_at&amp;dir=desc">vr-video-manager</a></td>
+              <td><a class="service-link" href="http://192.168.68.221:8006/?root=1&amp;sort=file_created_at&amp;dir=desc">vr-video-manager</a><span class="port-badge" aria-label="ポート番号 8006" title="接続先の指定ポート">PORT 8006</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/vr-video-manager" target="_blank" rel="noopener">besteffortnet/vr-video-manager</a></td>
               <td>
                 <div class="desc-toggle-row">
@@ -623,7 +648,7 @@
             </tr>
             <tr>
               <td>5</td>
-              <td><a class="service-link" href="https://script.google.com/a/macros/focus88.co.jp/s/AKfycbwD_l9IRLfisTixvVOn1BGxIGm7pTXxiOy3R3Zl3_e9y9P6Whm-gu9uHNbVAoB8aCIa/exec">AllTimeBest Navigator</a></td>
+              <td><a class="service-link" href="https://script.google.com/a/macros/focus88.co.jp/s/AKfycbwD_l9IRLfisTixvVOn1BGxIGm7pTXxiOy3R3Zl3_e9y9P6Whm-gu9uHNbVAoB8aCIa/exec">AllTimeBest Navigator</a><span class="port-badge port-badge-standard" aria-label="接続先 URL の HTTPS 標準ポート 443。サービス内部のポートは不明" title="URLの標準ポート。サービス内部のポートは不明">HTTPS 443</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/geminispark" target="_blank" rel="noopener">besteffortnet/geminispark</a></td>
               <td>
                 <div class="desc-toggle-row">
@@ -640,7 +665,7 @@
             </tr>
             <tr>
               <td>6</td>
-              <td><a class="service-link" href="http://192.168.68.221:8008/chat/cwnAdLrZvKG3Odix">Fireworks</a></td>
+              <td><a class="service-link" href="http://192.168.68.221:8008/chat/cwnAdLrZvKG3Odix">Fireworks</a><span class="port-badge" aria-label="ポート番号 8008" title="接続先の指定ポート">PORT 8008</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/fireworks" target="_blank" rel="noopener">besteffortnet/fireworks</a></td>
               <td>
                 <div class="desc-toggle-row">
@@ -657,7 +682,7 @@
             </tr>
             <tr>
               <td>7</td>
-              <td><a class="service-link" href="http://192.168.68.221:8007/">BSMapGen</a></td>
+              <td><a class="service-link" href="http://192.168.68.221:8007/">BSMapGen</a><span class="port-badge" aria-label="ポート番号 8007" title="接続先の指定ポート">PORT 8007</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/beatsaber-map-generator" target="_blank" rel="noopener">besteffortnet/beatsaber-map-generator</a></td>
               <td>
                 <div class="desc-toggle-row">
@@ -674,7 +699,7 @@
             </tr>
             <tr>
               <td>8</td>
-              <td><a class="service-link" href="https://192.168.68.221:8004">hubterm</a></td>
+              <td><a class="service-link" href="https://192.168.68.221:8004">hubterm</a><span class="port-badge" aria-label="ポート番号 8004" title="接続先の指定ポート">PORT 8004</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/home-network/tree/main/webterm" target="_blank" rel="noopener">besteffortnet/home-network/webterm</a></td>
               <td>
                 <div class="desc-toggle-row">
@@ -691,7 +716,7 @@
             </tr>
             <tr>
               <td>9</td>
-              <td><a class="service-link" href="http://192.168.68.221:3000">9mile</a></td>
+              <td><a class="service-link" href="http://192.168.68.221:3000">9mile</a><span class="port-badge" aria-label="ポート番号 3000" title="接続先の指定ポート">PORT 3000</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/9mile" target="_blank" rel="noopener">besteffortnet/9mile</a></td>
               <td>
                 <div class="desc-toggle-row">
@@ -708,7 +733,7 @@
             </tr>
             <tr>
               <td>10</td>
-              <td><a class="service-link" href="http://192.168.68.221:8002/playground.html">Qwen3-TTS Playground / Local Studio</a></td>
+              <td><a class="service-link" href="http://192.168.68.221:8002/playground.html">Qwen3-TTS Playground / Local Studio</a><span class="port-badge" aria-label="ポート番号 8002" title="接続先の指定ポート">PORT 8002</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/qwen3-tts-mlx" target="_blank" rel="noopener">besteffortnet/qwen3-tts-mlx</a> <span class="note">Private</span></td>
               <td>
                 <div class="desc-toggle-row">
@@ -725,7 +750,7 @@
             </tr>
             <tr>
               <td>11</td>
-              <td><a class="service-link" href="https://narrative-tsuzuri.akioueki.chatgpt.site/">Narrative Tsuzuri</a></td>
+              <td><a class="service-link" href="https://narrative-tsuzuri.akioueki.chatgpt.site/">Narrative Tsuzuri</a><span class="port-badge port-badge-standard" aria-label="接続先 URL の HTTPS 標準ポート 443。サービス内部のポートは不明" title="URLの標準ポート。サービス内部のポートは不明">HTTPS 443</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/narrative-reframe" target="_blank" rel="noopener">besteffortnet/narrative-reframe</a></td>
               <td>
                 <div class="desc-toggle-row">
@@ -742,7 +767,7 @@
             </tr>
             <tr>
               <td>12</td>
-              <td><a class="service-link" href="https://uekiakio.com/">uekiakio.com</a></td>
+              <td><a class="service-link" href="https://uekiakio.com/">uekiakio.com</a><span class="port-badge port-badge-standard" aria-label="接続先 URL の HTTPS 標準ポート 443。サービス内部のポートは不明" title="URLの標準ポート。サービス内部のポートは不明">HTTPS 443</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/uekiHP" target="_blank" rel="noopener">besteffortnet/uekiHP</a></td>
               <td>
                 <div class="desc-toggle-row">
@@ -759,7 +784,7 @@
             </tr>
             <tr>
               <td>13</td>
-              <td><a class="service-link" href="https://192.168.68.221:8011/" target="_blank" rel="noopener">Photo Editing</a></td>
+              <td><a class="service-link" href="https://192.168.68.221:8011/" target="_blank" rel="noopener">Photo Editing</a><span class="port-badge" aria-label="ポート番号 8011" title="接続先の指定ポート">PORT 8011</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/photo-editing" target="_blank" rel="noopener">besteffortnet/photo-editing</a> <span class="note">Private</span></td>
               <td>
                 <div class="desc-toggle-row">
@@ -776,13 +801,13 @@
             </tr>
             <tr id="webapp-common-entry">
               <td>14</td>
-              <td><a class="service-link" href="https://192.168.68.221:8013/" target="_blank" rel="noopener">Webアプリ共通化</a></td>
+              <td><a class="service-link" href="https://192.168.68.221:8013/" target="_blank" rel="noopener">Webアプリ共通化</a><span class="port-badge" aria-label="ポート番号 8013" title="接続先の指定ポート">PORT 8013</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/agent-ops/tree/github-stable/tools/webapp-common" target="_blank" rel="noopener">agent-ops / webapp-common</a></td>
               <td><div class="desc-toggle-row"><span class="desc-title">概要</span><label class="switch" title="概要の表示切替"><input type="checkbox" class="desc-switch" aria-label="Webアプリ共通化の概要の表示切替"><span class="slider"></span></label></div><div class="desc-text" hidden>テーマ・キー操作・ドラッグ＆ドロップなどの共通UI部品とサイト適用診断。登録済み17サイトの導入状況や競合リスクを確認し、試験導入の手順と部品を取得できます。v0.3.2・221:8013・共通CA HTTPS・信頼済みLAN限定。</div></td>
             </tr>
             <tr>
               <td>15</td>
-              <td><a class="service-link" href="http://192.168.68.221:8012/" target="_blank" rel="noopener">Comic Shelf</a></td>
+              <td><a class="service-link" href="http://192.168.68.221:8012/" target="_blank" rel="noopener">Comic Shelf</a><span class="port-badge" aria-label="ポート番号 8012" title="接続先の指定ポート">PORT 8012</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/comic-reader" target="_blank" rel="noopener">besteffortnet/comic-reader</a> <span class="note">Private</span></td>
               <td>
                 <div class="desc-toggle-row">
@@ -799,7 +824,7 @@
             </tr>
             <tr>
               <td>16</td>
-              <td><a class="service-link" href="https://192.168.68.221:8014/" target="_blank" rel="noopener">AI Activity / エージェント活動ログ</a></td>
+              <td><a class="service-link" href="https://192.168.68.221:8014/" target="_blank" rel="noopener">AI Activity / エージェント活動ログ</a><span class="port-badge" aria-label="ポート番号 8014" title="接続先の指定ポート">PORT 8014</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/agent-activity-web" target="_blank" rel="noopener">besteffortnet/agent-activity-web</a> <span class="note">Private</span></td>
               <td>
                 <div class="desc-toggle-row">
@@ -816,7 +841,7 @@
             </tr>
             <tr>
               <td>17</td>
-              <td><a class="service-link" href="https://github.com/besteffortnet/lan-direct-transfer#起動" target="_blank" rel="noopener">LAN間ファイル移動</a></td>
+              <td><a class="service-link" href="https://github.com/besteffortnet/lan-direct-transfer#起動" target="_blank" rel="noopener">LAN間ファイル移動</a><span class="port-badge port-badge-standard" aria-label="接続先 URL の HTTPS 標準ポート 443。サービス内部のポートは不明" title="URLの標準ポート。サービス内部のポートは不明">HTTPS 443</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/lan-direct-transfer" target="_blank" rel="noopener">besteffortnet/lan-direct-transfer</a> <span class="note">Private</span></td>
               <td>
                 <div class="desc-toggle-row"><span class="desc-title">概要</span><label class="switch" title="概要の表示切替"><input type="checkbox" class="desc-switch" aria-label="LAN間ファイル移動の概要の表示切替"><span class="slider"></span></label></div>
@@ -825,19 +850,19 @@
             </tr>
             <tr>
               <td>18</td>
-              <td><a class="service-link" href="https://192.168.68.221:8015/" target="_blank" rel="noopener">音の本棚</a></td>
+              <td><a class="service-link" href="https://192.168.68.221:8015/" target="_blank" rel="noopener">音の本棚</a><span class="port-badge" aria-label="ポート番号 8015" title="接続先の指定ポート">PORT 8015</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/audiobook-web" target="_blank" rel="noopener">besteffortnet/audiobook-web</a> <span class="note">Private</span></td>
               <td><div class="desc-toggle-row"><span class="desc-title">概要</span><label class="switch" title="概要の表示切替"><input type="checkbox" class="desc-switch" aria-label="音の本棚の概要の表示切替"><span class="slider"></span></label></div><div class="desc-text" hidden>音声フォルダをブラウザで再生。複数フォルダ・定期更新・再生速度・再生位置の端末間共有に対応。<span class="note">221:8015・信頼LAN限定。</span></div></td>
             </tr>
             <tr>
               <td>19</td>
-              <td><a class="service-link" href="https://192.168.68.221:8016/" target="_blank" rel="noopener">DUO Study</a></td>
+              <td><a class="service-link" href="https://192.168.68.221:8016/" target="_blank" rel="noopener">DUO Study</a><span class="port-badge" aria-label="ポート番号 8016" title="接続先の指定ポート">PORT 8016</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/duo-learning" target="_blank" rel="noopener">besteffortnet/duo-learning</a> <span class="note">Private</span></td>
               <td><div class="desc-toggle-row"><span class="desc-title">概要</span><label class="switch" title="概要の表示切替"><input type="checkbox" class="desc-switch" aria-label="DUO Studyの概要の表示切替"><span class="slider"></span></label></div><div class="desc-text" hidden>イラストと例文で学ぶ個人用英語学習。560例文の検索・和訳切替・お気に入り・復習記録と独立音声ライブラリ。<span class="note">221:8016・共通CA HTTPS・信頼済みLAN限定。教材は共有ドライブ、開発経緯は非公開GitHubで管理。</span></div></td>
             </tr>
             <tr>
               <td>20</td>
-              <td><a class="service-link" href="https://192.168.68.221:8017/" target="_blank" rel="noopener">映像の本棚</a></td>
+              <td><a class="service-link" href="https://192.168.68.221:8017/" target="_blank" rel="noopener">映像の本棚</a><span class="port-badge" aria-label="ポート番号 8017" title="接続先の指定ポート">PORT 8017</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/video-player-2d" target="_blank" rel="noopener">besteffortnet/video-player-2d</a> <span class="note">Private</span></td>
               <td><div class="desc-toggle-row"><span class="desc-title">概要</span><label class="switch" title="概要の表示切替"><input type="checkbox" class="desc-switch" aria-label="映像の本棚の概要の表示切替"><span class="slider"></span></label></div><div class="desc-text" hidden>2D動画を再生し、音声トラックや字幕を選択。<span class="note">221:8017・HTTPS・信頼LAN限定。</span></div></td>
             </tr>

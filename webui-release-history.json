@@ -2,6 +2,18 @@
   "schema": 1,
   "versions": [
     {
+      "version": "2026.11.03.3",
+      "ref": "webui-apps-v2026.11.03.3",
+      "timestamp": "2026-11-03T13:45+09:00",
+      "actor": "Codex",
+      "summary": "アプリカードにリンク接続先のポートを表示。明示ポートとHTTPS標準ポートを区別し、画面幅とテーマに対応。",
+      "files": [
+        "webui-apps.html",
+        "webui-release-history.json",
+        "tests/test_port_badges.py"
+      ]
+    },
+    {
       "version": "2026.11.03.2",
       "ref": "webui-apps-v2026.11.03.2",
       "timestamp": "2026-11-03T13:21+09:00",
