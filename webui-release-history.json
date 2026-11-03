@@ -2,6 +2,17 @@
   "schema": 1,
   "versions": [
     {
+      "version": "2026.11.03.1",
+      "ref": "webui-apps-v2026.11.03.1",
+      "timestamp": "2026-11-03T12:56+09:00",
+      "actor": "Codex",
+      "summary": "AI Activityの一覧リンクをHTTPSへ変更。従来のHTTPリンクは同一ポートのHTTPSへ誘導。",
+      "files": [
+        "webui-apps.html",
+        "webui-release-history.json"
+      ]
+    },
+    {
       "version": "2026.11.02.1",
       "ref": "webui-apps-v2026.11.02.1",
       "timestamp": "2026-11-02T15:52+09:00",
