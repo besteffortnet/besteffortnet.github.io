@@ -2,6 +2,17 @@
   "schema": 1,
   "versions": [
     {
+      "version": "2026.11.03.4",
+      "ref": "webui-apps-v2026.11.03.4",
+      "timestamp": "2026-11-03T14:16:10+09:00",
+      "actor": "Codex",
+      "summary": "本の栞（ebook-reader）のHTTPSサービスURLと非公開リポジトリを一覧へ追加。EPUB閲覧・API TTS読み上げ。",
+      "files": [
+        "webui-apps.html",
+        "webui-release-history.json"
+      ]
+    },
+    {
       "version": "2026.11.03.3",
       "ref": "webui-apps-v2026.11.03.3",
       "timestamp": "2026-11-03T13:45+09:00",
