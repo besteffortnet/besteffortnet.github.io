@@ -2,6 +2,17 @@
   "schema": 1,
   "versions": [
     {
+      "version": "2026.11.04.2",
+      "ref": "webui-apps-v2026.11.04.2",
+      "timestamp": "2026-11-04T06:21:29+09:00",
+      "actor": "Codex",
+      "summary": "VR Video Managerにサービス全体の状態と観測時刻への導線を追加。表示条件を含む画面の動作は監視対象に含まれないことを明記。",
+      "files": [
+        "webui-apps.html",
+        "webui-release-history.json"
+      ]
+    },
+    {
       "version": "2026.11.04.1",
       "ref": "webui-apps-v2026.11.04.1",
       "timestamp": "2026-11-04T05:17:30+09:00",
