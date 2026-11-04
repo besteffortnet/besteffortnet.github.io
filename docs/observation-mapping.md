@@ -14,12 +14,13 @@ python3 tools/audit_observation_mapping.py
 
 ```sh
 curl --fail --silent --show-error --max-time 8 \
+  --cacert "$HOME/anti/.local/share/hubterm/hubterm-ca.pem" \
   -H 'Origin: https://besteffortnet.github.io' \
   'https://192.168.68.221:8013/api/public-observation-times' | \
   python3 tools/audit_observation_mapping.py --observation-json -
 ```
 
-JSONはサイズ・形式・時刻とIDの一意性を検査する。`linked_but_not_in_snapshot` と `in_snapshot_but_not_linked` は対応差であり、通信失敗や稼働停止を表すものではない。取得時刻は収集時点の情報で、検査時刻の稼働を保証しない。実行環境の証明書信頼とLANへの到達が必要。
+JSONはサイズ・形式・時刻とIDの一意性を検査する。`linked_but_not_in_snapshot` と `in_snapshot_but_not_linked` は対応差であり、通信失敗や稼働停止を表すものではない。取得時刻は収集時点の情報で、検査時刻の稼働を保証しない。実行環境の証明書信頼とLANへの到達が必要。共通CAの場所が異なる場合は `--cacert` を実際の公開CAファイルに合わせ、OSの信頼ストアに登録済みなら省略できる。
 
 ## 根拠と範囲
 
