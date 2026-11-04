@@ -346,8 +346,9 @@
     updatePlaceholder(e.clientX, e.clientY);
   });
 
-  body.addEventListener('pointerup', e => { if (drag && e.pointerId === drag.id) finish(false); });
-  body.addEventListener('pointercancel', e => { if (drag && e.pointerId === drag.id) finish(true); });
+  // 移動開始前に一覧の外で離した場合も、操作中の状態を解除する。
+  window.addEventListener('pointerup', e => { if (drag && e.pointerId === drag.id) finish(false); });
+  window.addEventListener('pointercancel', e => { if (drag && e.pointerId === drag.id) finish(true); });
   window.addEventListener('blur', () => finish(true));
 
   // キーボード移動時もFLIPアニメーション

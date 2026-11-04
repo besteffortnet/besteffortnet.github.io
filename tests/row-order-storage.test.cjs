@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const path = require('node:path');
 
-const source = fs.readFileSync(path.join(__dirname, '..', 'row-order.js'), 'utf8');
+const source = fs.readFileSync(process.env.ROW_ORDER_SOURCE || path.join(__dirname, '..', 'row-order.js'), 'utf8');
 const storageKey = 'webui.row-order.v1';
 
 class FakeClassList {
@@ -72,6 +72,13 @@ class FakeElement {
     if (selector === '.row-number') return this.children.find(child => child.classList.contains('row-number')) || null;
     return null;
   }
+  closest(selector) {
+    for (let node = this; node; node = node.parentElement) {
+      if (selector === 'tr' && node.tagName === 'TR') return node;
+      if (selector.startsWith('.') && node.classList.contains(selector.slice(1))) return node;
+    }
+    return null;
+  }
   setAttribute(name, value) { this.attributes[name] = String(value); }
   addEventListener(type, callback) { (this.listeners[type] ||= []).push(callback); }
   click() { for (const callback of this.listeners.click || []) callback({stopPropagation() {}}); }
@@ -91,6 +98,7 @@ function makeAppRow(id) {
   row.append(cell);
   row.repoLink = {href: `https://example.invalid/${id}`};
   row.serviceLink = new FakeElement('a');
+  row.serviceLink.parentElement = row;
   row.serviceLink.hasPointerCapture = () => false;
   row.serviceLink.releasePointerCapture = () => {};
   return row;
@@ -105,6 +113,7 @@ function createHarness(raw, ids = ['a', 'b', 'c']) {
   const addSpacer = new FakeElement('button');
   const documentElement = new FakeElement('html');
   const documentListeners = {};
+  const windowListeners = {};
   const writes = [];
   const storage = new Map();
   if (raw !== undefined) storage.set(storageKey, raw);
@@ -121,11 +130,27 @@ function createHarness(raw, ids = ['a', 'b', 'c']) {
     createElement(tagName) { return new FakeElement(tagName); },
     addEventListener(type, callback) { (documentListeners[type] ||= []).push(callback); },
   };
-  const window = {addEventListener() {}, scrollBy() {}};
+  const window = {
+    addEventListener(type, callback) { (windowListeners[type] ||= []).push(callback); },
+    scrollBy() {},
+  };
   vm.runInNewContext(source, {document, localStorage, window, innerHeight: 900, setTimeout() {}});
   return {
     appRows, body, localStorage, reset, addSpacer, status, writes,
     order() { return body.rows.map(row => row.dataset.orderId); },
+    startPointer(id = 7) {
+      for (const callback of body.listeners.pointerdown || []) callback({
+        target: appRows[0].serviceLink, button: 0, isPrimary: true, pointerId: id, clientX: 0, clientY: 0,
+      });
+    },
+    releaseOutside(type, id = 7) {
+      for (const callback of windowListeners[type] || []) callback({pointerId: id});
+    },
+    moveByKeyboard() {
+      for (const callback of documentListeners.keydown || []) callback({
+        target: appRows[0].serviceLink, key: 'ArrowDown', altKey: true, preventDefault() {},
+      });
+    },
   };
 }
 
@@ -176,7 +201,23 @@ function testValidOrderHandlesNewAndDeletedRows() {
   assert.equal(persisted.length, 4);
 }
 
+function testOutsideReleaseDoesNotStrandPointerState() {
+  for (const type of ['pointerup', 'pointercancel']) {
+    const harness = createHarness(undefined);
+    const before = harness.order();
+    harness.startPointer();
+    harness.releaseOutside(type, 8);
+    harness.moveByKeyboard();
+    assert.deepEqual(harness.order(), before, '別のポインターでは移動中状態を解除しない');
+    harness.releaseOutside(type);
+    harness.moveByKeyboard();
+    assert.notDeepEqual(harness.order(), before, `${type}の後も並べ替えできる`);
+    assert.deepEqual(JSON.parse(harness.localStorage.getItem(storageKey)), harness.order());
+  }
+}
+
 testMissingKeyStillSavesNormally();
 testJsonNullIsPreservedUntilExplicitReset();
 testValidOrderHandlesNewAndDeletedRows();
+testOutsideReleaseDoesNotStrandPointerState();
 console.log('row-order storage no-bind tests passed');
