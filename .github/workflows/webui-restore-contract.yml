@@ -1,0 +1,27 @@
+name: WebUI history and restore contract
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  history-and-restore:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Test command grammar and failure cases
+        run: node --test tests/restore-command-grammar.test.cjs tests/audit-displayed-restores.test.cjs
+      - name: Verify displayed commands against every published version
+        run: node tests/audit-displayed-restores.cjs
+      - name: Run existing directory checks
+        run: |
+          node --test tests/row-order-storage.test.cjs tests/theme-toggle.test.cjs tests/webui-releases.test.cjs tests/observation-timeout.test.cjs
+          PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -p 'test_*.py'
