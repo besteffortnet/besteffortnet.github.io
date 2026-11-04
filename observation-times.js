@@ -4,11 +4,12 @@
   if (!button || !summary) return;
   const rows = new Map(Array.from(document.querySelectorAll('[data-observation-id]'), node => [node.dataset.observationId, node]));
   const endpoint = button.dataset.endpoint;
-  const missing = '観測時刻：未確認（遷移先で確認）';
+  const missing = node => node.dataset.observationCompact === 'true'
+    ? '観測未確認' : '観測時刻：未確認（遷移先で確認）';
   button.addEventListener('click', async () => {
     button.disabled = true;
     summary.textContent = '観測時刻を確認中…';
-    for (const node of rows.values()) node.textContent = missing;
+    for (const node of rows.values()) node.textContent = missing(node);
     const controller = new AbortController();
     let timeout;
     try {
@@ -44,7 +45,9 @@
       for (const [id,node] of rows) {
         if (!byId.has(id)) continue;
         const time = byId.get(id);
-        node.textContent = (Date.now()-time > 25*60*1000 ? '前回の観測：' : '観測時刻：') +
+        const compact = node.dataset.observationCompact === 'true';
+        const stale = Date.now()-time > 25*60*1000;
+        node.textContent = (compact ? (stale ? '前回：' : '観測：') : (stale ? '前回の観測：' : '観測時刻：')) +
           new Date(time).toLocaleString('ja-JP');
         displayed++;
       }

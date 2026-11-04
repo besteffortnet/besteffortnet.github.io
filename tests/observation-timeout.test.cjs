@@ -7,13 +7,13 @@ const vm = require('node:vm');
 const source = fs.readFileSync(path.join(__dirname, '..', 'observation-times.js'), 'utf8');
 const flush = () => new Promise(resolve => setImmediate(resolve));
 
-function fixture(fetch) {
+function fixture(fetch, compact = false) {
   let listener;
   let timeout;
   const button = {dataset: {endpoint: 'https://example.invalid/observations'}, disabled: false,
     addEventListener(name, fn) { assert.equal(name, 'click'); listener = fn; }};
   const summary = {textContent: ''};
-  const row = {dataset: {observationId: 'app'}, textContent: ''};
+  const row = {dataset: {observationId: 'app', observationCompact: compact ? 'true' : undefined}, textContent: ''};
   const document = {
     querySelector(selector) { return selector === '#observation-times' ? button : summary; },
     querySelectorAll() { return [row]; },
@@ -83,4 +83,22 @@ test('不正な応答は詳細を表示せず、ボタンを再び有効にす�
   assert.equal(ui.button.disabled, false);
   assert.match(ui.summary.textContent, /未確認/);
   assert.doesNotMatch(ui.summary.textContent + ui.row.textContent, /SECRET/);
+});
+
+test('省スペース表示でも失敗・新しい観測・古い観測を区別する', async () => {
+  const failed = fixture(async () => ({ok: false}), true);
+  await failed.click();
+  assert.equal(failed.row.textContent, '観測未確認');
+
+  const fresh = fixture(async () => ok(valid(new Date(Date.now() - 60 * 1000).toISOString())), true);
+  await fresh.click();
+  assert.match(fresh.row.textContent, /^観測：/);
+
+  const old = fixture(async () => ok(valid(new Date(Date.now() - 60 * 60 * 1000).toISOString())), true);
+  await old.click();
+  assert.match(old.row.textContent, /^前回：/);
+
+  const regular = fixture(async () => ok(valid(new Date(Date.now() - 60 * 1000).toISOString())));
+  await regular.click();
+  assert.match(regular.row.textContent, /^観測時刻：/);
 });

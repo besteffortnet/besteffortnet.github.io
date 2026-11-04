@@ -2,6 +2,24 @@
   "schema": 1,
   "versions": [
     {
+      "version": "2026.11.04.8",
+      "ref": "webui-apps-v2026.11.04.8",
+      "timestamp": "2026-11-04T13:45:20+09:00",
+      "actor": "Codex",
+      "summary": "Comic Shelf の HTTP 8012 と追加 HTTPS 8019 について、状態へのリンクと観測時刻を入口ごとに区別。各アプリの状態リンクと観測IDの対応を自動検査する。",
+      "files": [
+        "webui-apps.html",
+        "observation-times.js",
+        "webui-release-history.json",
+        "tools/audit_observation_mapping.py",
+        "docs/observation-mapping.md",
+        "tests/test_observation_mapping.py",
+        "tests/test_vr_service_scope.py",
+        "tests/observation-endpoints-browser.cjs",
+        "tests/observation-timeout.test.cjs"
+      ]
+    },
+    {
       "version": "2026.11.04.7",
       "ref": "webui-apps-v2026.11.04.7",
       "timestamp": "2026-11-04T13:33:14+09:00",
