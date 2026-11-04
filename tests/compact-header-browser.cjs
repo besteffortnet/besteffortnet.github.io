@@ -4,6 +4,7 @@ const path = require('node:path');
 const {chromium, webkit} = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 
 const root = path.resolve(__dirname, '..');
+const version = JSON.parse(fs.readFileSync(path.join(root, 'webui-release-history.json'), 'utf8')).versions[0].version;
 const live = process.env.DIRECTORY_TEST_LIVE === '1';
 const origin = live ? 'https://besteffortnet.github.io' : 'https://fixture.invalid';
 const sizes = [320, 390, 768, 800, 810, 1032, 1440];
@@ -68,7 +69,7 @@ function contrast(rgb1, rgb2) {
           assert(first && nav && first.y <= (width <= 720 ? 120 : 75), `${name} ${width}: first card ${first?.y}`);
           assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1), true);
           assert.equal(await page.locator('h1').innerText(), 'WebUIアプリ一覧');
-          assert.equal(await page.locator('.version-link').innerText(), 'v2026.11.04.4');
+          assert.equal(await page.locator('.version-link').innerText(), `v${version}`);
           assert.equal(await page.locator('.version-link').getAttribute('href'), 'webui-releases.html');
           assert.equal(await page.locator('.featured-app').getAttribute('href'), 'https://192.168.68.221:8013/');
           assert.match(await page.locator('.featured-app').getAttribute('rel'), /noopener/);
@@ -169,7 +170,7 @@ function contrast(rgb1, rgb2) {
           assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1), true);
           await page.locator('.version-link').click();
           await page.locator('#versions li').first().waitFor();
-          assert.match(await page.locator('#versions li').first().innerText(), /2026\.11\.04\.4/);
+          assert((await page.locator('#versions li').first().innerText()).includes(version));
           assert.deepEqual(errors, []);
           console.log(JSON.stringify({browser: name, width, firstCardTop: first.y, headerHeight: nav.height, ok: true}));
         } finally { await context.close(); }

@@ -2,6 +2,21 @@
   "schema": 1,
   "versions": [
     {
+      "version": "2026.11.04.5",
+      "ref": "webui-apps-v2026.11.04.5",
+      "timestamp": "2026-11-04T12:18:39+09:00",
+      "actor": "Codex",
+      "summary": "観測時刻の通信や応答本文が中断に応じない場合でも、2.5秒を目安に取得操作を再び使えるよう改善。遅れて届く以前の応答で新しい結果が上書きされないようにした。",
+      "files": [
+        "webui-apps.html",
+        "observation-times.js",
+        "webui-release-history.json",
+        "tests/observation-timeout.test.cjs",
+        "tests/observation-timeout-browser.cjs",
+        "tests/compact-header-browser.cjs"
+      ]
+    },
+    {
       "version": "2026.11.04.4",
       "ref": "webui-apps-v2026.11.04.4",
       "timestamp": "2026-11-04T11:48:49+09:00",
