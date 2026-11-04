@@ -96,6 +96,7 @@
       white-space: nowrap;
     }
     .toolbar-actions { display: flex; align-items: center; gap: 4px; }
+    .icon-control.more-toggle { display: none; }
     .version-link { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink); font-size: .76rem; font-weight: 700; white-space: nowrap; }
     .version-link:focus-visible { outline: 3px solid var(--outline); outline-offset: 2px; }
 
@@ -519,6 +520,27 @@
       .theme-toggle { grid-column: 3; grid-row: 1; }
       .help-menu { position: static; }
       .help-content { right: 12px; }
+      .theme-bar.compact-menu-ready { grid-template-columns: minmax(0, 1fr) auto auto auto; }
+      .theme-bar.compact-menu-ready .more-toggle { display: inline-flex; grid-column: 2; grid-row: 1; }
+      .theme-bar.compact-menu-ready .version-link { grid-column: 3; grid-row: 1; }
+      .theme-bar.compact-menu-ready .theme-toggle { grid-column: 4; grid-row: 1; }
+      .theme-bar.compact-menu-ready .toolbar-actions {
+        display: none;
+        position: absolute;
+        top: calc(100% + 4px);
+        right: max(12px, env(safe-area-inset-right));
+        padding: 8px;
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        box-shadow: var(--shadow);
+      }
+      .theme-bar.compact-menu-ready[data-menu-open="true"] .toolbar-actions { display: flex; }
+      .theme-bar.compact-menu-ready .help-content { right: -12px; }
+    }
+    @media (max-width: 360px) {
+      .theme-bar.compact-menu-ready h1 { font-size: 0; }
+      .theme-bar.compact-menu-ready h1::before { content: 'WebUI一覧'; font-size: 1rem; }
     }
     /* ドラッグ着地先のプレースホルダー */
     tbody tr.drag-placeholder {
@@ -560,8 +582,11 @@
 </head>
 <body>
   <nav class="theme-bar" aria-label="アプリ一覧の操作">
-    <h1>WebUIアプリ一覧</h1>
-    <div class="toolbar-actions">
+    <h1 aria-label="WebUIアプリ一覧">WebUIアプリ一覧</h1>
+    <button type="button" id="more-toggle" class="more-toggle icon-control" aria-label="一覧操作メニューを開く" aria-expanded="false" aria-controls="toolbar-actions" title="一覧操作メニューを開く">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="5" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle></svg>
+    </button>
+    <div class="toolbar-actions" id="toolbar-actions">
       <a class="featured-app icon-control" href="https://192.168.68.221:8013/" target="_blank" rel="noopener" aria-label="Webアプリ共通化を開く" title="Webアプリ共通化を開く">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg>
       </a>
@@ -586,7 +611,7 @@
         </div>
       </details>
     </div>
-    <a class="version-link" href="webui-releases.html" aria-label="バージョン履歴と復元方法を開く">v2026.11.04.5</a>
+    <a class="version-link" href="webui-releases.html" aria-label="バージョン履歴と復元方法を開く">v2026.11.04.6</a>
     <button type="button" id="theme-toggle" class="theme-toggle" aria-label="ダークモードに切り替え" title="ダークモードに切り替え">
           <svg class="icon-sun" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
             <circle cx="12" cy="12" r="4"></circle>
@@ -597,6 +622,43 @@
           </svg>
         </button>
   </nav>
+  <script>
+    (function () {
+      const bar = document.querySelector('.theme-bar');
+      const toggle = document.getElementById('more-toggle');
+      const actions = document.getElementById('toolbar-actions');
+      const help = document.getElementById('toolbar-help');
+      if (!bar || !toggle || !actions || !help) return;
+      const mobile = window.matchMedia('(max-width: 720px)');
+      function setOpen(open, focusToggle) {
+        bar.dataset.menuOpen = String(open);
+        toggle.setAttribute('aria-expanded', String(open));
+        const label = open ? '一覧操作メニューを閉じる' : '一覧操作メニューを開く';
+        toggle.setAttribute('aria-label', label);
+        toggle.title = label;
+        if (!open) help.open = false;
+        if (focusToggle && mobile.matches) toggle.focus();
+      }
+      toggle.addEventListener('click', function () {
+        setOpen(toggle.getAttribute('aria-expanded') !== 'true', false);
+      });
+      document.addEventListener('click', function (event) {
+        if (!mobile.matches || toggle.getAttribute('aria-expanded') !== 'true' || toggle.contains(event.target)) return;
+        if (!actions.contains(event.target)) return setOpen(false, false);
+        const control = event.target.closest('a, button');
+        if (control && !help.contains(control)) setOpen(false, false);
+      });
+      document.addEventListener('keydown', function (event) {
+        if (event.key !== 'Escape' || !mobile.matches || toggle.getAttribute('aria-expanded') !== 'true' || help.open) return;
+        event.preventDefault();
+        setOpen(false, true);
+      });
+      const onWidthChange = function () { if (!mobile.matches) setOpen(false, false); };
+      if (mobile.addEventListener) mobile.addEventListener('change', onWidthChange);
+      else if (mobile.addListener) mobile.addListener(onWidthChange);
+      bar.classList.add('compact-menu-ready');
+    })();
+  </script>
   <main>
     <p id="observation-help" class="visually-hidden">観測時刻の取得にはLANへの接続と証明書の信頼が必要です。</p>
     <p id="order-help" class="visually-hidden">ドラッグ、またはフォーカスして Alt と上下矢印キーで並べ替えます。順序はこのブラウザに保存されます。</p>
@@ -614,7 +676,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr>
+            <tr class="app-card">
               <td>1</td>
               <td><a class="service-link" href="https://192.168.68.221:8009/" target="_blank" rel="noopener">TOEIC Study</a><span class="port-badge" aria-label="ポート番号 8009" title="接続先の指定ポート">PORT 8009</span> <a class="status-link" aria-label="TOEIC Studyの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=toeic">状態を見る</a> <span class="note" data-observation-id="toeic">観測時刻：未確認（遷移先で確認）</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/webtest" target="_blank" rel="noopener">besteffortnet/webtest</a> <span class="note">Private · ソース・開発知識・AI引継ぎ</span></td>
@@ -631,7 +693,7 @@
                 </div>
               </td>
             </tr>
-            <tr>
+            <tr class="app-card">
               <td>2</td>
               <td><a class="service-link" href="https://192.168.68.221:8010/" target="_blank" rel="noopener">E資格 Practice</a><span class="port-badge" aria-label="ポート番号 8010" title="接続先の指定ポート">PORT 8010</span> <a class="status-link" aria-label="E資格 Practiceの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=equalification">状態を見る</a> <span class="note" data-observation-id="equalification">観測時刻：未確認（遷移先で確認）</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/equalification" target="_blank" rel="noopener">besteffortnet/equalification</a> <span class="note">Private</span></td>
@@ -648,7 +710,7 @@
                 </div>
               </td>
             </tr>
-            <tr>
+            <tr class="app-card">
               <td>3</td>
               <td><a class="service-link" href="http://192.168.68.221:8000/extensions/miniui/index.html">miniui</a><span class="port-badge" aria-label="ポート番号 8000" title="接続先の指定ポート">PORT 8000</span> <a class="status-link" aria-label="miniuiの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=miniui">状態を見る</a> <span class="note" data-observation-id="miniui">観測時刻：未確認（遷移先で確認）</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/miniui" target="_blank" rel="noopener">besteffortnet/miniui</a></td>
@@ -665,7 +727,7 @@
                 </div>
               </td>
             </tr>
-            <tr>
+            <tr class="app-card">
               <td>4</td>
               <td><a class="service-link" href="http://192.168.68.221:8006/?root=1&amp;sort=file_created_at&amp;dir=desc">vr-video-manager</a><span class="port-badge" aria-label="ポート番号 8006" title="接続先の指定ポート">PORT 8006</span> <a class="status-link" aria-label="VR Video Managerのサービス全体の状態を見る。表示条件は未評価" href="https://192.168.68.221:8013/service-status.html?app=vr">サービス全体の状態</a> <span class="note">表示条件は未評価</span> <span class="note" data-observation-id="vr">観測時刻：未確認（遷移先で確認）</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/vr-video-manager" target="_blank" rel="noopener">besteffortnet/vr-video-manager</a></td>
@@ -682,7 +744,7 @@
                 </div>
               </td>
             </tr>
-            <tr>
+            <tr class="app-card">
               <td>5</td>
               <td><a class="service-link" href="https://script.google.com/a/macros/focus88.co.jp/s/AKfycbwD_l9IRLfisTixvVOn1BGxIGm7pTXxiOy3R3Zl3_e9y9P6Whm-gu9uHNbVAoB8aCIa/exec">AllTimeBest Navigator</a><span class="port-badge port-badge-standard" aria-label="接続先 URL の HTTPS 標準ポート 443。サービス内部のポートは不明" title="URLの標準ポート。サービス内部のポートは不明">HTTPS 443</span> <a class="status-link" aria-label="AllTimeBest Navigatorの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=alltimebest">状態を見る</a> <span class="note" data-observation-id="alltimebest">観測時刻：未確認（遷移先で確認）</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/geminispark" target="_blank" rel="noopener">besteffortnet/geminispark</a></td>
@@ -699,7 +761,7 @@
                 </div>
               </td>
             </tr>
-            <tr>
+            <tr class="app-card">
               <td>6</td>
               <td><a class="service-link" href="http://192.168.68.221:8008/chat/cwnAdLrZvKG3Odix">Fireworks</a><span class="port-badge" aria-label="ポート番号 8008" title="接続先の指定ポート">PORT 8008</span> <a class="status-link" aria-label="Fireworksの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=fireworks">状態を見る</a> <span class="note" data-observation-id="fireworks">観測時刻：未確認（遷移先で確認）</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/fireworks" target="_blank" rel="noopener">besteffortnet/fireworks</a></td>
@@ -716,7 +778,7 @@
                 </div>
               </td>
             </tr>
-            <tr>
+            <tr class="app-card">
               <td>7</td>
               <td><a class="service-link" href="https://192.168.68.221:8007/">BSMapGen</a><span class="port-badge" aria-label="ポート番号 8007" title="接続先の指定ポート">PORT 8007</span> <a class="status-link" aria-label="BSMapGenの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=bsmap">状態を見る</a> <span class="note" data-observation-id="bsmap">観測時刻：未確認（遷移先で確認）</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/beatsaber-map-generator" target="_blank" rel="noopener">besteffortnet/beatsaber-map-generator</a></td>
@@ -733,7 +795,7 @@
                 </div>
               </td>
             </tr>
-            <tr>
+            <tr class="app-card">
               <td>8</td>
               <td><a class="service-link" href="https://192.168.68.221:8004">hubterm</a><span class="port-badge" aria-label="ポート番号 8004" title="接続先の指定ポート">PORT 8004</span> <a class="status-link" aria-label="hubtermの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=hubterm">状態を見る</a> <span class="note" data-observation-id="hubterm">観測時刻：未確認（遷移先で確認）</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/home-network/tree/main/webterm" target="_blank" rel="noopener">besteffortnet/home-network/webterm</a></td>
@@ -750,7 +812,7 @@
                 </div>
               </td>
             </tr>
-            <tr>
+            <tr class="app-card">
               <td>9</td>
               <td><a class="service-link" href="http://192.168.68.221:3000">9mile</a><span class="port-badge" aria-label="ポート番号 3000" title="接続先の指定ポート">PORT 3000</span> <a class="status-link" aria-label="9mileの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=9mile">状態を見る</a> <span class="note" data-observation-id="9mile">観測時刻：未確認（遷移先で確認）</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/9mile" target="_blank" rel="noopener">besteffortnet/9mile</a></td>
@@ -767,7 +829,7 @@
                 </div>
               </td>
             </tr>
-            <tr>
+            <tr class="app-card">
               <td>10</td>
               <td><a class="service-link" href="http://192.168.68.221:8002/playground.html">Qwen3-TTS Playground / Local Studio</a><span class="port-badge" aria-label="ポート番号 8002" title="接続先の指定ポート">PORT 8002</span> <a class="status-link" aria-label="Qwen3-TTS Playground / Local Studioの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=qwen-tts">状態を見る</a> <span class="note" data-observation-id="qwen-tts">観測時刻：未確認（遷移先で確認）</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/qwen3-tts-mlx" target="_blank" rel="noopener">besteffortnet/qwen3-tts-mlx</a> <span class="note">Private</span></td>
@@ -784,7 +846,7 @@
                 </div>
               </td>
             </tr>
-            <tr>
+            <tr class="app-card">
               <td>11</td>
               <td><a class="service-link" href="https://narrative-tsuzuri.akioueki.chatgpt.site/">Narrative Tsuzuri</a><span class="port-badge port-badge-standard" aria-label="接続先 URL の HTTPS 標準ポート 443。サービス内部のポートは不明" title="URLの標準ポート。サービス内部のポートは不明">HTTPS 443</span> <a class="status-link" aria-label="Narrative Tsuzuriの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=narrative">状態を見る</a> <span class="note" data-observation-id="narrative">観測時刻：未確認（遷移先で確認）</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/narrative-reframe" target="_blank" rel="noopener">besteffortnet/narrative-reframe</a></td>
@@ -801,7 +863,7 @@
                 </div>
               </td>
             </tr>
-            <tr>
+            <tr class="app-card">
               <td>12</td>
               <td><a class="service-link" href="https://uekiakio.com/">uekiakio.com</a><span class="port-badge port-badge-standard" aria-label="接続先 URL の HTTPS 標準ポート 443。サービス内部のポートは不明" title="URLの標準ポート。サービス内部のポートは不明">HTTPS 443</span> <a class="status-link" aria-label="uekiakio.comの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=uekiakio">状態を見る</a> <span class="note" data-observation-id="uekiakio">観測時刻：未確認（遷移先で確認）</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/uekiHP" target="_blank" rel="noopener">besteffortnet/uekiHP</a></td>
@@ -818,7 +880,7 @@
                 </div>
               </td>
             </tr>
-            <tr>
+            <tr class="app-card">
               <td>13</td>
               <td><a class="service-link" href="https://192.168.68.221:8011/" target="_blank" rel="noopener">Photo Editing</a><span class="port-badge" aria-label="ポート番号 8011" title="接続先の指定ポート">PORT 8011</span> <a class="status-link" aria-label="Photo Editingの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=photo">状態を見る</a> <span class="note" data-observation-id="photo">観測時刻：未確認（遷移先で確認）</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/photo-editing" target="_blank" rel="noopener">besteffortnet/photo-editing</a> <span class="note">Private</span></td>
@@ -835,13 +897,13 @@
                 </div>
               </td>
             </tr>
-            <tr id="webapp-common-entry">
+            <tr class="app-card" id="webapp-common-entry">
               <td>14</td>
               <td><a class="service-link" href="https://192.168.68.221:8013/" target="_blank" rel="noopener">Webアプリ共通化</a><span class="port-badge" aria-label="ポート番号 8013" title="接続先の指定ポート">PORT 8013</span> <a class="status-link" aria-label="Webアプリ共通化の状態を見る" href="https://192.168.68.221:8013/service-status.html?app=webapp-common">状態を見る</a> <span class="note" data-observation-id="webapp-common">観測時刻：未確認（遷移先で確認）</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/agent-ops/tree/github-stable/tools/webapp-common" target="_blank" rel="noopener">agent-ops / webapp-common</a></td>
               <td><div class="desc-toggle-row"><span class="desc-title">概要</span><label class="switch" title="概要の表示切替"><input type="checkbox" class="desc-switch" aria-label="Webアプリ共通化の概要の表示切替"><span class="slider"></span></label></div><div class="desc-text" hidden>テーマ・キー操作・ドラッグ＆ドロップなどの共通UI部品とサイト適用診断。登録済み17サイトの導入状況や競合リスクを確認し、試験導入の手順と部品を取得できます。v0.3.2・221:8013・共通CA HTTPS・信頼済みLAN限定。</div></td>
             </tr>
-            <tr>
+            <tr class="app-card">
               <td>15</td>
               <td><a class="service-link" href="http://192.168.68.221:8012/" target="_blank" rel="noopener">Comic Shelf</a><span class="port-badge" aria-label="ポート番号 8012" title="接続先の指定ポート">PORT 8012</span> <a class="alternate-service-link" aria-label="Comic Shelf の HTTPS 入口（ポート8019）" href="https://192.168.68.221:8019/" target="_blank" rel="noopener">HTTPS</a><span class="port-badge" aria-label="HTTPS入口のポート番号 8019" title="追加HTTPS入口の指定ポート">PORT 8019</span> <a class="status-link" aria-label="Comic Shelfの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=comic">状態を見る</a> <span class="note" data-observation-id="comic">観測時刻：未確認（遷移先で確認）</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/comic-reader" target="_blank" rel="noopener">besteffortnet/comic-reader</a> <span class="note">Private</span></td>
@@ -858,7 +920,7 @@
                 </div>
               </td>
             </tr>
-            <tr>
+            <tr class="app-card">
               <td>16</td>
               <td><a class="service-link" href="https://192.168.68.221:8014/" target="_blank" rel="noopener">AI Activity / エージェント活動ログ</a><span class="port-badge" aria-label="ポート番号 8014" title="接続先の指定ポート">PORT 8014</span> <a class="status-link" aria-label="AI Activity / エージェント活動ログの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=ai-activity">状態を見る</a> <span class="note" data-observation-id="ai-activity">観測時刻：未確認（遷移先で確認）</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/agent-activity-web" target="_blank" rel="noopener">besteffortnet/agent-activity-web</a> <span class="note">Private</span></td>
@@ -875,7 +937,7 @@
                 </div>
               </td>
             </tr>
-            <tr>
+            <tr class="app-card">
               <td>17</td>
               <td><a class="service-link" href="https://github.com/besteffortnet/lan-direct-transfer#起動" target="_blank" rel="noopener">LAN間ファイル移動</a><span class="port-badge port-badge-standard" aria-label="接続先 URL の HTTPS 標準ポート 443。サービス内部のポートは不明" title="URLの標準ポート。サービス内部のポートは不明">HTTPS 443</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/lan-direct-transfer" target="_blank" rel="noopener">besteffortnet/lan-direct-transfer</a> <span class="note">Private</span></td>
@@ -884,25 +946,25 @@
                 <div class="desc-text" hidden>ブラウザで指示し、サーバ上のrsyncでストレージ間を直接コピー・検証後に移動。<span class="note">開発中・現時点は同一サーバ内、ローカル接続のみ。ボタンは起動手順を開きます。ホスト間転送は未実装。</span></div>
               </td>
             </tr>
-            <tr>
+            <tr class="app-card">
               <td>18</td>
               <td><a class="service-link" href="https://192.168.68.221:8015/" target="_blank" rel="noopener">音の本棚</a><span class="port-badge" aria-label="ポート番号 8015" title="接続先の指定ポート">PORT 8015</span> <a class="status-link" aria-label="音の本棚の状態を見る" href="https://192.168.68.221:8013/service-status.html?app=audiobook">状態を見る</a> <span class="note" data-observation-id="audiobook">観測時刻：未確認（遷移先で確認）</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/audiobook-web" target="_blank" rel="noopener">besteffortnet/audiobook-web</a> <span class="note">Private</span></td>
               <td><div class="desc-toggle-row"><span class="desc-title">概要</span><label class="switch" title="概要の表示切替"><input type="checkbox" class="desc-switch" aria-label="音の本棚の概要の表示切替"><span class="slider"></span></label></div><div class="desc-text" hidden>音声フォルダをブラウザで再生。複数フォルダ・定期更新・再生速度・再生位置の端末間共有に対応。<span class="note">221:8015・信頼LAN限定。</span></div></td>
             </tr>
-            <tr>
+            <tr class="app-card">
               <td>19</td>
               <td><a class="service-link" href="https://192.168.68.221:8016/" target="_blank" rel="noopener">DUO Study</a><span class="port-badge" aria-label="ポート番号 8016" title="接続先の指定ポート">PORT 8016</span> <a class="status-link" aria-label="DUO Studyの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=duo">状態を見る</a> <span class="note" data-observation-id="duo">観測時刻：未確認（遷移先で確認）</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/duo-learning" target="_blank" rel="noopener">besteffortnet/duo-learning</a> <span class="note">Private</span></td>
               <td><div class="desc-toggle-row"><span class="desc-title">概要</span><label class="switch" title="概要の表示切替"><input type="checkbox" class="desc-switch" aria-label="DUO Studyの概要の表示切替"><span class="slider"></span></label></div><div class="desc-text" hidden>イラストと例文で学ぶ個人用英語学習。560例文の検索・和訳切替・お気に入り・復習記録と独立音声ライブラリ。<span class="note">221:8016・共通CA HTTPS・信頼済みLAN限定。教材は共有ドライブ、開発経緯は非公開GitHubで管理。</span></div></td>
             </tr>
-            <tr>
+            <tr class="app-card">
               <td>20</td>
               <td><a class="service-link" href="https://192.168.68.221:8017/" target="_blank" rel="noopener">映像の本棚</a><span class="port-badge" aria-label="ポート番号 8017" title="接続先の指定ポート">PORT 8017</span> <a class="status-link" aria-label="映像の本棚の状態を見る" href="https://192.168.68.221:8013/service-status.html?app=video-player-2d">状態を見る</a> <span class="note" data-observation-id="video-player-2d">観測時刻：未確認（遷移先で確認）</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/video-player-2d" target="_blank" rel="noopener">besteffortnet/video-player-2d</a> <span class="note">Private</span></td>
               <td><div class="desc-toggle-row"><span class="desc-title">概要</span><label class="switch" title="概要の表示切替"><input type="checkbox" class="desc-switch" aria-label="映像の本棚の概要の表示切替"><span class="slider"></span></label></div><div class="desc-text" hidden>2D動画を再生し、音声トラックや字幕を選択。<span class="note">221:8017・HTTPS・信頼LAN限定。</span></div></td>
             </tr>
-            <tr>
+            <tr class="app-card">
               <td>21</td>
               <td><a class="service-link" href="https://192.168.68.221:8018/" target="_blank" rel="noopener">本の栞（ebook-reader）</a><span class="port-badge" aria-label="ポート番号 8018" title="接続先の指定ポート">PORT 8018</span> <a class="status-link" aria-label="本の栞（ebook-reader）の状態を見る" href="https://192.168.68.221:8013/service-status.html?app=ebook-reader">状態を見る</a> <span class="note" data-observation-id="ebook-reader">観測時刻：未確認（遷移先で確認）</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/ebook-reader" target="_blank" rel="noopener">besteffortnet/ebook-reader</a> <span class="note">Private</span></td>

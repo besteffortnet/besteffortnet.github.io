@@ -2,6 +2,20 @@
   "schema": 1,
   "versions": [
     {
+      "version": "2026.11.04.6",
+      "ref": "webui-apps-v2026.11.04.6",
+      "timestamp": "2026-11-04T12:56:03+09:00",
+      "actor": "Codex",
+      "summary": "狭い画面の上部を1段にし、観測時刻・並べ替えなどをアイコンメニューに集約。版とテーマ切替は常時表示し、JavaScript無効時にも一覧・版履歴リンク・使い方を表示する。",
+      "files": [
+        "webui-apps.html",
+        "webui-release-history.json",
+        "tests/compact-header-browser.cjs",
+        "tests/observation-timeout-browser.cjs",
+        "tests/mobile-header-no-js.cjs"
+      ]
+    },
+    {
       "version": "2026.11.04.5",
       "ref": "webui-apps-v2026.11.04.5",
       "timestamp": "2026-11-04T12:18:39+09:00",
