@@ -70,40 +70,33 @@
       transition: background-color .15s ease, color .15s ease;
     }
 
-    main { max-width: 1100px; margin: 0 auto; padding: 32px 16px 56px; }
-
-    header { margin-bottom: 20px; }
-
-    .header-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 4px;
-    }
-
-    .eyebrow {
-      color: var(--accent);
-      font-size: .78rem;
-      font-weight: 700;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-    }
+    main { max-width: 1100px; margin: 0 auto; padding: 10px 16px 56px; }
 
     .theme-bar {
       position: sticky;
       top: 0;
       z-index: 50;
-      display: flex;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto auto;
       align-items: center;
-      gap: 10px;
-      justify-content: flex-end;
-      padding: max(4px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 4px max(16px, env(safe-area-inset-left));
+      gap: 4px 8px;
+      padding: max(4px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) 4px max(12px, env(safe-area-inset-left));
       background: var(--bg);
       border-bottom: 1px solid var(--line);
     }
 
-    .version-link { color: var(--ink); font-size: .8rem; font-weight: 700; }
+    .theme-bar h1 {
+      min-width: 0;
+      margin: 0;
+      overflow: hidden;
+      color: var(--ink);
+      font-size: clamp(1.05rem, 2vw, 1.3rem);
+      line-height: 1.2;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .toolbar-actions { display: flex; align-items: center; gap: 4px; }
+    .version-link { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink); font-size: .76rem; font-weight: 700; white-space: nowrap; }
     .version-link:focus-visible { outline: 3px solid var(--outline); outline-offset: 2px; }
 
     .theme-toggle {
@@ -147,11 +140,57 @@
     :root[data-theme="dark"] .theme-toggle .icon-sun { display: block; }
     :root[data-theme="dark"] .theme-toggle .icon-moon { display: none; }
 
-    h1 { margin: 6px 0 8px; font-size: clamp(1.6rem, 3.2vw, 2.4rem); line-height: 1.15; }
-    .intro { max-width: 640px; margin: 0; color: var(--muted); font-size: .9rem; }
-    .featured-app { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; padding: 7px 12px; color: var(--accent); background: var(--paper); border: 1px solid var(--line); border-radius: 8px; font-size: .9rem; font-weight: 700; text-decoration: none; }
-    .featured-app:hover { background: var(--hover); border-color: var(--accent); }
-    .featured-app:focus-visible { outline: 3px solid var(--outline); outline-offset: 2px; }
+    .icon-control {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      color: var(--ink);
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      cursor: pointer;
+      list-style: none;
+      text-decoration: none;
+    }
+    .icon-control:hover { color: var(--accent); background: var(--hover); border-color: var(--accent); text-decoration: none; }
+    .icon-control:focus-visible { outline: 3px solid var(--outline); outline-offset: 2px; }
+    .icon-control:disabled { opacity: .5; cursor: default; }
+    .icon-control svg { width: 19px; height: 19px; pointer-events: none; }
+    .help-menu { position: relative; }
+    .help-menu summary::-webkit-details-marker { display: none; }
+    .help-menu[open] summary { color: var(--accent); border-color: var(--accent); }
+    .help-content {
+      position: absolute;
+      z-index: 60;
+      top: calc(100% + 4px);
+      right: 0;
+      width: min(320px, calc(100vw - 24px));
+      padding: 12px;
+      color: var(--ink);
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      font-size: .85rem;
+    }
+    .help-content p { margin: 0; }
+    .help-content p + p { margin-top: 6px; }
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    .feedback { margin: 0 0 8px; color: var(--muted); font-size: .82rem; }
+    .feedback:empty { display: none; }
 
     .panel {
       overflow: visible;
@@ -467,34 +506,20 @@
     }
 
     @media (max-width: 620px) {
-      main { padding: 24px 12px 40px; }
+      main { padding: 8px 12px 40px; }
       tbody tr.app-card { padding: 8px; }
       .service-link { padding: 5px 6px; overflow-wrap: anywhere; }
     }
 
-    .order-tools { display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; margin:14px 0; }
-    .order-tools p { margin:0; color:var(--muted); font-size:.82rem; }
-    .order-buttons { display:flex; gap:8px; align-items:center; }
-    .tool-btn {
-      font: inherit;
-      color: var(--ink);
-      background: var(--paper);
-      border: 1px solid var(--line);
-      border-radius: 7px;
-      padding: 5px 10px;
-      font-size: .8rem;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      transition: background-color .15s ease, border-color .15s ease;
+    @media (max-width: 720px) {
+      .theme-bar { grid-template-columns: minmax(0, 1fr) auto auto; }
+      .theme-bar h1 { grid-column: 1; grid-row: 1; }
+      .toolbar-actions { grid-column: 1 / -1; grid-row: 2; }
+      .version-link { grid-column: 2; grid-row: 1; }
+      .theme-toggle { grid-column: 3; grid-row: 1; }
+      .help-menu { position: static; }
+      .help-content { right: 12px; }
     }
-    .tool-btn:hover {
-      background: var(--hover);
-      border-color: var(--accent);
-    }
-    .tool-btn:focus-visible { outline: 3px solid var(--outline); outline-offset: 2px; }
-    #reset-order:disabled { opacity:.5; cursor:default; }
     /* ドラッグ着地先のプレースホルダー */
     tbody tr.drag-placeholder {
       display: block;
@@ -531,12 +556,37 @@
       will-change: transform;
     }
     .ordering, .ordering * { cursor:grabbing!important; user-select:none; }
-    #order-status { min-height:1.5em; color:var(--muted); font-size:.82rem; }
   </style>
 </head>
 <body>
-  <nav class="theme-bar" aria-label="表示設定">
-    <a class="version-link" href="webui-releases.html" aria-label="バージョン履歴と復元方法を開く">v2026.11.04.3</a>
+  <nav class="theme-bar" aria-label="アプリ一覧の操作">
+    <h1>WebUIアプリ一覧</h1>
+    <div class="toolbar-actions">
+      <a class="featured-app icon-control" href="https://192.168.68.221:8013/" target="_blank" rel="noopener" aria-label="Webアプリ共通化を開く" title="Webアプリ共通化を開く">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg>
+      </a>
+      <button type="button" id="observation-times" class="icon-control" data-endpoint="https://192.168.68.221:8013/api/public-observation-times" aria-label="観測時刻を取得" aria-describedby="observation-help" title="観測時刻を取得（LAN接続と証明書の信頼が必要）">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+      </button>
+      <button type="button" id="add-spacer" class="icon-control" aria-label="隙間を追加" title="隙間を追加">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="18" rx="2" stroke-dasharray="3 3"></rect><path d="M12 8v8M8 12h8"></path></svg>
+      </button>
+      <button type="button" id="reset-order" class="icon-control" aria-label="初期順に戻す" title="初期順に戻す">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>
+      </button>
+      <details class="help-menu" id="toolbar-help">
+        <summary class="icon-control" aria-label="一覧の使い方" title="一覧の使い方">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"></circle><path d="M9.5 9a2.5 2.5 0 1 1 4.1 1.9c-1 .8-1.6 1.2-1.6 2.6M12 17h.01"></path></svg>
+        </summary>
+        <div class="help-content">
+          <p>アイコンは左から、共通化・観測時刻・隙間追加・初期順・使い方です。</p>
+          <p>ドラッグ、または行にフォーカスして Alt＋↑／↓ で並べ替えます。順序はこのブラウザに保存されます。</p>
+          <p>ポートはリンク先の接続ポートです。HTTPS 443はURLの標準ポートで、サービス内部のポートとは限りません。</p>
+          <p>観測時刻の取得にはLAN接続と証明書の信頼が必要です。</p>
+        </div>
+      </details>
+    </div>
+    <a class="version-link" href="webui-releases.html" aria-label="バージョン履歴と復元方法を開く">v2026.11.04.4</a>
     <button type="button" id="theme-toggle" class="theme-toggle" aria-label="ダークモードに切り替え" title="ダークモードに切り替え">
           <svg class="icon-sun" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
             <circle cx="12" cy="12" r="4"></circle>
@@ -548,26 +598,10 @@
         </button>
   </nav>
   <main>
-    <button type="button" id="observation-times" data-endpoint="https://192.168.68.221:8013/api/public-observation-times">観測時刻を取得</button>
-    <p id="observation-times-result" role="status">未取得。取得にはLANへの接続と証明書の信頼が必要です。</p>
-    <header>
-      <div class="header-top">
-        <div class="eyebrow">Web applications</div>
-
-      </div>
-      <h1>WebUIアプリ一覧</h1>
-      <p class="intro">besteffortnet が開発・運用するWebUIアプリのサービス提供先とGitHubリポジトリをまとめています。 ポート表示はリンク先の接続ポートです。HTTPS 443 は標準ポートを示します。</p>
-      <a class="featured-app" href="https://192.168.68.221:8013/" target="_blank" rel="noopener">Webアプリ共通化 ↗</a>
-    </header>
-
-    <div class="order-tools">
-      <p id="order-help">ドラッグで順序を変更。行にフォーカスしてAlt+↑/↓でも前後に移動できます。順序はこのブラウザに保存します。</p>
-      <div class="order-buttons">
-        <button type="button" id="add-spacer" class="tool-btn">＋ 隙間を追加</button>
-        <button type="button" id="reset-order" class="tool-btn">初期順に戻す</button>
-      </div>
-    </div>
-    <p id="order-status" role="status" aria-live="polite"></p>
+    <p id="observation-help" class="visually-hidden">観測時刻の取得にはLANへの接続と証明書の信頼が必要です。</p>
+    <p id="order-help" class="visually-hidden">ドラッグ、またはフォーカスして Alt と上下矢印キーで並べ替えます。順序はこのブラウザに保存されます。</p>
+    <p id="observation-times-result" class="feedback" role="status" aria-live="polite"></p>
+    <p id="order-status" class="feedback" role="status" aria-live="polite"></p>
     <section class="panel" aria-label="WebUIアプリ一覧">
       <div class="table-wrap">
         <table>
@@ -927,6 +961,21 @@
             applyTheme(e.matches ? 'dark' : 'light');
           }
         } catch (_) {}
+      });
+    })();
+  </script>
+  <script>
+    (function () {
+      const help = document.getElementById('toolbar-help');
+      if (!help) return;
+      document.addEventListener('click', function (event) {
+        if (help.open && !help.contains(event.target)) help.open = false;
+      });
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && help.open) {
+          help.open = false;
+          help.querySelector('summary').focus();
+        }
       });
     })();
   </script>
