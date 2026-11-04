@@ -228,6 +228,21 @@ class RuntimeSourceTests(unittest.TestCase):
         self.assertIsNone(digest)
         self.assertEqual(reason, 'unexpected_content_type')
 
+    def test_study_apps_use_explicit_static_paths(self):
+        for app, repository, count in [('toeic-study', 'besteffortnet/webtest', 7),
+                                       ('equalification', 'besteffortnet/equalification', 10)]:
+            with self.subTest(app=app):
+                rule = drift.RULES[app]
+                self.assertEqual(rule['repository'], repository)
+                self.assertEqual(len(rule['assets']), count)
+                self.assertEqual(len({asset[0] for asset in rule['assets']}), count)
+                for _, urlpath, filepath, kind in rule['assets']:
+                    self.assertTrue(drift.safe_url(rule['origin'] + urlpath))
+                    self.assertTrue(filepath.startswith('static/'))
+                    self.assertNotIn('/api/', urlpath)
+                    self.assertNotIn('?', urlpath)
+                    self.assertIn(kind, ('html', 'css', 'js'))
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

@@ -22,6 +22,31 @@ from static_ui_inventory import ALLOWED_ORIGINS, make_opener, safe_url
 
 MAX_BYTES = 1024 * 1024
 RULES = {
+    'toeic-study': {
+        'origin': 'https://192.168.68.221:8009',
+        'repository': 'besteffortnet/webtest',
+        'assets': [('index', '/', 'static/index.html', 'html'),
+                   ('shell-style', '/study-shell.css', 'static/study-shell.css', 'css'),
+                   ('shell-script', '/study-shell.js', 'static/study-shell.js', 'js'),
+                   ('request-client', '/request-client.js', 'static/request-client.js', 'js'),
+                   ('releases-style', '/webui-releases.css', 'static/webui-releases.css', 'css'),
+                   ('releases-script', '/webui-releases.js', 'static/webui-releases.js', 'js'),
+                   ('history', '/version-history.html', 'static/version-history.html', 'html')],
+    },
+    'equalification': {
+        'origin': 'https://192.168.68.221:8010',
+        'repository': 'besteffortnet/equalification',
+        'assets': [('index', '/', 'static/index.html', 'html'),
+                   ('style', '/style.ui-2026.11.04.1.css', 'static/style.ui-2026.11.04.1.css', 'css'),
+                   ('app', '/app.js', 'static/app.js', 'js'),
+                   ('explanation', '/explanation.js', 'static/explanation.js', 'js'),
+                   ('mathjax-lazy', '/mathjax-lazy.js', 'static/mathjax-lazy.js', 'js'),
+                   ('reflow', '/reflow.js', 'static/reflow.js', 'js'),
+                   ('history', '/webui-history.ui-2026.11.04.1.html', 'static/webui-history.ui-2026.11.04.1.html', 'html'),
+                   ('history-script', '/webui-history.ui-2026.11.04.1.js', 'static/webui-history.ui-2026.11.04.1.js', 'js'),
+                   ('history-style', '/webui-history.ui-2026.11.04.1.css', 'static/webui-history.ui-2026.11.04.1.css', 'css'),
+                   ('history-loader', '/webui-history-loader.ui-2026.11.04.1.js', 'static/webui-history-loader.ui-2026.11.04.1.js', 'js')],
+    },
     'photo-editing': {
         'origin': 'https://192.168.68.221:8011',
         'repository': 'besteffortnet/photo-editing',
