@@ -4,6 +4,7 @@ import argparse
 from collections import Counter
 from datetime import datetime, timezone
 from html.parser import HTMLParser
+import hashlib
 import http.client
 import json
 import math
@@ -185,6 +186,7 @@ def make_opener(ca_file=None):
 
 def fetch_one(target, opener, timeout=4.0, allowed_origins=ALLOWED_ORIGINS):
     result = {'id': target['id'], 'checked_at': datetime.now(timezone.utc).isoformat(),
+              'binding_sha256': None,
               'outcome': 'unknown', 'http_status': None, 'static': unknown_features(), 'versions': []}
     if target['documentation']:
         result['outcome'] = 'documentation'
@@ -192,6 +194,8 @@ def fetch_one(target, opener, timeout=4.0, allowed_origins=ALLOWED_ORIGINS):
     if not safe_url(target['url'], allowed_origins):
         result['outcome'] = 'not_allowlisted'
         return result
+    # 同じIDが後で別の入口を指した場合、別サービスを比較しない。
+    result['binding_sha256'] = hashlib.sha256(target['url'].encode('utf-8')).hexdigest()
     req = request.Request(target['url'], method='GET', headers={
         'User-Agent': 'WebUI-Static-Inventory/1.0', 'Accept': 'text/html',
         'Cache-Control': 'no-cache',
@@ -275,7 +279,7 @@ def main(argv=None):
     summary = {'outcomes': dict(Counter(item['outcome'] for item in result)),
                'static': {name: dict(Counter(item['static'][name] for item in result))
                           for name in FIELDS}}
-    print(json.dumps({'ok': True, 'scope': 'static_html_only', 'summary': summary, 'results': result},
+    print(json.dumps({'ok': True, 'schema': 2, 'scope': 'static_html_only', 'summary': summary, 'results': result},
                      ensure_ascii=False, sort_keys=True))
     return 0
 

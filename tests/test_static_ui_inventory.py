@@ -1,4 +1,5 @@
 import json
+import hashlib
 from pathlib import Path
 import socket
 import ssl
@@ -109,6 +110,7 @@ class StaticUIInventoryTest(unittest.TestCase):
         self.assertEqual(result['http_status'], 200)
         self.assertEqual(result['static'], {name: 'observed' for name in audit.FIELDS})
         self.assertEqual(result['versions'], ['v1.2.3'])
+        self.assertEqual(result['binding_sha256'], hashlib.sha256((self.base + '/html?private-query-value').encode()).hexdigest())
         self.assertEqual(Fixture.requests_seen, [('/html?private-query-value', None)])
         report = json.dumps(result)
         for secret in ('EXAMPLE-PRIVATE-USER-CONTENT', 'private-query-value', self.base, '/html'):
@@ -149,6 +151,7 @@ class StaticUIInventoryTest(unittest.TestCase):
         target = {'id': 'x', 'url': self.base + '/forbidden', 'documentation': False}
         result = audit.fetch_one(target, self.opener, allowed_origins={('http', 'other.example', 80)})
         self.assertEqual(result['outcome'], 'not_allowlisted')
+        self.assertIsNone(result['binding_sha256'])
         self.assertEqual(Fixture.requests_seen, [])
 
     def test_documentation_is_not_fetched(self):
