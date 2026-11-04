@@ -201,6 +201,11 @@
       box-shadow: none;
     }
 
+    .app-group { margin-bottom: 16px; }
+    .app-group summary { cursor: pointer; padding: 12px 14px; color: var(--ink); font-weight: 700; font-size: 1.05rem; }
+    .app-group summary:focus-visible { outline: 3px solid var(--outline); outline-offset: -3px; }
+    .group-count { color: var(--muted); font-size: .8rem; font-weight: 400; margin-left: .45em; }
+    .app-group[open] summary { border-bottom: 1px solid var(--line); margin-bottom: 12px; }
     .table-wrap { overflow-x: visible; }
     table { width: 100%; border-collapse: separate; border-spacing: 0; }
     thead { display: none; }
@@ -664,18 +669,9 @@
     <p id="order-help" class="visually-hidden">ドラッグ、またはフォーカスして Alt と上下矢印キーで並べ替えます。順序はこのブラウザに保存されます。</p>
     <p id="observation-times-result" class="feedback" role="status" aria-live="polite"></p>
     <p id="order-status" class="feedback" role="status" aria-live="polite"></p>
-    <section class="panel" aria-label="WebUIアプリ一覧">
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>アプリ（サービス）</th>
-              <th>GitHubリポジトリ</th>
-              <th>概要</th>
-            </tr>
-          </thead>
-          <tbody>
+    <details class="app-group panel" data-group="study" open>
+      <summary>教材 <span class="group-count">3件</span></summary>
+      <div class="table-wrap"><table aria-label="教材"><thead><tr><th>#</th><th>アプリ（サービス）</th><th>GitHubリポジトリ</th><th>概要</th></tr></thead><tbody data-order-group="study">
             <tr class="app-card">
               <td>1</td>
               <td><a class="service-link" href="https://192.168.68.221:8009/" target="_blank" rel="noopener">TOEIC Study</a><span class="port-badge" aria-label="ポート番号 8009" title="接続先の指定ポート">PORT 8009</span> <a class="status-link" aria-label="TOEIC Studyの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=toeic">状態を見る</a> <span class="note" data-observation-id="toeic">観測時刻：未確認（遷移先で確認）</span></td>
@@ -711,22 +707,16 @@
               </td>
             </tr>
             <tr class="app-card">
-              <td>3</td>
-              <td><a class="service-link" href="http://192.168.68.221:8000/extensions/miniui/index.html">miniui</a><span class="port-badge" aria-label="ポート番号 8000" title="接続先の指定ポート">PORT 8000</span> <a class="status-link" aria-label="miniuiの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=miniui">状態を見る</a> <span class="note" data-observation-id="miniui">観測時刻：未確認（遷移先で確認）</span></td>
-              <td><a class="repo-link" href="https://github.com/besteffortnet/miniui" target="_blank" rel="noopener">besteffortnet/miniui</a></td>
-              <td>
-                <div class="desc-toggle-row">
-                  <span class="desc-title">概要</span>
-                  <label class="switch" title="概要の表示切替">
-                    <input type="checkbox" class="desc-switch" aria-label="概要の表示切替">
-                    <span class="slider"></span>
-                  </label>
-                </div>
-                <div class="desc-text" hidden>
-                  ComfyUI用日本語プロンプト画像生成WebUI。LAN内で履歴を共有。
-                </div>
-              </td>
+              <td>19</td>
+              <td><a class="service-link" href="https://192.168.68.221:8016/" target="_blank" rel="noopener">DUO Study</a><span class="port-badge" aria-label="ポート番号 8016" title="接続先の指定ポート">PORT 8016</span> <a class="status-link" aria-label="DUO Studyの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=duo">状態を見る</a> <span class="note" data-observation-id="duo">観測時刻：未確認（遷移先で確認）</span></td>
+              <td><a class="repo-link" href="https://github.com/besteffortnet/duo-learning" target="_blank" rel="noopener">besteffortnet/duo-learning</a> <span class="note">Private</span></td>
+              <td><div class="desc-toggle-row"><span class="desc-title">概要</span><label class="switch" title="概要の表示切替"><input type="checkbox" class="desc-switch" aria-label="DUO Studyの概要の表示切替"><span class="slider"></span></label></div><div class="desc-text" hidden>イラストと例文で学ぶ個人用英語学習。560例文の検索・和訳切替・お気に入り・復習記録と独立音声ライブラリ。<span class="note">221:8016・共通CA HTTPS・信頼済みLAN限定。教材は共有ドライブ、開発経緯は非公開GitHubで管理。</span></div></td>
             </tr>
+      </tbody></table></div>
+    </details>
+    <details class="app-group panel" data-group="library" open>
+      <summary>本棚 <span class="group-count">6件</span></summary>
+      <div class="table-wrap"><table aria-label="本棚"><thead><tr><th>#</th><th>アプリ（サービス）</th><th>GitHubリポジトリ</th><th>概要</th></tr></thead><tbody data-order-group="library">
             <tr class="app-card">
               <td>4</td>
               <td><a class="service-link" href="http://192.168.68.221:8006/?root=1&amp;sort=file_created_at&amp;dir=desc">vr-video-manager</a><span class="port-badge" aria-label="ポート番号 8006" title="接続先の指定ポート">PORT 8006</span> <a class="status-link" aria-label="VR Video Managerのサービス全体の状態を見る。表示条件は未評価" href="https://192.168.68.221:8013/service-status.html?app=vr">サービス全体の状態</a> <span class="note">表示条件は未評価</span> <span class="note" data-observation-id="vr">観測時刻：未確認（遷移先で確認）</span></td>
@@ -741,6 +731,80 @@
                 </div>
                 <div class="desc-text" hidden>
                   Meta Quest 3 / Skybox向け動画ライブラリ管理。<span class="note">221 / 信頼済みLAN限定</span>
+                </div>
+              </td>
+            </tr>
+            <tr class="app-card">
+              <td>13</td>
+              <td><a class="service-link" href="https://192.168.68.221:8011/" target="_blank" rel="noopener">Photo Editing</a><span class="port-badge" aria-label="ポート番号 8011" title="接続先の指定ポート">PORT 8011</span> <a class="status-link" aria-label="Photo Editingの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=photo">状態を見る</a> <span class="note" data-observation-id="photo">観測時刻：未確認（遷移先で確認）</span></td>
+              <td><a class="repo-link" href="https://github.com/besteffortnet/photo-editing" target="_blank" rel="noopener">besteffortnet/photo-editing</a> <span class="note">Private</span></td>
+              <td>
+                <div class="desc-toggle-row">
+                  <span class="desc-title">概要</span>
+                  <label class="switch" title="概要の表示切替">
+                    <input type="checkbox" class="desc-switch" aria-label="概要の表示切替">
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                <div class="desc-text" hidden>
+                  写真の一覧・拡大表示、修正範囲の指定、修正依頼の保存・進捗管理。<span class="note">221:8011・HTTPS・信頼済みLAN限定。編集知見と検証手順を非公開リポジトリに蓄積。</span>
+                </div>
+              </td>
+            </tr>
+            <tr class="app-card">
+              <td>15</td>
+              <td><a class="service-link" href="http://192.168.68.221:8012/" target="_blank" rel="noopener">Comic Shelf</a><span class="port-badge" aria-label="ポート番号 8012" title="接続先の指定ポート">PORT 8012</span> <a class="status-link" aria-label="Comic Shelf の HTTP 8012 の状態を見る" href="https://192.168.68.221:8013/service-status.html?app=comic">8012 状態</a> <span class="note">8012 <span data-observation-id="comic" data-observation-compact="true">観測未確認</span></span> <a class="alternate-service-link" aria-label="Comic Shelf の HTTPS 入口（ポート8019）" href="https://192.168.68.221:8019/" target="_blank" rel="noopener">HTTPS</a><span class="port-badge" aria-label="HTTPS入口のポート番号 8019" title="追加HTTPS入口の指定ポート">PORT 8019</span> <a class="status-link" aria-label="Comic Shelf の HTTPS 8019 の状態を見る" href="https://192.168.68.221:8013/service-status.html?app=comic-https">8019 状態</a> <span class="note">8019 <span data-observation-id="comic-https" data-observation-compact="true">観測未確認</span></span></td>
+              <td><a class="repo-link" href="https://github.com/besteffortnet/comic-reader" target="_blank" rel="noopener">besteffortnet/comic-reader</a> <span class="note">Private</span></td>
+              <td>
+                <div class="desc-toggle-row">
+                  <span class="desc-title">概要</span>
+                  <label class="switch" title="概要の表示切替">
+                    <input type="checkbox" class="desc-switch" aria-label="Comic Shelfの概要の表示切替">
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                <div class="desc-text" hidden>
+                  ZIP・画像フォルダの漫画を1冊単位で管理。作者別／作品別のリスト、表紙プレビュー、全画面見開き、読書位置保存、次巻送りに対応。フォルダ・ファイル名は最大20件の置換ルールをまとめて実行できます。一般／成年コミック表記の削除プリセット、変更前後のプレビュー、元に戻す操作も利用できます。PC・iPad Pro 13・iPhone向け表示を改善。タッチ式ページゲージ、自動見開き、文字サイズ・高コントラスト、ルールセット保存とJSON入出力に対応。<span class="note">221:8012・自宅LAN限定。</span>
+                </div>
+              </td>
+            </tr>
+            <tr class="app-card">
+              <td>18</td>
+              <td><a class="service-link" href="https://192.168.68.221:8015/" target="_blank" rel="noopener">音の本棚</a><span class="port-badge" aria-label="ポート番号 8015" title="接続先の指定ポート">PORT 8015</span> <a class="status-link" aria-label="音の本棚の状態を見る" href="https://192.168.68.221:8013/service-status.html?app=audiobook">状態を見る</a> <span class="note" data-observation-id="audiobook">観測時刻：未確認（遷移先で確認）</span></td>
+              <td><a class="repo-link" href="https://github.com/besteffortnet/audiobook-web" target="_blank" rel="noopener">besteffortnet/audiobook-web</a> <span class="note">Private</span></td>
+              <td><div class="desc-toggle-row"><span class="desc-title">概要</span><label class="switch" title="概要の表示切替"><input type="checkbox" class="desc-switch" aria-label="音の本棚の概要の表示切替"><span class="slider"></span></label></div><div class="desc-text" hidden>音声フォルダをブラウザで再生。複数フォルダ・定期更新・再生速度・再生位置の端末間共有に対応。<span class="note">221:8015・信頼LAN限定。</span></div></td>
+            </tr>
+            <tr class="app-card">
+              <td>20</td>
+              <td><a class="service-link" href="https://192.168.68.221:8017/" target="_blank" rel="noopener">映像の本棚</a><span class="port-badge" aria-label="ポート番号 8017" title="接続先の指定ポート">PORT 8017</span> <a class="status-link" aria-label="映像の本棚の状態を見る" href="https://192.168.68.221:8013/service-status.html?app=video-player-2d">状態を見る</a> <span class="note" data-observation-id="video-player-2d">観測時刻：未確認（遷移先で確認）</span></td>
+              <td><a class="repo-link" href="https://github.com/besteffortnet/video-player-2d" target="_blank" rel="noopener">besteffortnet/video-player-2d</a> <span class="note">Private</span></td>
+              <td><div class="desc-toggle-row"><span class="desc-title">概要</span><label class="switch" title="概要の表示切替"><input type="checkbox" class="desc-switch" aria-label="映像の本棚の概要の表示切替"><span class="slider"></span></label></div><div class="desc-text" hidden>2D動画を再生し、音声トラックや字幕を選択。<span class="note">221:8017・HTTPS・信頼LAN限定。</span></div></td>
+            </tr>
+            <tr class="app-card">
+              <td>21</td>
+              <td><a class="service-link" href="https://192.168.68.221:8018/" target="_blank" rel="noopener">本の栞（ebook-reader）</a><span class="port-badge" aria-label="ポート番号 8018" title="接続先の指定ポート">PORT 8018</span> <a class="status-link" aria-label="本の栞（ebook-reader）の状態を見る" href="https://192.168.68.221:8013/service-status.html?app=ebook-reader">状態を見る</a> <span class="note" data-observation-id="ebook-reader">観測時刻：未確認（遷移先で確認）</span></td>
+              <td><a class="repo-link" href="https://github.com/besteffortnet/ebook-reader" target="_blank" rel="noopener">besteffortnet/ebook-reader</a> <span class="note">Private</span></td>
+              <td><div class="desc-toggle-row"><span class="desc-title">概要</span><label class="switch" title="概要の表示切替"><input type="checkbox" class="desc-switch" aria-label="本の栞（ebook-reader）の概要の表示切替"><span class="slider"></span></label></div><div class="desc-text" hidden>EPUBの閲覧とAPI TTSによる読み上げ。221:8018・共通CA HTTPS・信頼LAN限定。</div></td>
+            </tr>
+      </tbody></table></div>
+    </details>
+    <details class="app-group panel" data-group="other" open>
+      <summary>その他 <span class="group-count">12件</span></summary>
+      <div class="table-wrap"><table aria-label="その他"><thead><tr><th>#</th><th>アプリ（サービス）</th><th>GitHubリポジトリ</th><th>概要</th></tr></thead><tbody data-order-group="other">
+            <tr class="app-card">
+              <td>3</td>
+              <td><a class="service-link" href="http://192.168.68.221:8000/extensions/miniui/index.html">miniui</a><span class="port-badge" aria-label="ポート番号 8000" title="接続先の指定ポート">PORT 8000</span> <a class="status-link" aria-label="miniuiの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=miniui">状態を見る</a> <span class="note" data-observation-id="miniui">観測時刻：未確認（遷移先で確認）</span></td>
+              <td><a class="repo-link" href="https://github.com/besteffortnet/miniui" target="_blank" rel="noopener">besteffortnet/miniui</a></td>
+              <td>
+                <div class="desc-toggle-row">
+                  <span class="desc-title">概要</span>
+                  <label class="switch" title="概要の表示切替">
+                    <input type="checkbox" class="desc-switch" aria-label="概要の表示切替">
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                <div class="desc-text" hidden>
+                  ComfyUI用日本語プロンプト画像生成WebUI。LAN内で履歴を共有。
                 </div>
               </td>
             </tr>
@@ -880,45 +944,11 @@
                 </div>
               </td>
             </tr>
-            <tr class="app-card">
-              <td>13</td>
-              <td><a class="service-link" href="https://192.168.68.221:8011/" target="_blank" rel="noopener">Photo Editing</a><span class="port-badge" aria-label="ポート番号 8011" title="接続先の指定ポート">PORT 8011</span> <a class="status-link" aria-label="Photo Editingの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=photo">状態を見る</a> <span class="note" data-observation-id="photo">観測時刻：未確認（遷移先で確認）</span></td>
-              <td><a class="repo-link" href="https://github.com/besteffortnet/photo-editing" target="_blank" rel="noopener">besteffortnet/photo-editing</a> <span class="note">Private</span></td>
-              <td>
-                <div class="desc-toggle-row">
-                  <span class="desc-title">概要</span>
-                  <label class="switch" title="概要の表示切替">
-                    <input type="checkbox" class="desc-switch" aria-label="概要の表示切替">
-                    <span class="slider"></span>
-                  </label>
-                </div>
-                <div class="desc-text" hidden>
-                  写真の一覧・拡大表示、修正範囲の指定、修正依頼の保存・進捗管理。<span class="note">221:8011・HTTPS・信頼済みLAN限定。編集知見と検証手順を非公開リポジトリに蓄積。</span>
-                </div>
-              </td>
-            </tr>
             <tr class="app-card" id="webapp-common-entry">
               <td>14</td>
               <td><a class="service-link" href="https://192.168.68.221:8013/" target="_blank" rel="noopener">Webアプリ共通化</a><span class="port-badge" aria-label="ポート番号 8013" title="接続先の指定ポート">PORT 8013</span> <a class="status-link" aria-label="Webアプリ共通化の状態を見る" href="https://192.168.68.221:8013/service-status.html?app=webapp-common">状態を見る</a> <span class="note" data-observation-id="webapp-common">観測時刻：未確認（遷移先で確認）</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/agent-ops/tree/github-stable/tools/webapp-common" target="_blank" rel="noopener">agent-ops / webapp-common</a></td>
               <td><div class="desc-toggle-row"><span class="desc-title">概要</span><label class="switch" title="概要の表示切替"><input type="checkbox" class="desc-switch" aria-label="Webアプリ共通化の概要の表示切替"><span class="slider"></span></label></div><div class="desc-text" hidden>テーマ・キー操作・ドラッグ＆ドロップなどの共通UI部品とサイト適用診断。登録サイトの導入状況や競合リスクを確認し、試験導入の手順と部品を取得できます。カタログの版はリンク先で確認できます。221:8013・共通CA HTTPS・信頼済みLAN限定。</div></td>
-            </tr>
-            <tr class="app-card">
-              <td>15</td>
-              <td><a class="service-link" href="http://192.168.68.221:8012/" target="_blank" rel="noopener">Comic Shelf</a><span class="port-badge" aria-label="ポート番号 8012" title="接続先の指定ポート">PORT 8012</span> <a class="status-link" aria-label="Comic Shelf の HTTP 8012 の状態を見る" href="https://192.168.68.221:8013/service-status.html?app=comic">8012 状態</a> <span class="note">8012 <span data-observation-id="comic" data-observation-compact="true">観測未確認</span></span> <a class="alternate-service-link" aria-label="Comic Shelf の HTTPS 入口（ポート8019）" href="https://192.168.68.221:8019/" target="_blank" rel="noopener">HTTPS</a><span class="port-badge" aria-label="HTTPS入口のポート番号 8019" title="追加HTTPS入口の指定ポート">PORT 8019</span> <a class="status-link" aria-label="Comic Shelf の HTTPS 8019 の状態を見る" href="https://192.168.68.221:8013/service-status.html?app=comic-https">8019 状態</a> <span class="note">8019 <span data-observation-id="comic-https" data-observation-compact="true">観測未確認</span></span></td>
-              <td><a class="repo-link" href="https://github.com/besteffortnet/comic-reader" target="_blank" rel="noopener">besteffortnet/comic-reader</a> <span class="note">Private</span></td>
-              <td>
-                <div class="desc-toggle-row">
-                  <span class="desc-title">概要</span>
-                  <label class="switch" title="概要の表示切替">
-                    <input type="checkbox" class="desc-switch" aria-label="Comic Shelfの概要の表示切替">
-                    <span class="slider"></span>
-                  </label>
-                </div>
-                <div class="desc-text" hidden>
-                  ZIP・画像フォルダの漫画を1冊単位で管理。作者別／作品別のリスト、表紙プレビュー、全画面見開き、読書位置保存、次巻送りに対応。フォルダ・ファイル名は最大20件の置換ルールをまとめて実行できます。一般／成年コミック表記の削除プリセット、変更前後のプレビュー、元に戻す操作も利用できます。PC・iPad Pro 13・iPhone向け表示を改善。タッチ式ページゲージ、自動見開き、文字サイズ・高コントラスト、ルールセット保存とJSON入出力に対応。<span class="note">221:8012・自宅LAN限定。</span>
-                </div>
-              </td>
             </tr>
             <tr class="app-card">
               <td>16</td>
@@ -946,34 +976,8 @@
                 <div class="desc-text" hidden>ブラウザで指示し、サーバ上のrsyncでストレージ間を直接コピー・検証後に移動。<span class="note">開発中・現時点は同一サーバ内、ローカル接続のみ。ボタンは起動手順を開きます。ホスト間転送は未実装。</span></div>
               </td>
             </tr>
-            <tr class="app-card">
-              <td>18</td>
-              <td><a class="service-link" href="https://192.168.68.221:8015/" target="_blank" rel="noopener">音の本棚</a><span class="port-badge" aria-label="ポート番号 8015" title="接続先の指定ポート">PORT 8015</span> <a class="status-link" aria-label="音の本棚の状態を見る" href="https://192.168.68.221:8013/service-status.html?app=audiobook">状態を見る</a> <span class="note" data-observation-id="audiobook">観測時刻：未確認（遷移先で確認）</span></td>
-              <td><a class="repo-link" href="https://github.com/besteffortnet/audiobook-web" target="_blank" rel="noopener">besteffortnet/audiobook-web</a> <span class="note">Private</span></td>
-              <td><div class="desc-toggle-row"><span class="desc-title">概要</span><label class="switch" title="概要の表示切替"><input type="checkbox" class="desc-switch" aria-label="音の本棚の概要の表示切替"><span class="slider"></span></label></div><div class="desc-text" hidden>音声フォルダをブラウザで再生。複数フォルダ・定期更新・再生速度・再生位置の端末間共有に対応。<span class="note">221:8015・信頼LAN限定。</span></div></td>
-            </tr>
-            <tr class="app-card">
-              <td>19</td>
-              <td><a class="service-link" href="https://192.168.68.221:8016/" target="_blank" rel="noopener">DUO Study</a><span class="port-badge" aria-label="ポート番号 8016" title="接続先の指定ポート">PORT 8016</span> <a class="status-link" aria-label="DUO Studyの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=duo">状態を見る</a> <span class="note" data-observation-id="duo">観測時刻：未確認（遷移先で確認）</span></td>
-              <td><a class="repo-link" href="https://github.com/besteffortnet/duo-learning" target="_blank" rel="noopener">besteffortnet/duo-learning</a> <span class="note">Private</span></td>
-              <td><div class="desc-toggle-row"><span class="desc-title">概要</span><label class="switch" title="概要の表示切替"><input type="checkbox" class="desc-switch" aria-label="DUO Studyの概要の表示切替"><span class="slider"></span></label></div><div class="desc-text" hidden>イラストと例文で学ぶ個人用英語学習。560例文の検索・和訳切替・お気に入り・復習記録と独立音声ライブラリ。<span class="note">221:8016・共通CA HTTPS・信頼済みLAN限定。教材は共有ドライブ、開発経緯は非公開GitHubで管理。</span></div></td>
-            </tr>
-            <tr class="app-card">
-              <td>20</td>
-              <td><a class="service-link" href="https://192.168.68.221:8017/" target="_blank" rel="noopener">映像の本棚</a><span class="port-badge" aria-label="ポート番号 8017" title="接続先の指定ポート">PORT 8017</span> <a class="status-link" aria-label="映像の本棚の状態を見る" href="https://192.168.68.221:8013/service-status.html?app=video-player-2d">状態を見る</a> <span class="note" data-observation-id="video-player-2d">観測時刻：未確認（遷移先で確認）</span></td>
-              <td><a class="repo-link" href="https://github.com/besteffortnet/video-player-2d" target="_blank" rel="noopener">besteffortnet/video-player-2d</a> <span class="note">Private</span></td>
-              <td><div class="desc-toggle-row"><span class="desc-title">概要</span><label class="switch" title="概要の表示切替"><input type="checkbox" class="desc-switch" aria-label="映像の本棚の概要の表示切替"><span class="slider"></span></label></div><div class="desc-text" hidden>2D動画を再生し、音声トラックや字幕を選択。<span class="note">221:8017・HTTPS・信頼LAN限定。</span></div></td>
-            </tr>
-            <tr class="app-card">
-              <td>21</td>
-              <td><a class="service-link" href="https://192.168.68.221:8018/" target="_blank" rel="noopener">本の栞（ebook-reader）</a><span class="port-badge" aria-label="ポート番号 8018" title="接続先の指定ポート">PORT 8018</span> <a class="status-link" aria-label="本の栞（ebook-reader）の状態を見る" href="https://192.168.68.221:8013/service-status.html?app=ebook-reader">状態を見る</a> <span class="note" data-observation-id="ebook-reader">観測時刻：未確認（遷移先で確認）</span></td>
-              <td><a class="repo-link" href="https://github.com/besteffortnet/ebook-reader" target="_blank" rel="noopener">besteffortnet/ebook-reader</a> <span class="note">Private</span></td>
-              <td><div class="desc-toggle-row"><span class="desc-title">概要</span><label class="switch" title="概要の表示切替"><input type="checkbox" class="desc-switch" aria-label="本の栞（ebook-reader）の概要の表示切替"><span class="slider"></span></label></div><div class="desc-text" hidden>EPUBの閲覧とAPI TTSによる読み上げ。221:8018・共通CA HTTPS・信頼LAN限定。</div></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
+      </tbody></table></div>
+    </details>
 
     <footer>最終更新: 2026-10-28</footer>
   </main>
@@ -1041,7 +1045,16 @@
       });
     })();
   </script>
-<script src="row-order.js?v=14"></script>
+<script>
+    document.querySelectorAll('.app-group').forEach(function (group) {
+      const key = 'webui.group.' + group.dataset.group;
+      try { const saved = localStorage.getItem(key); if (saved === 'closed') group.open = false; } catch (_) {}
+      group.addEventListener('toggle', function () {
+        try { localStorage.setItem(key, group.open ? 'open' : 'closed'); } catch (_) {}
+      });
+    });
+  </script>
+<script src="row-order.js?v=15"></script>
 <script src="observation-times.js?v=2026.11.04.10"></script>
 </body>
 </html>

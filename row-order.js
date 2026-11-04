@@ -3,10 +3,10 @@
    リアルタイムプレースホルダー、FLIPスライドアニメーション、隙間マス対応。 */
 (function () {
   'use strict';
-  const body = document.querySelector('table tbody');
-  if (!body) return;
+  const orderStates = new Map();
+  document.querySelectorAll('tbody[data-order-group]').forEach(function (body) {
   const original = Array.from(body.rows);
-  const key = 'webui.row-order.v1';
+  const key = 'webui.row-order.v2.' + body.dataset.orderGroup;
   const status = document.getElementById('order-status');
   const reset = document.getElementById('reset-order');
   const addSpacer = document.getElementById('add-spacer');
@@ -80,7 +80,8 @@
     if (reset) {
       const current = rows();
       const hasSpacer = current.some(r => r.classList.contains('spacer-slot'));
-      reset.disabled = !invalidSavedOrder && !hasSpacer && current.every((r, i) => r === original[i]);
+      orderStates.set(body, !invalidSavedOrder && !hasSpacer && current.every((r, i) => r === original[i]));
+      reset.disabled = Array.from(orderStates.values()).every(Boolean);
     }
   }
 
@@ -96,8 +97,14 @@
   }
 
   try {
-    const raw = localStorage.getItem(key);
-    const saved = raw === null ? null : JSON.parse(raw);
+    let raw = localStorage.getItem(key);
+    const legacy = raw === null;
+    if (legacy) raw = localStorage.getItem('webui.row-order.v1');
+    let saved = raw === null ? null : JSON.parse(raw);
+    if (legacy && Array.isArray(saved) && saved.every(id => typeof id === 'string') && new Set(saved).size === saved.length && saved.filter(id => id.startsWith('spacer:')).length <= maxSpacers) {
+      const ids = new Set(original.map(r => r.dataset.orderId));
+      saved = saved.filter(id => ids.has(id) || (body.dataset.orderGroup === 'other' && typeof id === 'string' && id.startsWith('spacer:')));
+    }
     const ids = original.map(r => r.dataset.orderId);
     const duplicateIds = new Set(ids).size !== ids.length || ids.some(id => !id);
     const invalidList = raw !== null && (!Array.isArray(saved) ||
@@ -355,7 +362,7 @@
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && drag) { e.preventDefault(); finish(true); return; }
     const handle = e.target.closest('.row-handle');
-    if (!handle || !e.altKey || !['ArrowUp', 'ArrowDown'].includes(e.key) || drag) return;
+    if (!handle || !body.contains(handle) || !e.altKey || !['ArrowUp', 'ArrowDown'].includes(e.key) || drag) return;
     e.preventDefault();
     const row = handle.closest('tr');
     const isPrev = e.key === 'ArrowUp';
@@ -399,7 +406,7 @@
   });
 
   // 隙間のマスを追加するボタン
-  if (addSpacer) {
+  if (addSpacer && body.dataset.orderGroup === 'other') {
     addSpacer.addEventListener('click', () => {
       if (rows().filter(r => r.classList.contains('spacer-slot')).length >= maxSpacers) {
         if (status) status.textContent = '隙間は100個まで追加できます。';
@@ -423,4 +430,5 @@
       save('初期順に戻しました。');
     });
   }
+  });
 })();
