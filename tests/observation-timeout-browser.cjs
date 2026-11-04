@@ -48,11 +48,13 @@ async function verify(name, engine, options, mode) {
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     await page.goto(`${origin}/webui-apps.html`, {waitUntil: 'load'});
+    await page.locator('#more-toggle').tap();
     await page.locator('#observation-times').tap();
     assert.equal(await page.locator('#observation-times').isDisabled(), true);
     await page.waitForFunction(() => !document.querySelector('#observation-times').disabled, null, {timeout: 6000});
     assert.equal(await page.evaluate(() => window.oldSignal.aborted), true);
     assert.match(await page.locator('#observation-times-result').innerText(), /未確認/);
+    await page.locator('#more-toggle').tap();
     await page.locator('#observation-times').tap();
     await page.waitForFunction(() => document.querySelector('#observation-times-result').textContent.includes('取得しました'));
     const row = page.locator('[data-observation-id="toeic"]');

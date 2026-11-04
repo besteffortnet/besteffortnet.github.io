@@ -7,7 +7,7 @@ const root = path.resolve(__dirname, '..');
 const version = JSON.parse(fs.readFileSync(path.join(root, 'webui-release-history.json'), 'utf8')).versions[0].version;
 const live = process.env.DIRECTORY_TEST_LIVE === '1';
 const origin = live ? 'https://besteffortnet.github.io' : 'https://fixture.invalid';
-const sizes = [320, 390, 768, 800, 810, 1032, 1440];
+const sizes = [320, 360, 390, 720, 721, 768, 800, 810, 1032, 1440];
 const engines = [
   ['Chrome', chromium, process.env.DIRECTORY_CHROME ? {executablePath: process.env.DIRECTORY_CHROME} : {}],
   ['WebKit', webkit, {}],
@@ -66,13 +66,35 @@ function contrast(rgb1, rgb2) {
           assert.equal(await page.locator('tbody').evaluate(el => getComputedStyle(el).gridTemplateColumns.split(' ').length), width <= 800 ? 2 : 3);
           const first = await rows.first().boundingBox();
           const nav = await page.locator('.theme-bar').boundingBox();
-          assert(first && nav && first.y <= (width <= 720 ? 120 : 75), `${name} ${width}: first card ${first?.y}`);
+          assert(first && nav && first.y <= 75, `${name} ${width}: first card ${first?.y}`);
           assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1), true);
           assert.equal(await page.locator('h1').innerText(), 'WebUIアプリ一覧');
+          assert.equal(await page.locator('h1').getAttribute('aria-label'), 'WebUIアプリ一覧');
           assert.equal(await page.locator('.version-link').innerText(), `v${version}`);
           assert.equal(await page.locator('.version-link').getAttribute('href'), 'webui-releases.html');
           assert.equal(await page.locator('.featured-app').getAttribute('href'), 'https://192.168.68.221:8013/');
           assert.match(await page.locator('.featured-app').getAttribute('rel'), /noopener/);
+          const compact = width <= 720;
+          const more = page.locator('#more-toggle');
+          const openActions = async () => {
+            if (compact && await more.getAttribute('aria-expanded') !== 'true') await more.tap();
+          };
+          if (compact) {
+            assert.equal(await more.isVisible(), true);
+            assert.equal(await page.locator('#toolbar-actions').isVisible(), false);
+            assert.equal(await more.getAttribute('aria-controls'), 'toolbar-actions');
+            const rect = await more.boundingBox();
+            assert(rect.width >= 44 && rect.height >= 44);
+            await more.focus();
+            await more.press('Enter');
+            assert.equal(await more.getAttribute('aria-expanded'), 'true');
+            assert.equal(await more.getAttribute('aria-label'), '一覧操作メニューを閉じる');
+            // WebKitの既定設定では Option+Tab でリンクも含めて移動する。
+            await page.keyboard.press(name === 'WebKit' ? 'Alt+Tab' : 'Tab');
+            assert.equal(await page.locator('.featured-app').evaluate(el => document.activeElement === el), true);
+          } else {
+            assert.equal(await more.isVisible(), false);
+          }
           for (const selector of ['.featured-app', '#observation-times', '#add-spacer', '#reset-order', '#toolbar-help summary', '#theme-toggle']) {
             const control = page.locator(selector), rect = await control.boundingBox();
             assert(rect && rect.width >= 44 && rect.height >= 44, `${selector} has a small target`);
@@ -83,10 +105,35 @@ function contrast(rgb1, rgb2) {
           await help.locator('summary').tap();
           assert.equal(await help.evaluate(el => el.open), true);
           const popover = await help.locator('.help-content').boundingBox();
-          assert(popover.x >= 0 && popover.x + popover.width <= width + 1);
+          assert(popover.x >= 0 && popover.x + popover.width <= width + 1,
+            `${name} ${width}: help popover ${JSON.stringify(popover)}`);
           assert.match(await help.innerText(), /Alt/);
           await page.keyboard.press('Escape');
           assert.equal(await help.evaluate(el => el.open), false);
+          if (compact) {
+            assert.equal(await more.getAttribute('aria-expanded'), 'true');
+            await page.keyboard.press('Escape');
+            assert.equal(await more.getAttribute('aria-expanded'), 'false');
+            assert.equal(await more.getAttribute('aria-label'), '一覧操作メニューを開く');
+            assert.equal(await more.evaluate(el => document.activeElement === el), true);
+          }
+          if (width === 390) {
+            await openActions();
+            await page.setViewportSize({width: 800, height: 850});
+            await page.waitForFunction(() => document.querySelector('#more-toggle').getAttribute('aria-expanded') === 'false');
+            assert.equal(await more.getAttribute('aria-expanded'), 'false');
+            assert.equal(await page.locator('#toolbar-actions').isVisible(), true);
+            await page.setViewportSize({width, height: 850});
+            assert.equal(await page.locator('#toolbar-actions').isVisible(), false);
+            await openActions();
+            await page.locator('h1').click();
+            assert.equal(await more.getAttribute('aria-expanded'), 'false');
+          }
+          if (width === 390 || width === 1032) {
+            await page.evaluate(() => window.scrollTo(0, 350));
+            assert(Math.abs((await page.locator('.theme-bar').boundingBox()).y) <= 1);
+            await page.evaluate(() => window.scrollTo(0, 0));
+          }
 
           const theme = page.locator('#theme-toggle');
           for (const mode of ['light', 'dark']) {
@@ -98,10 +145,12 @@ function contrast(rgb1, rgb2) {
           await page.reload();
           assert.equal(await page.locator('html').getAttribute('data-theme'), 'dark');
 
+          await openActions();
           await page.locator('#add-spacer').tap();
           assert.equal(await page.locator('tbody .spacer-slot').count(), 1);
           await page.reload();
           assert.equal(await page.locator('tbody .spacer-slot').count(), 1);
+          await openActions();
           await page.locator('#reset-order').tap();
           assert.equal(await page.locator('tbody .spacer-slot').count(), 0);
           assert.equal(await page.locator('#reset-order').isDisabled(), true);
@@ -132,7 +181,10 @@ function contrast(rgb1, rgb2) {
           }
 
           if (width === 390 && name === 'Chrome') {
-            if (await page.locator('#reset-order').isEnabled()) await page.locator('#reset-order').tap();
+            if (await page.locator('#reset-order').isEnabled()) {
+              await openActions();
+              await page.locator('#reset-order').tap();
+            }
             const beforeTouch = await ids();
             const a = await rows.nth(0).locator('.row-handle').boundingBox();
             const b = await rows.nth(1).boundingBox();
@@ -153,16 +205,19 @@ function contrast(rgb1, rgb2) {
             assert.deepEqual(await ids(), touchOrder);
           }
 
+          await openActions();
           await page.locator('#observation-times').tap();
           await page.waitForFunction(() => document.querySelector('#observation-times-result').textContent.includes('取得しました'));
           assert.match(await page.locator('[data-observation-id="toeic"]').innerText(), /観測時刻/);
           assert.equal(await page.locator('#observation-times').isEnabled(), true);
           observation = 'error';
+          await openActions();
           await page.locator('#observation-times').tap();
           await page.waitForFunction(() => document.querySelector('#observation-times-result').textContent.includes('未確認'));
           assert.equal(await page.locator('#observation-times').isEnabled(), true);
           if (width === 390) {
             observation = 'timeout';
+            await openActions();
             await page.locator('#observation-times').tap();
             await page.waitForFunction(() => !document.querySelector('#observation-times').disabled, null, {timeout: 5000});
             assert.match(await page.locator('#observation-times-result').innerText(), /未確認/);
