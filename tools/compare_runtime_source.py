@@ -39,9 +39,22 @@ RULES = {
                    ('app', '/app.js', 'static/app.js', 'js'),
                    ('study-core', '/study-core.mjs', 'static/study-core.mjs', 'js')],
     },
+    'video-player-2d': {
+        'origin': 'https://192.168.68.221:8017',
+        'repository': 'besteffortnet/video-player-2d',
+        'assets': [('index', '/', 'static/index.html', 'html'),
+                   ('style', '/static/style.css', 'static/style.css', 'css'),
+                   ('app', '/static/app.js', 'static/app.js', 'js'),
+                   ('theme', '/static/theme.js', 'static/theme.js', 'js'),
+                   ('history', '/static/releases.html', 'static/releases.html', 'html'),
+                   ('history-script', '/static/releases.js', 'static/releases.js', 'js'),
+                   ('history-style', '/static/releases.css', 'static/releases.css', 'css'),
+                   ('history-data', '/static/releases.json', 'static/releases.json', 'json')],
+    },
 }
 MIME = {'html': {'text/html', 'application/xhtml+xml'}, 'css': {'text/css'},
-        'js': {'text/javascript', 'application/javascript', 'application/x-javascript'}}
+        'js': {'text/javascript', 'application/javascript', 'application/x-javascript'},
+        'json': {'application/json'}}
 HEX = re.compile(r'(?:[0-9a-f]{40}|[0-9a-f]{64})\Z')
 
 

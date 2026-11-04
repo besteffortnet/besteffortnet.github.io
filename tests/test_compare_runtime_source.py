@@ -209,6 +209,25 @@ class RuntimeSourceTests(unittest.TestCase):
                     self.assertNotIn(str(self.repo), output.getvalue())
                     self.assertNotIn('synthetic-private-fixture', output.getvalue())
 
+    def test_video_player_uses_only_fixed_static_paths_and_checks_json_type(self):
+        rule = drift.RULES['video-player-2d']
+        self.assertEqual(rule['repository'], 'besteffortnet/video-player-2d')
+        self.assertEqual(len(rule['assets']), 8)
+        self.assertEqual(len({asset[0] for asset in rule['assets']}), 8)
+        for _, urlpath, filepath, _ in rule['assets']:
+            self.assertTrue(urlpath == '/' or urlpath.startswith('/static/'))
+            self.assertTrue(filepath.startswith('static/'))
+            self.assertTrue(drift.safe_url(rule['origin'] + urlpath))
+            self.assertNotIn('?', urlpath)
+        Handler.routes['/history.json'] = {'body': b'{"releases":[]}', 'mime': 'application/json'}
+        digest, reason, status = self.fetch('/history.json', kind='json')
+        self.assertEqual((reason, status), (None, 200))
+        self.assertIsNotNone(digest)
+        Handler.routes['/history.json']['mime'] = 'text/html'
+        digest, reason, _ = self.fetch('/history.json', kind='json')
+        self.assertIsNone(digest)
+        self.assertEqual(reason, 'unexpected_content_type')
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
