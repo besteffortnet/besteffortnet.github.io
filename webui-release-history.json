@@ -2,6 +2,22 @@
   "schema": 1,
   "versions": [
     {
+      "version": "2026.11.04.10",
+      "ref": "webui-apps-v2026.11.04.10",
+      "timestamp": "2026-11-04T14:14:23+09:00",
+      "actor": "Codex",
+      "summary": "取得した観測時刻が25分を超えた際、追加通信なしで前回の観測へ表示を更新。非表示からの復帰時や履歴から戻った際にも経過時間を再確認する。",
+      "files": [
+        "webui-apps.html",
+        "observation-times.js",
+        "webui-release-history.json",
+        "tests/observation-timeout.test.cjs",
+        "tests/observation-endpoints-browser.cjs",
+        "tests/observation-age-browser.cjs",
+        "docs/observation-age-refresh.md"
+      ]
+    },
+    {
       "version": "2026.11.04.9",
       "ref": "webui-apps-v2026.11.04.9",
       "timestamp": "2026-11-04T14:04:29+09:00",
