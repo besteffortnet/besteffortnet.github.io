@@ -44,8 +44,8 @@ class VrServiceScopeTests(unittest.TestCase):
         self.assertIn("表示条件は未評価", "".join(row["text"]))
         self.assertEqual(row["observation_ids"], ["vr"])
         ids = [item for r in parser.rows for item in r["observation_ids"]]
-        self.assertEqual(len(ids), 20)
-        self.assertEqual(len(set(ids)), 20)
+        self.assertEqual(len(ids), 21)
+        self.assertEqual(len(set(ids)), 21)
 
 
 if __name__ == "__main__":
