@@ -30,6 +30,10 @@ class Fixture(BaseHTTPRequestHandler):
             self.send_response(401)
             self.end_headers()
             return
+        if self.path.startswith('/denied'):
+            self.send_response(403)
+            self.end_headers()
+            return
         if self.path == '/large':
             self.send_response(200)
             self.send_header('Content-Type', 'text/html')
@@ -118,8 +122,10 @@ class StaticUIInventoryTest(unittest.TestCase):
 
     def test_auth_and_non_html_are_unknown(self):
         auth = self.fetch('/auth')
+        denied = self.fetch('/denied')
         other = self.fetch('/not-html')
-        self.assertEqual((auth['outcome'], auth['http_status']), ('authentication', 401))
+        self.assertEqual((auth['outcome'], auth['http_status']), ('access_restricted', 401))
+        self.assertEqual((denied['outcome'], denied['http_status']), ('access_restricted', 403))
         self.assertEqual(other['outcome'], 'not_html')
         self.assertEqual(auth['static'], audit.unknown_features())
         self.assertEqual(other['static'], audit.unknown_features())

@@ -231,7 +231,7 @@ def fetch_one(target, opener, timeout=4.0, allowed_origins=ALLOWED_ORIGINS):
     except error.HTTPError as exc:
         result['http_status'] = exc.code
         result['outcome'] = ('redirect' if 300 <= exc.code < 400 else
-                             'authentication' if exc.code in (401, 403) else 'http_error')
+                             'access_restricted' if exc.code in (401, 403) else 'http_error')
         exc.close()
     except (socket.timeout, TimeoutError):
         result['outcome'] = 'timeout'
