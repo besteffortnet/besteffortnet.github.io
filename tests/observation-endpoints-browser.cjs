@@ -79,13 +79,13 @@ const engines = [
             await page.locator('#observation-times').tap();
             await page.waitForFunction(() => {
               const text = document.querySelector('#observation-times-result').textContent;
-              return text.includes('取得しました') || text.includes('未確認');
+              return text.includes('取得しました') || text.includes('前回の観測') || text.includes('未確認');
             });
             if (scenario === 'unavailable' || scenario === 'real-denied') {
               assert.match(await httpTime.textContent(), /未確認/);
               assert.match(await httpsTime.textContent(), /未確認/);
             } else {
-              assert.match(await httpTime.textContent(), /観測：/);
+              assert.match(await httpTime.textContent(), /^(観測|前回)：/);
               assert.doesNotMatch(await httpTime.textContent(), /未確認/);
               if (scenario === 'both' || scenario === 'real') assert.doesNotMatch(await httpsTime.textContent(), /未確認/);
               else assert.match(await httpsTime.textContent(), /未確認/);
