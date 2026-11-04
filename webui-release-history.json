@@ -2,6 +2,20 @@
   "schema": 1,
   "versions": [
     {
+      "version": "2026.11.04.7",
+      "ref": "webui-apps-v2026.11.04.7",
+      "timestamp": "2026-11-04T13:33:14+09:00",
+      "actor": "Codex",
+      "summary": "カードを押した後、一覧の外で指やマウスを離しても並べ替えの操作状態が残らないよう修正。続けてドラッグやキーボード操作ができるようにした。",
+      "files": [
+        "webui-apps.html",
+        "row-order.js",
+        "webui-release-history.json",
+        "tests/row-pointer-release-browser.cjs",
+        "tests/row-order-storage.test.cjs"
+      ]
+    },
+    {
       "version": "2026.11.04.6",
       "ref": "webui-apps-v2026.11.04.6",
       "timestamp": "2026-11-04T12:56:03+09:00",
