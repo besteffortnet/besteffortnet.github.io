@@ -12,6 +12,8 @@ from urllib.parse import parse_qsl, urlsplit
 ROOT = Path(__file__).resolve().parents[1]
 ID_PATTERN = re.compile(r'^[a-z0-9][a-z0-9_-]{0,63}$')
 TIME_PATTERN = re.compile(r'^\d{4}-\d{2}-\d{2}T.*(?:Z|[+-]\d{2}:\d{2})$')
+VERSION_LITERAL = re.compile(r'(?<![A-Za-z0-9])v[0-9]+(?:\.[0-9]+){1,3}(?![A-Za-z0-9.])', re.I)
+SITE_COUNT_LITERAL = re.compile(r'(?<![0-9])[0-9]{1,5}\s*サイト')
 OBSERVATION_URL = 'https://192.168.68.221:8013/api/public-observation-times'
 STATUS_ORIGIN = '192.168.68.221:8013'
 MAX_INPUT_BYTES = 1024 * 1024
@@ -25,6 +27,8 @@ class DirectoryParser(HTMLParser):
         self.card = None
         self.buttons = []
         self.outside_observations = 0
+        self.description_depth = 0
+        self.unclosed_descriptions = 0
 
     def handle_starttag(self, tag, raw_attrs):
         attrs = dict(raw_attrs)
@@ -32,7 +36,12 @@ class DirectoryParser(HTMLParser):
         if tag == 'tr' and 'app-card' in classes:
             if self.card is not None:
                 raise ValueError('nested app card')
-            self.card = {'services': [], 'repos': [], 'statuses': [], 'observations': []}
+            self.card = {'services': [], 'repos': [], 'statuses': [], 'observations': [], 'description': []}
+        if self.card is not None and tag == 'div':
+            if self.description_depth:
+                self.description_depth += 1
+            elif 'desc-text' in classes:
+                self.description_depth = 1
         if tag == 'button' and attrs.get('id') == 'observation-times':
             self.buttons.append(attrs)
         if 'data-observation-id' in attrs:
@@ -51,9 +60,18 @@ class DirectoryParser(HTMLParser):
                                           'label': attrs.get('aria-label') or ''})
 
     def handle_endtag(self, tag):
+        if tag == 'div' and self.description_depth:
+            self.description_depth -= 1
         if tag == 'tr' and self.card is not None:
+            if self.description_depth:
+                self.unclosed_descriptions += 1
+                self.description_depth = 0
             self.cards.append(self.card)
             self.card = None
+
+    def handle_data(self, data):
+        if self.card is not None and self.description_depth:
+            self.card['description'].append(data)
 
 
 def status_id(href):
@@ -112,7 +130,9 @@ def audit_directory(html, snapshot=UNSUPPLIED):
         errors.append('observation endpoint is missing or differs')
     if parser.outside_observations:
         errors.append('observation marker is outside an app card')
-    ids, repos, unlinked = [], set(), []
+    if parser.unclosed_descriptions:
+        errors.append('unclosed app description')
+    ids, repos, unlinked, review = [], set(), [], []
     for index, card in enumerate(parser.cards, 1):
         prefix = 'card ' + str(index) + ': '
         repo = None
@@ -138,13 +158,21 @@ def audit_directory(html, snapshot=UNSUPPLIED):
             errors.append(prefix + 'status links and observation ids differ')
         if not linked and not observations:
             unlinked.append({'card': index, 'repository': repo})
+        description = ''.join(card['description'])
+        versions = list(dict.fromkeys(VERSION_LITERAL.findall(description)))
+        counts = list(dict.fromkeys(SITE_COUNT_LITERAL.findall(description)))
+        if versions or counts:
+            review.append({'card': index, 'repository': repo,
+                           'versions': versions[:20], 'site_counts': counts[:20],
+                           'truncated': len(versions) > 20 or len(counts) > 20})
         ids.extend(value for value in observations if isinstance(value, str) and ID_PATTERN.fullmatch(value))
     if len(ids) != len(set(ids)):
         errors.append('duplicate observation id')
     if len(ids) > 100:
         errors.append('too many observation ids')
     report = {'ok': not errors, 'cards': len(parser.cards), 'linked_observations': len(ids),
-              'cards_without_observation': unlinked, 'errors': errors}
+              'cards_without_observation': unlinked, 'description_review_candidates': review,
+              'errors': errors}
     if snapshot is not UNSUPPLIED:
         available = snapshot_ids(snapshot)
         report['snapshot_observations'] = len(available)

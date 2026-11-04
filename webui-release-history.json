@@ -2,6 +2,22 @@
   "schema": 1,
   "versions": [
     {
+      "version": "2026.11.04.9",
+      "ref": "webui-apps-v2026.11.04.9",
+      "timestamp": "2026-11-04T14:04:29+09:00",
+      "actor": "Codex",
+      "summary": "共通化アプリの概要に残っていた古い版番号とサイト数を整理。概要内の固定バージョン・サイト数を確認候補として抽出し、更新漏れを見つけやすくした。",
+      "files": [
+        "webui-apps.html",
+        "webui-release-history.json",
+        "tools/audit_observation_mapping.py",
+        ".github/workflows/webui-restore-contract.yml",
+        "tests/test_observation_mapping.py",
+        "tests/description-freshness-browser.cjs",
+        "docs/description-freshness-audit.md"
+      ]
+    },
+    {
       "version": "2026.11.04.8",
       "ref": "webui-apps-v2026.11.04.8",
       "timestamp": "2026-11-04T13:45:20+09:00",

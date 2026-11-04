@@ -77,6 +77,35 @@ class ObservationMappingTests(unittest.TestCase):
         malformed = card().replace('aria-label="状態を見る"', 'aria-label')
         self.assertFalse(audit_directory(BUTTON + malformed)['ok'])
 
+    def test_description_literals_are_review_candidates_not_errors(self):
+        desc = '<td><div class="desc-text" hidden>非表示の文章 <span>v1.2.3</span>、17サイト。</div></td>'
+        html = BUTTON + card().replace('</tr>', desc + '</tr>')
+        result = audit_directory(html)
+        self.assertTrue(result['ok'])
+        self.assertEqual(result['description_review_candidates'], [
+            {'card': 1, 'repository': 'repo-a', 'versions': ['v1.2.3'],
+             'site_counts': ['17サイト'], 'truncated': False},
+        ])
+        self.assertNotIn('非表示の文章', str(result))
+
+    def test_many_description_candidates_are_bounded_and_marked(self):
+        versions = ' '.join('v1.2.' + str(n) for n in range(25))
+        desc = '<td><div class="desc-text">' + versions + '</div></td>'
+        result = audit_directory(BUTTON + card().replace('</tr>', desc + '</tr>'))
+        self.assertEqual(len(result['description_review_candidates'][0]['versions']), 20)
+        self.assertTrue(result['description_review_candidates'][0]['truncated'])
+
+    def test_description_scan_ignores_other_text_and_rejects_unclosed_description(self):
+        outside = card().replace('>app</a>', '>v9.9</a>')
+        self.assertEqual(audit_directory(BUTTON + outside)['description_review_candidates'], [])
+        broken = card().replace('</tr>', '<td><div class="desc-text">v1.2</tr>')
+        self.assertIn('unclosed app description', audit_directory(BUTTON + broken)['errors'])
+
+    def test_common_app_description_has_no_fixed_version_or_site_count(self):
+        html = (ROOT / 'webui-apps.html').read_text(encoding='utf-8')
+        candidates = audit_directory(html)['description_review_candidates']
+        self.assertFalse(any('/agent-ops/tree/' in (item['repository'] or '') for item in candidates))
+
     def test_snapshot_rejects_duplicates_wrong_shape_and_mixed_times(self):
         for bad in [snapshot('comic', 'comic'), [{'id': 'comic'}],
                     [{'id': 'bad id', 'collected_at': '2020-01-01T00:00:00+09:00'}],

@@ -21,6 +21,8 @@ jobs:
         run: node --test tests/restore-command-grammar.test.cjs tests/audit-displayed-restores.test.cjs
       - name: Verify displayed commands against every published version
         run: node tests/audit-displayed-restores.cjs
+      - name: Report directory observation and description review candidates
+        run: python3 tools/audit_observation_mapping.py
       - name: Run existing directory checks
         run: |
           node --test tests/row-order-storage.test.cjs tests/theme-toggle.test.cjs tests/webui-releases.test.cjs tests/observation-timeout.test.cjs
