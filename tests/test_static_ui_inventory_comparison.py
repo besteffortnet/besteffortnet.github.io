@@ -158,6 +158,13 @@ class InventoryComparisonTest(unittest.TestCase):
         self.assertEqual(result['results'][0]['status'], 'compared')
         self.assertEqual(result['summary']['static_changes'], 0)
 
+    def test_optional_history_probe_metadata_is_not_compared(self):
+        old, new = entry(), entry(minute=2)
+        new['history_probe'] = {'mode': 'checked', 'links': [{'outcome': 'redirect'}]}
+        result = self.compare(report(old), report(new))
+        self.assertEqual(result['results'][0]['status'], 'compared')
+        self.assertEqual(result['summary']['static_changes'], 0)
+
 
 if __name__ == '__main__':
     unittest.main()

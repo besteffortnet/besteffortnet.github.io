@@ -38,6 +38,24 @@ GLYPHS = frozenset('☀☼☾☽🌙🌞◐◑⚙')
 VOID = frozenset({'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input',
                   'link', 'meta', 'param', 'source', 'track', 'wbr'})
 FIELDS = ('history_link', 'theme_icon', 'directory_icon')
+MAX_HISTORY_LINKS = 32
+LAN = '192.168.68.221'
+# 入口ごとの履歴パスを明示し、HTMLが指す任意のURLは取得しない。
+HISTORY_RULES = {
+    'toeic': (('https', LAN, 8009), {'app': r'/version-history\.html'}),
+    'equalification': (('https', LAN, 8010), {'ui': r'/webui-history\.ui-[0-9]{4}\.[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,3}\.html'}),
+    'vr': (('http', LAN, 8006), {'ui': r'/release-history-ui-[0-9]{4}\.[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,3}\.html'}),
+    'bsmap': (('https', LAN, 8007), {'app': r'/history'}),
+    'hubterm': (('https', LAN, 8004), {'app': r'/releases\.html'}),
+    '9mile': (('http', LAN, 3000), {'app': r'/version-history\.html'}),
+    'webapp-common': (('https', LAN, 8013), {'ui': r'/catalog-release-history-v[0-9]{3,6}\.html'}),
+    'comic': (('http', LAN, 8012), {'app': r'/version-history\.html',
+                                  'ui': r'/comic-http-ui-history-[0-9]{8}-[0-9]{1,3}\.html'}),
+    'comic-https': (('https', LAN, 8019), {'legacy_http': r'/version-history\.html',
+                                          'https_ui': r'/releases\.html'}),
+    'video-player-2d': (('https', LAN, 8017), {'ui': r'/static/releases\.html'}),
+    'ebook-reader': (('https', LAN, 8018), {'ui': r'/static/releases-ui-[0-9]{1,4}\.[0-9]{1,4}\.[0-9]{1,4}\.html'}),
+}
 
 
 def unknown_features():
@@ -91,6 +109,8 @@ class StaticUIParser(HTMLParser):
         self.active = []
         self.features = {name: 'not_observed' for name in FIELDS}
         self.versions = []
+        self.history_urls = []
+        self.history_overflow = False
 
     def handle_starttag(self, tag, raw_attrs):
         attrs = dict(raw_attrs)
@@ -115,6 +135,12 @@ class StaticUIParser(HTMLParser):
                 if (p.scheme == self.base.scheme and p.netloc == self.base.netloc and
                         p.username is None and p.password is None):
                     kinds.append('history')
+                    link = p.geturl()
+                    if link not in self.history_urls:
+                        if len(self.history_urls) < MAX_HISTORY_LINKS:
+                            self.history_urls.append(link)
+                        else:
+                            self.history_overflow = True
             except ValueError:
                 pass
         if tag == 'a':
@@ -184,12 +210,16 @@ def make_opener(ca_file=None):
                                 request.HTTPSHandler(context=context))
 
 
-def fetch_one(target, opener, timeout=4.0, allowed_origins=ALLOWED_ORIGINS):
+def fetch_one(target, opener, timeout=4.0, allowed_origins=ALLOWED_ORIGINS, check_history=False):
     result = {'id': target['id'], 'checked_at': datetime.now(timezone.utc).isoformat(),
               'binding_sha256': None,
               'outcome': 'unknown', 'http_status': None, 'static': unknown_features(), 'versions': []}
+    if check_history:
+        result['history_probe'] = {'mode': 'homepage_unavailable', 'links': [], 'unapproved_count': 0}
     if target['documentation']:
         result['outcome'] = 'documentation'
+        if check_history:
+            result['history_probe']['mode'] = 'not_applicable'
         return result
     if not safe_url(target['url'], allowed_origins):
         result['outcome'] = 'not_allowlisted'
@@ -231,7 +261,10 @@ def fetch_one(target, opener, timeout=4.0, allowed_origins=ALLOWED_ORIGINS):
             parser.feed(text)
             parser.close()
             result.update(outcome='html', static=parser.features, versions=parser.versions)
-            return result
+        # トップ応答を閉じてから履歴先へ接続し、単一接続のサーバーを待たせない。
+        if check_history:
+            result['history_probe'] = probe_history_links(target, parser, opener, timeout, allowed_origins)
+        return result
     except error.HTTPError as exc:
         result['http_status'] = exc.code
         result['outcome'] = ('redirect' if 300 <= exc.code < 400 else
@@ -252,11 +285,92 @@ def fetch_one(target, opener, timeout=4.0, allowed_origins=ALLOWED_ORIGINS):
     return result
 
 
+def probe_history_url(url, opener, timeout, allowed_origins):
+    """本文を読まず、許可済み履歴先からのHTTP応答だけを見る。"""
+    result = {'checked_at': datetime.now(timezone.utc).isoformat(), 'outcome': 'unknown', 'http_status': None}
+    if not safe_url(url, allowed_origins):
+        result['outcome'] = 'not_allowlisted'
+        return result
+    req = request.Request(url, method='GET', headers={
+        'User-Agent': 'WebUI-Static-Inventory/1.0', 'Accept': 'text/html', 'Cache-Control': 'no-cache',
+    })
+    try:
+        with opener.open(req, timeout=timeout) as response:
+            result['http_status'] = response.status
+            if response.status != 200:
+                result['outcome'] = 'non_200_response'
+            elif response.headers.get_content_type().lower() in ('text/html', 'application/xhtml+xml'):
+                result['outcome'] = 'html_response'
+            else:
+                result['outcome'] = 'not_html'
+    except error.HTTPError as exc:
+        result['http_status'] = exc.code
+        result['outcome'] = ('redirect' if 300 <= exc.code < 400 else
+                             'access_restricted' if exc.code in (401, 403) else 'http_error')
+        exc.close()
+    except (socket.timeout, TimeoutError):
+        result['outcome'] = 'timeout'
+    except error.URLError as exc:
+        result['outcome'] = ('tls_error' if isinstance(exc.reason, ssl.SSLError) else
+                             'timeout' if isinstance(exc.reason, (socket.timeout, TimeoutError)) else
+                             'connection_error')
+    except ssl.SSLError:
+        result['outcome'] = 'tls_error'
+    except (OSError, http.client.HTTPException, ValueError):
+        result['outcome'] = 'read_error'
+    return result
+
+
+def probe_history_links(target, parser, opener, timeout, allowed_origins):
+    config = HISTORY_RULES.get(target['id'])
+    result = {'mode': 'not_configured', 'links': [], 'unapproved_count': 0}
+    if not config:
+        return result
+    origin, rules = config
+    try:
+        base = parse.urlsplit(target['url'])
+        base_origin = (base.scheme, base.hostname, base.port or (443 if base.scheme == 'https' else 80))
+    except ValueError:
+        result['mode'] = 'origin_mismatch'
+        return result
+    if base_origin != origin:
+        result['mode'] = 'origin_mismatch'
+        return result
+    if parser.history_overflow:
+        result['mode'] = 'too_many_links'
+        return result
+    selected = {name: [] for name in rules}
+    for url in parser.history_urls:
+        try:
+            p = parse.urlsplit(url)
+            url_origin = (p.scheme, p.hostname, p.port or (443 if p.scheme == 'https' else 80))
+            matches = [name for name, pattern in rules.items()
+                       if (url_origin == origin and not p.query and not p.fragment and
+                           p.username is None and p.password is None and re.fullmatch(pattern, p.path))]
+        except ValueError:
+            matches = []
+        if len(matches) == 1:
+            selected[matches[0]].append(url)
+        else:
+            result['unapproved_count'] += 1
+    result['mode'] = 'checked'
+    for name, urls in selected.items():
+        if len(urls) == 0:
+            item = {'checked_at': None, 'outcome': 'not_observed', 'http_status': None}
+        elif len(urls) > 1:
+            item = {'checked_at': None, 'outcome': 'ambiguous', 'http_status': None}
+        else:
+            item = probe_history_url(urls[0], opener, timeout, allowed_origins)
+        result['links'].append({'kind': name, **item})
+    return result
+
+
 def main(argv=None):
     cli = argparse.ArgumentParser(description=__doc__)
     cli.add_argument('--ca-file', type=Path, help='既存の公開CAを通常の信頼ストアに追加')
     cli.add_argument('--id', action='append', default=[], help='対象の観測ID。複数指定可')
     cli.add_argument('--timeout', type=float, default=4.0, help='接続と読取の目安秒数（0.1〜10）')
+    cli.add_argument('--check-history', action='store_true', help='登録済みの履歴リンク先の応答も調べる')
     args = cli.parse_args(argv)
     if not math.isfinite(args.timeout) or not 0.1 <= args.timeout <= 10:
         cli.error('timeout must be between 0.1 and 10 seconds')
@@ -272,13 +386,17 @@ def main(argv=None):
         if wanted:
             targets = [target for target in targets if target['id'] in wanted]
         opener = make_opener(args.ca_file)
-        result = [fetch_one(target, opener, args.timeout) for target in targets]
+        result = [fetch_one(target, opener, args.timeout, check_history=args.check_history) for target in targets]
     except (OSError, ValueError, UnicodeError):
         print(json.dumps({'ok': False, 'error': 'input or CA could not be validated'}))
         return 2
     summary = {'outcomes': dict(Counter(item['outcome'] for item in result)),
                'static': {name: dict(Counter(item['static'][name] for item in result))
                           for name in FIELDS}}
+    if args.check_history:
+        summary['history_modes'] = dict(Counter(item['history_probe']['mode'] for item in result))
+        summary['history_outcomes'] = dict(Counter(link['outcome'] for item in result
+                                                  for link in item['history_probe']['links']))
     print(json.dumps({'ok': True, 'schema': 2, 'scope': 'static_html_only', 'summary': summary, 'results': result},
                      ensure_ascii=False, sort_keys=True))
     return 0
