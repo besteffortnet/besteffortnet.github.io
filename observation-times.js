@@ -10,12 +10,22 @@
     summary.textContent = '観測時刻を確認中…';
     for (const node of rows.values()) node.textContent = missing;
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 2500);
+    let timeout;
     try {
-      const response = await fetch(endpoint, {credentials:'omit', redirect:'error', cache:'no-store',
-        referrerPolicy:'no-referrer', signal:controller.signal});
-      if (!response.ok) throw Error('unavailable');
-      const data = await response.json();
+      // 中断に応じない通信や本文取得でも、画面の操作を期限内に解放する。
+      const request = (async () => {
+        const response = await fetch(endpoint, {credentials:'omit', redirect:'error', cache:'no-store',
+          referrerPolicy:'no-referrer', signal:controller.signal});
+        if (!response.ok) throw Error('unavailable');
+        return response.json();
+      })();
+      const deadline = new Promise((_, reject) => {
+        timeout = setTimeout(() => {
+          controller.abort();
+          reject(Error('timeout'));
+        }, 2500);
+      });
+      const data = await Promise.race([request, deadline]);
       if (!Array.isArray(data) || data.length > 100) throw Error('invalid response');
       const byId = new Map();
       let collectedAt;
