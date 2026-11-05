@@ -53,7 +53,9 @@ HISTORY_RULES = {
     'ai-activity': (('https', LAN, 8014), {'ui': r'/'}),
     'vr': (('http', LAN, 8006), {'ui': r'/release-history-ui-[0-9]{4}\.[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,3}\.html'}),
     'bsmap': (('https', LAN, 8007), {'app': r'/history'}),
-    'hubterm': (('https', LAN, 8004), {'app': r'/releases\.html'}),
+    'fireworks': (('http', LAN, 8008), {'app': r'/fireworks-webui-changelog\.html'}),
+    'hubterm': (('https', LAN, 8004), {'app': r'/releases\.html',
+                                      'ui': r'/ui-history-[0-9]{4}\.[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,3}\.html'}),
     '9mile': (('http', LAN, 3000), {'app': r'/version-history\.html'}),
     'miniui': (('http', LAN, 8000), {'ui': r'/extensions/miniui/release-history-ui-[0-9]{4}\.[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,3}\.html'}),
     'webapp-common': (('https', LAN, 8013), {'ui': r'/catalog-release-history-v[0-9]{3,6}\.html'}),
@@ -69,6 +71,9 @@ HISTORY_RULES = {
 EXACT_HISTORY_QUERIES = {
     (app, 'ui'): ('/', 'view=releases') for app in ('duo', 'audiobook', 'ai-activity')
 }
+
+# JSで生成される画面は静的HTMLにリンクがない場合がある。事前登録した固定パスだけを別扱いで点検する。
+DIRECT_HISTORY_PATHS = {('fireworks', 'app'): '/fireworks-webui-changelog.html'}
 
 
 def unknown_features():
@@ -345,6 +350,9 @@ def probe_history_links(target, parser, opener, timeout, allowed_origins):
     if not config:
         return result
     origin, rules = config
+    if not safe_url(target['url'], allowed_origins):
+        result['mode'] = 'origin_mismatch'
+        return result
     try:
         base = parse.urlsplit(target['url'])
         base_origin = (base.scheme, base.hostname, base.port or (443 if base.scheme == 'https' else 80))
@@ -376,7 +384,29 @@ def probe_history_links(target, parser, opener, timeout, allowed_origins):
     result['mode'] = 'checked'
     for name, urls in selected.items():
         if len(urls) == 0:
-            item = {'checked_at': None, 'outcome': 'not_observed', 'http_status': None}
+            direct = DIRECT_HISTORY_PATHS.get((target['id'], name))
+            if direct is None:
+                item = {'checked_at': None, 'outcome': 'not_observed', 'http_status': None}
+            else:
+                try:
+                    part = parse.urlsplit(direct)
+                    valid = (isinstance(direct, str) and len(direct) <= 4096
+                             and not any(ord(char) < 32 for char in direct)
+                             and '?' not in direct and '#' not in direct
+                             and (target['id'], name) not in EXACT_HISTORY_QUERIES
+                             and not part.scheme and not part.netloc and not part.query and not part.fragment
+                             and part.path.startswith('/') and not part.path.startswith('//')
+                             and re.fullmatch(rules[name], part.path))
+                    url = f'{origin[0]}://{origin[1]}:{origin[2]}{part.path}'
+                    valid = valid and safe_url(url, allowed_origins)
+                except (TypeError, ValueError):
+                    valid = False
+                if valid:
+                    item = probe_history_url(url, opener, timeout, allowed_origins)
+                    item['discovery'] = 'configured_direct'
+                    result['mode'] = 'checked_with_direct'
+                else:
+                    item = {'checked_at': None, 'outcome': 'invalid_configuration', 'http_status': None}
         elif len(urls) > 1:
             item = {'checked_at': None, 'outcome': 'ambiguous', 'http_status': None}
         else:
