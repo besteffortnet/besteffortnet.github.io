@@ -4,7 +4,8 @@ const vm = require('node:vm');
 const path = require('node:path');
 
 const source = fs.readFileSync(process.env.ROW_ORDER_SOURCE || path.join(__dirname, '..', 'row-order.js'), 'utf8');
-const storageKey = 'webui.row-order.v1';
+const storageKey = 'webui.row-order.v2.other';
+const legacyStorageKey = 'webui.row-order.v1';
 
 class FakeClassList {
   constructor(owner) { this.owner = owner; }
@@ -72,6 +73,12 @@ class FakeElement {
     if (selector === '.row-number') return this.children.find(child => child.classList.contains('row-number')) || null;
     return null;
   }
+  contains(target) {
+    for (let node = target; node; node = node.parentElement) {
+      if (node === this) return true;
+    }
+    return false;
+  }
   closest(selector) {
     for (let node = this; node; node = node.parentElement) {
       if (selector === 'tr' && node.tagName === 'TR') return node;
@@ -104,10 +111,17 @@ function makeAppRow(id) {
   return row;
 }
 
-function createHarness(raw, ids = ['a', 'b', 'c']) {
+function createHarness(raw, ids = ['a', 'b', 'c'], legacyRaw, additionalGroups = []) {
   const body = new FakeElement('tbody');
+  body.dataset.orderGroup = 'other';
   const appRows = ids.map(makeAppRow);
   body.append(...appRows);
+  const extraBodies = additionalGroups.map(({name, rows}) => {
+    const extra = new FakeElement('tbody');
+    extra.dataset.orderGroup = name;
+    extra.append(...rows.map(makeAppRow));
+    return extra;
+  });
   const status = new FakeElement('p');
   const reset = new FakeElement('button');
   const addSpacer = new FakeElement('button');
@@ -117,13 +131,14 @@ function createHarness(raw, ids = ['a', 'b', 'c']) {
   const writes = [];
   const storage = new Map();
   if (raw !== undefined) storage.set(storageKey, raw);
+  if (legacyRaw !== undefined) storage.set(legacyStorageKey, legacyRaw);
   const localStorage = {
     getItem(key) { return storage.has(key) ? storage.get(key) : null; },
     setItem(key, value) { writes.push([key, value]); storage.set(key, value); },
   };
   const document = {
     documentElement,
-    querySelector(selector) { return selector === 'table tbody' ? body : null; },
+    querySelectorAll(selector) { return selector === 'tbody[data-order-group]' ? [body, ...extraBodies] : []; },
     getElementById(id) {
       return {'order-status': status, 'reset-order': reset, 'add-spacer': addSpacer}[id] || null;
     },
@@ -136,7 +151,7 @@ function createHarness(raw, ids = ['a', 'b', 'c']) {
   };
   vm.runInNewContext(source, {document, localStorage, window, innerHeight: 900, setTimeout() {}});
   return {
-    appRows, body, localStorage, reset, addSpacer, status, writes,
+    appRows, body, extraBodies, localStorage, reset, addSpacer, status, writes,
     order() { return body.rows.map(row => row.dataset.orderId); },
     startPointer(id = 7) {
       for (const callback of body.listeners.pointerdown || []) callback({
@@ -146,9 +161,9 @@ function createHarness(raw, ids = ['a', 'b', 'c']) {
     releaseOutside(type, id = 7) {
       for (const callback of windowListeners[type] || []) callback({pointerId: id});
     },
-    moveByKeyboard() {
+    moveByKeyboard(row = appRows[0]) {
       for (const callback of documentListeners.keydown || []) callback({
-        target: appRows[0].serviceLink, key: 'ArrowDown', altKey: true, preventDefault() {},
+        target: row.serviceLink, key: 'ArrowDown', altKey: true, preventDefault() {},
       });
     },
   };
@@ -201,6 +216,44 @@ function testValidOrderHandlesNewAndDeletedRows() {
   assert.equal(persisted.length, 4);
 }
 
+function testLegacyOrderIsMigratedWithoutOverwritingTheOriginal() {
+  const legacy = JSON.stringify([
+    'https://example.invalid/b', 'https://example.invalid/a', 'https://example.invalid/removed',
+  ]);
+  const harness = createHarness(undefined, ['a', 'b', 'c'], legacy);
+  assert.deepEqual(harness.order(), [
+    'https://example.invalid/b', 'https://example.invalid/a', 'https://example.invalid/c',
+  ]);
+  assert.equal(harness.writes.length, 0);
+  harness.addSpacer.click();
+  assert.equal(harness.localStorage.getItem(legacyStorageKey), legacy);
+  assert.deepEqual(JSON.parse(harness.localStorage.getItem(storageKey)), harness.order());
+}
+
+function testGroupsMigrateAndSaveTheirOrderIndependently() {
+  const legacy = JSON.stringify(['b', 'x', 'a', 'y'].map(id => `https://example.invalid/${id}`));
+  const harness = createHarness(undefined, ['a', 'b'], legacy, [{name: 'study', rows: ['x', 'y']}]);
+  const study = harness.extraBodies[0];
+  assert.deepEqual(harness.order(), ['https://example.invalid/b', 'https://example.invalid/a']);
+  assert.deepEqual(study.rows.map(row => row.dataset.orderId), [
+    'https://example.invalid/x', 'https://example.invalid/y',
+  ]);
+  harness.moveByKeyboard(study.rows[0]);
+  assert.deepEqual(study.rows.map(row => row.dataset.orderId), [
+    'https://example.invalid/y', 'https://example.invalid/x',
+  ]);
+  assert.deepEqual(harness.order(), ['https://example.invalid/b', 'https://example.invalid/a']);
+  assert.deepEqual(JSON.parse(harness.localStorage.getItem('webui.row-order.v2.study')),
+    ['https://example.invalid/y', 'https://example.invalid/x']);
+  assert.equal(harness.localStorage.getItem(storageKey), null);
+  assert.equal(harness.localStorage.getItem(legacyStorageKey), legacy);
+  harness.reset.click();
+  assert.deepEqual(harness.order(), ['https://example.invalid/a', 'https://example.invalid/b']);
+  assert.deepEqual(study.rows.map(row => row.dataset.orderId), [
+    'https://example.invalid/x', 'https://example.invalid/y',
+  ]);
+}
+
 function testOutsideReleaseDoesNotStrandPointerState() {
   for (const type of ['pointerup', 'pointercancel']) {
     const harness = createHarness(undefined);
@@ -219,5 +272,7 @@ function testOutsideReleaseDoesNotStrandPointerState() {
 testMissingKeyStillSavesNormally();
 testJsonNullIsPreservedUntilExplicitReset();
 testValidOrderHandlesNewAndDeletedRows();
+testLegacyOrderIsMigratedWithoutOverwritingTheOriginal();
+testGroupsMigrateAndSaveTheirOrderIndependently();
 testOutsideReleaseDoesNotStrandPointerState();
 console.log('row-order storage no-bind tests passed');

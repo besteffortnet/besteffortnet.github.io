@@ -243,6 +243,42 @@ class RuntimeSourceTests(unittest.TestCase):
                     self.assertNotIn('?', urlpath)
                     self.assertIn(kind, ('html', 'css', 'js'))
 
+    def test_common_app_compares_only_public_assets(self):
+        rule = drift.RULES['webapp-common']
+        self.assertEqual(rule['repository'], 'besteffortnet/agent-ops')
+        self.assertEqual(len(rule['assets']), 8)
+        self.assertEqual(len({asset[0] for asset in rule['assets']}), 8)
+        self.assertEqual(len({asset[1] for asset in rule['assets']}), 8)
+        for name, urlpath, filepath, kind in rule['assets']:
+            self.assertTrue(drift.safe_url(rule['origin'] + urlpath))
+            prefix = ('tools/webapp-common/releases/status-ui-v0.8.29/snapshot/' if name.startswith('status')
+                      else 'tools/webapp-common/public/')
+            self.assertTrue(filepath.startswith(prefix))
+            self.assertNotIn('/api/', urlpath)
+            self.assertNotIn('?', urlpath)
+            self.assertIn(kind, ('html', 'css', 'js'))
+
+    def test_common_status_uses_release_snapshot_not_newer_public_file(self):
+        name, urlpath, snapshot, kind = next(
+            asset for asset in drift.RULES['webapp-common']['assets'] if asset[0] == 'status'
+        )
+        public = 'tools/webapp-common/public/service-status.html'
+        for path, contents in ((snapshot, b'<p>released</p>'),
+                               (public, b'<p>newer development</p>')):
+            target = self.repo / path
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(contents)
+        self.git('add', 'tools')
+        self.git('commit', '-q', '-m', 'release and development fixture')
+        commit = self.git('rev-parse', 'HEAD').strip()
+        Handler.routes[urlpath] = {'body': b'<p>released</p>'}
+        rule = {'origin': self.origin, 'assets': [(name, urlpath, snapshot, kind)]}
+        result = drift.compare(self.repo, commit, rule, self.opener, 1, self.allowed)
+        self.assertEqual(result['counts'], {'match': 1, 'different': 0, 'unknown': 0})
+        rule['assets'] = [(name, urlpath, public, kind)]
+        result = drift.compare(self.repo, commit, rule, self.opener, 1, self.allowed)
+        self.assertEqual(result['counts'], {'match': 0, 'different': 1, 'unknown': 0})
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
