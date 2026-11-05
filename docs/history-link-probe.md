@@ -21,6 +21,10 @@ python3 tools/static_ui_inventory.py --ca-file "$HOME/anti/.local/share/hubterm/
 
 `--id equalification --id video-player-2d` などで対象を絞れる。`history_probe.mode` の `checked` は登録表の候補を点検したこと、`checked_with_direct` は静的HTMLに候補がなかったため固定登録先を直接点検したこと、`not_configured` はそのアプリの履歴先をまだ登録していないこと、`homepage_unavailable` はトップを確認できなかったことを表す。直接点検した項目には `discovery: configured_direct` を付ける。設定のパスが不正な場合は `invalid_configuration` とし、アクセスしない。`links` の `html_response` はHTTP 200かつHTMLのレスポンスヘッダーを取得できたという意味で、本文の内容は未検証。`not_observed`、`ambiguous` や未登録リンク件数は機能欠落を意味しない。Comic ShelfのHTTPS入口では旧HTTP版とHTTPS側UI、hubtermでは本体と画面版の履歴を別々に表示する。
 
+Photo Editing の固定入口については、トップHTMLの `application/json` に埋め込まれた履歴も `embedded_metadata` として点検する。追加のHTTP要求は行わない。形式が確認できた場合だけ、現在版、件数、降順、日時に分がある件数、担当・実装説明・復元説明・コマンドの記録件数を出す。履歴本文・コマンド・パスは出力しない。欠落は `missing`、重複・形式不正・サイズ超過は `invalid` とし、成功扱いしない。
+
+これは埋込みメタデータの確認であり、JavaScriptで作る入口の表示・操作、実装内容の正確さ、記載された各版の復元成功を証明しない。対象IDとURLの組合せが一致しない場合は検査せず、任意の埋込みやリンクを収集しない。
+
 一括点検の比較ツールは現在、トップの静的手掛かり・版表記・HTTP結果を比較する。追加の `history_probe` 欄の差はまだ比較対象に含めない。
 
 ## 受入と復旧
