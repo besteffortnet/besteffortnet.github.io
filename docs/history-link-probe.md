@@ -8,7 +8,7 @@
 
 ## 境界
 
-- 通常の点検では履歴リンクを取得しない。明示したオプションを付けた場合だけ、一覧のトップHTMLから確認済みの完全一致・版付きパターンに一致するリンクを探す。
+- 通常の点検では履歴リンクを取得しない。明示したオプションを付けた場合だけ、一覧のトップHTMLから確認済みの完全一致・版付きパターンに一致するリンクを探す。JavaScript生成のFireworksで静的リンクを発見できなかったときだけ、対象IDとoriginを固定した登録済み履歴パスを直接点検する。これはリンクを発見したという意味ではない。
 - アプリIDごとに、スキーム・ホスト・ポートとパスの組合せを登録する。未登録URL、別origin、複数候補、取得できないトップは自動で追跡しない。クエリは原則拒否し、DUO・音の本棚・AI Activityの画面版履歴 `/?view=releases` だけを、対象アプリ・origin・パス・クエリの完全一致で例外として許可する。別の値、追加パラメーター、重複や別アプリへの流用は拒否する。MiniUIは確認済みの版付き履歴パスだけを許可する。登録外のリンクを欠落と断定しない。
 - GETだけを使用し、Cookie・認証・プロキシ・リダイレクト・JavaScript・画像・アプリAPIは使わない。履歴先はレスポンスの状態と内容種別だけを確認し、本文を読み取らない。パスやクエリも結果には出さない。
 - HTTP 200・HTMLはリンク先からHTML応答を得たことだけを示す。版ごとの内容、担当、降順、復元の成功、利用者のブラウザでの表示は保証しない。GETのサーバー側副作用がない保証もない。
@@ -19,7 +19,7 @@
 python3 tools/static_ui_inventory.py --ca-file "$HOME/anti/.local/share/hubterm/hubterm-ca.pem" --check-history
 ```
 
-`--id equalification --id video-player-2d` などで対象を絞れる。`history_probe.mode` の `checked` は登録表の候補を点検したこと、`not_configured` はそのアプリの履歴先をまだ登録していないこと、`homepage_unavailable` はトップを確認できなかったことを表す。`links` の `html_response` はHTTP 200かつHTMLのレスポンスヘッダーを取得できたという意味で、本文の内容は未検証。`not_observed`、`ambiguous` や未登録リンク件数は機能欠落を意味しない。Comic ShelfのHTTPS入口では、旧HTTP版とHTTPS側UIの履歴を別々に表示する。
+`--id equalification --id video-player-2d` などで対象を絞れる。`history_probe.mode` の `checked` は登録表の候補を点検したこと、`checked_with_direct` は静的HTMLに候補がなかったため固定登録先を直接点検したこと、`not_configured` はそのアプリの履歴先をまだ登録していないこと、`homepage_unavailable` はトップを確認できなかったことを表す。直接点検した項目には `discovery: configured_direct` を付ける。設定のパスが不正な場合は `invalid_configuration` とし、アクセスしない。`links` の `html_response` はHTTP 200かつHTMLのレスポンスヘッダーを取得できたという意味で、本文の内容は未検証。`not_observed`、`ambiguous` や未登録リンク件数は機能欠落を意味しない。Comic ShelfのHTTPS入口では旧HTTP版とHTTPS側UI、hubtermでは本体と画面版の履歴を別々に表示する。
 
 一括点検の比較ツールは現在、トップの静的手掛かり・版表記・HTTP結果を比較する。追加の `history_probe` 欄の差はまだ比較対象に含めない。
 
@@ -34,3 +34,5 @@ python3 tools/static_ui_inventory.py --ca-file "$HOME/anti/.local/share/hubterm/
 2026-11-05にはDUOの固定クエリ付き履歴を追加し、Macと221のPython 3.9.6で関連12試験、MacでPython全77試験が成功した。実DUOのトップと登録済み履歴先は、Macと221それぞれからCA検証付きの非認証GETでHTTP 200・HTML応答だった。221では分離した検証フォルダを使い、4ファイルと一覧HTMLのSHA-256を転送後に照合した（テストjob `8be47932-b62f-4bea-aee4-c40deb09790a`、実入口job `614f86fb-ba52-49c8-b62d-58b6bb473ef3`）。HTTP応答だけでは、クエリに応じた動的画面の表示や履歴の内容・復元の成功を保証しない。
 
 同日、MiniUI・音の本棚・AI Activityの履歴先も追加し、Macと221のPython 3.9.6で関連13試験、MacでPython全81試験に合格した。両端末の非認証GETで3アプリのトップと履歴先がHTTP 200・HTMLを返した（221 job `6334ce94-5737-4259-9aa8-d75ea7c5c840`）。MiniUIは既存のHTTP入口、残り2件はCA検証付きHTTPSを使った。動的画面と履歴内容は本点検の対象外。
+
+同日、Fireworksの固定履歴先を直接点検する限定的な経路と、hubtermの画面版履歴の登録を追加した。対象外のアプリ・別origin・クエリ・不正設定・複数候補では直接取得しない。Macと221 Python 3.9.6で関連20試験、MacでPython全88試験が成功。Macと221のGETではFireworksの直接登録先1件とhubtermの本体・画面版2件がHTTP 200・HTMLを返した（221の試験job `38785073-94ac-48c4-8768-623eeeb6f2fc`、実入口job `395f1966-a559-4854-9271-2372e3084a7d`）。Fireworksの画面内リンクの表示や履歴内容は本検査では確認していない。

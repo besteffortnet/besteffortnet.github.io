@@ -129,6 +129,84 @@ class HistoryProbeTest(unittest.TestCase):
         self.assertEqual(result['unapproved_count'], len(variants))
         self.assertEqual(Fixture.requests_seen, [])
 
+    def test_hubterm_separates_app_and_versioned_ui_history(self):
+        origin, patterns = audit.HISTORY_RULES['hubterm']
+        self.assertEqual(origin, ('https', audit.LAN, 8004))
+        rules = {'fixture': (self.origin, patterns)}
+        valid = '/ui-history-2026.11.05.1.html'
+        result = self.probe([self.base + '/releases.html', self.base + valid], rules)
+        self.assertEqual([(link['kind'], link['outcome']) for link in result['links']],
+                         [('app', 'html_response'), ('ui', 'html_response')])
+        self.assertEqual([p for p, _ in Fixture.requests_seen], ['/releases.html', valid])
+        Fixture.requests_seen.clear()
+        result = self.probe([self.base + valid + '?delete=1', self.base + valid + '#x',
+                             self.base + '/ui-history-latest.html'], rules)
+        self.assertEqual(result['unapproved_count'], 3)
+        self.assertEqual(Fixture.requests_seen, [])
+
+    def test_direct_history_is_explicit_and_does_not_claim_a_homepage_link(self):
+        with patch.dict(audit.DIRECT_HISTORY_PATHS, {('fixture', 'ui'): '/history.html'}):
+            result = self.probe([])
+        self.assertEqual(result['mode'], 'checked_with_direct')
+        self.assertEqual(result['links'][0]['discovery'], 'configured_direct')
+        self.assertEqual(result['links'][0]['outcome'], 'html_response')
+        self.assertEqual([p for p, _ in Fixture.requests_seen], ['/history.html'])
+        self.assertNotIn('/history.html', json.dumps(result))
+        self.assertEqual(audit.DIRECT_HISTORY_PATHS[('fireworks', 'app')], '/fireworks-webui-changelog.html')
+        self.assertEqual(audit.HISTORY_RULES['fireworks'][0], ('http', audit.LAN, 8008))
+
+    def test_direct_history_is_never_used_for_another_app_or_wrong_origin(self):
+        with patch.dict(audit.DIRECT_HISTORY_PATHS, {('another', 'ui'): '/history.html'}, clear=True):
+            result = self.probe([])
+        self.assertEqual(result['links'][0]['outcome'], 'not_observed')
+        with patch.dict(audit.DIRECT_HISTORY_PATHS, {('fixture', 'ui'): '/history.html'}, clear=True):
+            rules = {'fixture': (('https', 'example.test', 443), {'ui': r'/history\.html'})}
+            result = self.probe([], rules)
+        self.assertEqual(result['mode'], 'origin_mismatch')
+        self.assertEqual(Fixture.requests_seen, [])
+
+    def test_direct_history_respects_disabled_check_and_unavailable_homepage(self):
+        with patch.dict(audit.DIRECT_HISTORY_PATHS, {('fixture', 'ui'): '/history.html'}):
+            result = self.fetch(enabled=False)
+            self.assertNotIn('history_probe', result)
+            self.assertEqual([p for p, _ in Fixture.requests_seen], ['/html'])
+            Fixture.requests_seen.clear()
+            self.target['url'] = self.base + '/redirect'
+            result = self.fetch(enabled=True)
+        self.assertEqual(result['history_probe']['mode'], 'homepage_unavailable')
+        self.assertEqual([p for p, _ in Fixture.requests_seen], ['/redirect'])
+
+    def test_direct_history_never_replaces_an_exact_query_exception(self):
+        rules = {'fixture': (self.origin, {'ui': r'/'})}
+        with patch.dict(audit.DIRECT_HISTORY_PATHS, {('fixture', 'ui'): '/'}, clear=True):
+            with patch.dict(audit.EXACT_HISTORY_QUERIES, {('fixture', 'ui'): ('/', 'view=releases')}):
+                result = self.probe([], rules)
+        self.assertEqual(result['links'][0]['outcome'], 'invalid_configuration')
+        self.assertEqual(Fixture.requests_seen, [])
+
+    def test_direct_history_rejects_modified_or_invalid_configuration(self):
+        variants = ('/history.html?delete=1', '/history.html?', '/history.html#x', '/history.html#',
+                    '/history.html\n', '//another.example/history.html', '/unregistered-history.html',
+                    'https://another.example/history.html')
+        for value in variants:
+            with self.subTest(value=value), patch.dict(audit.DIRECT_HISTORY_PATHS,
+                                                       {('fixture', 'ui'): value}, clear=True):
+                result = self.probe([])
+                self.assertEqual(result['links'][0]['outcome'], 'invalid_configuration')
+        self.assertEqual(Fixture.requests_seen, [])
+
+    def test_homepage_match_takes_precedence_and_ambiguous_matches_are_not_fetched(self):
+        with patch.dict(audit.DIRECT_HISTORY_PATHS, {('fixture', 'ui'): '/history.html'}, clear=True):
+            result = self.probe([self.base + '/history.html'])
+            self.assertEqual(result['mode'], 'checked')
+            self.assertNotIn('discovery', result['links'][0])
+            self.assertEqual([p for p, _ in Fixture.requests_seen], ['/history.html'])
+            Fixture.requests_seen.clear()
+            rules = {'fixture': (self.origin, {'ui': r'/history(?:-[0-9]+)?\.html'})}
+            result = self.probe([self.base + '/history-1.html', self.base + '/history-2.html'], rules)
+        self.assertEqual(result['links'][0]['outcome'], 'ambiguous')
+        self.assertEqual(Fixture.requests_seen, [])
+
     def test_multiple_matching_links_are_ambiguous_and_not_fetched(self):
         rules = {'fixture': (self.origin, {'ui': r'/history-[0-9]+\.html'})}
         result = self.probe([self.base + '/history-1.html', self.base + '/history-2.html'], rules)
