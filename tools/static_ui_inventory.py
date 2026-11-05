@@ -19,6 +19,7 @@ from urllib import error, parse, request
 # 点検だけで作業ディレクトリにbytecodeを書かない。
 sys.dont_write_bytecode = True
 from audit_observation_mapping import DirectoryParser, audit_directory
+import embedded_release_inventory
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -288,6 +289,9 @@ def fetch_one(target, opener, timeout=4.0, allowed_origins=ALLOWED_ORIGINS, chec
         # トップ応答を閉じてから履歴先へ接続し、単一接続のサーバーを待たせない。
         if check_history:
             result['history_probe'] = probe_history_links(target, parser, opener, timeout, allowed_origins)
+            if embedded_release_inventory.eligible(target) and result['history_probe']['mode'] == 'not_configured':
+                result['history_probe']['mode'] = 'embedded_metadata'
+                result['history_probe']['embedded_metadata'] = embedded_release_inventory.inspect_html(text)
         return result
     except error.HTTPError as exc:
         result['http_status'] = exc.code
