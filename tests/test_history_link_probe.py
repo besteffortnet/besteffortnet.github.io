@@ -144,6 +144,22 @@ class HistoryProbeTest(unittest.TestCase):
         self.assertEqual(result['unapproved_count'], 3)
         self.assertEqual(Fixture.requests_seen, [])
 
+    def test_9mile_new_ui_history_is_exact_and_separate_from_old(self):
+        origin, patterns = audit.HISTORY_RULES['9mile']
+        self.assertEqual(origin, ('http', audit.LAN, 3000))
+        rules = {'fixture': (self.origin, patterns)}
+        valid = '/version-history-ui-2026-11-05-1126.html'
+        result = self.probe([self.base + '/version-history.html', self.base + valid], rules)
+        self.assertEqual([(item['kind'], item['outcome']) for item in result['links']],
+                         [('app', 'html_response'), ('ui', 'html_response')])
+        self.assertEqual([path for path, _ in Fixture.requests_seen], ['/version-history.html', valid])
+        Fixture.requests_seen.clear()
+        invalid = [valid + '?edit=1', valid + '#section', valid + '.bak',
+                   '/version-history-ui-2026-11-05-1127.html']
+        result = self.probe([self.base + path for path in invalid], rules)
+        self.assertEqual(result['unapproved_count'], len(invalid))
+        self.assertEqual(Fixture.requests_seen, [])
+
     def test_direct_history_is_explicit_and_does_not_claim_a_homepage_link(self):
         with patch.dict(audit.DIRECT_HISTORY_PATHS, {('fixture', 'ui'): '/history.html'}):
             result = self.probe([])

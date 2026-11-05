@@ -36,3 +36,5 @@ python3 tools/static_ui_inventory.py --ca-file "$HOME/anti/.local/share/hubterm/
 同日、MiniUI・音の本棚・AI Activityの履歴先も追加し、Macと221のPython 3.9.6で関連13試験、MacでPython全81試験に合格した。両端末の非認証GETで3アプリのトップと履歴先がHTTP 200・HTMLを返した（221 job `6334ce94-5737-4259-9aa8-d75ea7c5c840`）。MiniUIは既存のHTTP入口、残り2件はCA検証付きHTTPSを使った。動的画面と履歴内容は本点検の対象外。
 
 同日、Fireworksの固定履歴先を直接点検する限定的な経路と、hubtermの画面版履歴の登録を追加した。対象外のアプリ・別origin・クエリ・不正設定・複数候補では直接取得しない。Macと221 Python 3.9.6で関連20試験、MacでPython全88試験が成功。Macと221のGETではFireworksの直接登録先1件とhubtermの本体・画面版2件がHTTP 200・HTMLを返した（221の試験job `38785073-94ac-48c4-8768-623eeeb6f2fc`、実入口job `395f1966-a559-4854-9271-2372e3084a7d`）。Fireworksの画面内リンクの表示や履歴内容は本検査では確認していない。
+
+同日、9mileの新しいUI履歴 `2026.11.05.1126` を対象ID・HTTP origin・パスの完全一致で追加し、旧履歴とは別に点検する。別の版番号、クエリ、fragmentや拡張子の追加は追跡しない。MacでPython全89試験、221 Python 3.9.6で関連21試験が成功（job `f45e7080-5d8f-40a8-a685-f599d154c788`）。両端末の非認証GETでは新しいトップとUI履歴がHTTP 200・HTMLだった（221 job `4b16bc51-d6c1-469b-bcc3-e1bb2f8d1f88`）。旧履歴への直接リンクは新トップから未観測であり、この結果を削除や故障とは断定しない。
