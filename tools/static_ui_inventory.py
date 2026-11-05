@@ -23,6 +23,10 @@ from audit_observation_mapping import DirectoryParser, audit_directory
 
 ROOT = Path(__file__).resolve().parents[1]
 MAX_HTML = 1024 * 1024
+# MiniUIの既知の大きいトップだけ上限を増やす。別URLや別アプリには適用しない。
+HTML_SIZE_EXCEPTIONS = {
+    ('miniui', 'http://192.168.68.221:8000/extensions/miniui/index.html'): 2 * MAX_HTML,
+}
 ALLOWED_ORIGINS = frozenset(
     [('http', '192.168.68.221', port) for port in (3000, 8000, 8002, 8006, 8008, 8012)] +
     [('https', '192.168.68.221', port) for port in
@@ -228,6 +232,7 @@ def fetch_one(target, opener, timeout=4.0, allowed_origins=ALLOWED_ORIGINS, chec
     if not safe_url(target['url'], allowed_origins):
         result['outcome'] = 'not_allowlisted'
         return result
+    size_limit = HTML_SIZE_EXCEPTIONS.get((target['id'], target['url']), MAX_HTML)
     # 同じIDが後で別の入口を指した場合、別サービスを比較しない。
     result['binding_sha256'] = hashlib.sha256(target['url'].encode('utf-8')).hexdigest()
     req = request.Request(target['url'], method='GET', headers={
@@ -244,7 +249,8 @@ def fetch_one(target, opener, timeout=4.0, allowed_origins=ALLOWED_ORIGINS, chec
                 result['outcome'] = 'not_html'
                 return result
             raw_length = response.headers.get('Content-Length')
-            if raw_length and raw_length.isdigit() and int(raw_length) > MAX_HTML:
+            expected_length = int(raw_length) if raw_length and raw_length.isdigit() else None
+            if expected_length is not None and expected_length > size_limit:
                 result['outcome'] = 'too_large'
                 return result
             chunks, size, deadline = [], 0, time.monotonic() + timeout
@@ -252,14 +258,17 @@ def fetch_one(target, opener, timeout=4.0, allowed_origins=ALLOWED_ORIGINS, chec
                 if time.monotonic() > deadline:
                     result['outcome'] = 'timeout'
                     return result
-                chunk = response.read1(min(16384, MAX_HTML + 1 - size))
+                chunk = response.read1(min(16384, size_limit + 1 - size))
                 if not chunk:
                     break
                 chunks.append(chunk)
                 size += len(chunk)
-                if size > MAX_HTML:
+                if size > size_limit:
                     result['outcome'] = 'too_large'
                     return result
+            if expected_length is not None and size != expected_length:
+                result['outcome'] = 'read_error'
+                return result
             text = b''.join(chunks).decode('utf-8')
             parser = StaticUIParser(target['url'])
             parser.feed(text)
