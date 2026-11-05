@@ -47,6 +47,18 @@ RULES = {
                    ('history-style', '/webui-history.ui-2026.11.04.1.css', 'static/webui-history.ui-2026.11.04.1.css', 'css'),
                    ('history-loader', '/webui-history-loader.ui-2026.11.04.1.js', 'static/webui-history-loader.ui-2026.11.04.1.js', 'js')],
     },
+    'webapp-common': {
+        'origin': 'https://192.168.68.221:8013',
+        'repository': 'besteffortnet/agent-ops',
+        'assets': [('index', '/', 'tools/webapp-common/public/index.html', 'html'),
+                   ('theme', '/theme-boot.js', 'tools/webapp-common/public/theme-boot.js', 'js'),
+                   ('style', '/styles.css', 'tools/webapp-common/public/styles.css', 'css'),
+                   ('app', '/app.js', 'tools/webapp-common/public/app.js', 'js'),
+                   ('enhancements', '/enhancements.js', 'tools/webapp-common/public/enhancements.js', 'js'),
+                   ('status', '/service-status.html', 'tools/webapp-common/releases/status-ui-v0.8.29/snapshot/service-status.html', 'html'),
+                   ('status-style', '/service-status.css', 'tools/webapp-common/releases/status-ui-v0.8.29/snapshot/service-status.css', 'css'),
+                   ('status-script', '/service-status.mjs', 'tools/webapp-common/releases/status-ui-v0.8.29/snapshot/service-status.mjs', 'js')],
+    },
     'photo-editing': {
         'origin': 'https://192.168.68.221:8011',
         'repository': 'besteffortnet/photo-editing',

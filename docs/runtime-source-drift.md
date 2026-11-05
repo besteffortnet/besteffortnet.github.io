@@ -10,7 +10,7 @@
 
 ## 使い方
 
-ローカルに対象のGitリポジトリがあり、対象アプリへ到達できる端末で、明示的に実行する。対象は `toeic-study`、`equalification`、`duo-study`、`photo-editing`、`video-player-2d` に限定している。
+ローカルに対象のGitリポジトリがあり、対象アプリへ到達できる端末で、明示的に実行する。対象は `toeic-study`、`equalification`、`webapp-common`、`duo-study`、`photo-editing`、`video-player-2d` に限定している。
 
 ```sh
 python3 tools/compare_runtime_source.py --app duo-study --repo /path/to/duo-learning --ca-file /path/to/lan-ca.pem
@@ -18,6 +18,7 @@ python3 tools/compare_runtime_source.py --app photo-editing --repo /path/to/phot
 python3 tools/compare_runtime_source.py --app video-player-2d --repo /path/to/video-player-2d --ca-file /path/to/lan-ca.pem
 python3 tools/compare_runtime_source.py --app toeic-study --repo /path/to/webtest --ca-file /path/to/lan-ca.pem
 python3 tools/compare_runtime_source.py --app equalification --repo /path/to/equalification --ca-file /path/to/lan-ca.pem
+python3 tools/compare_runtime_source.py --app webapp-common --repo /path/to/agent-ops --ca-file /path/to/lan-ca.pem --commit FULL_COMMIT_HASH
 ```
 
 `--commit` を省略すると開始時のHEADを固定し、それぞれのGit blobと許可済み静的応答のSHA-256を比較する。作業ツリーの未コミット変更は比較しない。ローカル `origin` の設定値がアプリに対応するGitHubリポジトリであることを検査するが、設定文字列の一致はリポジトリの真正性証明ではない。Gitへのネットワーク接続は行わない。
@@ -28,7 +29,7 @@ python3 tools/compare_runtime_source.py --app equalification --repo /path/to/equ
 
 ## 確認記録（2026-11-04）
 
-- 合成Git・ローカルHTTPを用い、一致・差異・認証拒否・リダイレクト非追跡・サイズ・欠落・不完全応答・タイムアウト・Gitシンボリックリンク・commit固定・CLI終了コードを確認。MacのPython全72試験と、221のPython 3.9で本機能の11試験が成功した。
-- 明示実行した実環境では、TOEICの7資産、E資格の10資産、DUOの4資産、映像の本棚の8資産はそれぞれ指定したGit commitと一致。Photo Editingの5資産はローカルGit HEADとの比較で1一致・4差異だった。これらは取得時点の比較で、差異が不具合・未保存・未配備のいずれかを示すものではない。利用者データAPIへのアクセスやコードの変更は行っていない。
+- 合成Git・ローカルHTTPを用い、一致・差異・認証拒否・リダイレクト非追跡・サイズ・欠落・不完全応答・タイムアウト・Gitシンボリックリンク・commit固定・CLI終了コードを確認。MacのPython全74試験と、221のPython 3.9で本機能の13試験が成功した。221の試験日は2026-11-05。
+- 明示実行した実環境では、TOEICの7資産、E資格の10資産、DUOの4資産、映像の本棚の8資産、共通化アプリの8資産はそれぞれ指定したGit commitと一致。共通化アプリのうち状態画面の3資産は、開発中の `public` ではなく配備された `status-ui-v0.8.29` のスナップショットと比較した。Photo Editingの5資産はローカルGit HEADとの比較で1一致・4差異だった。これらは取得時点の比較で、差異が不具合・未保存・未配備のいずれかを示すものではない。利用者データAPIへのアクセスやコードの変更は行っていない。
 - GitHub Actionsでは合成テストのみを実行し、LANには接続しない。定期実行やサービスの自動起動は登録していない。
 - FUP-05の静的コントロール点検、FUP-06の観測結果間の前回比較とは比較対象が異なる。既存台帳との統合は別途必要であり、件数に自動加算しない。Jev 1.14.0の今回の合成判定は入力587・出力96トークンで、GPT利用削減量ではない。
