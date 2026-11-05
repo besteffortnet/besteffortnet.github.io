@@ -41,6 +41,20 @@ class Fixture(BaseHTTPRequestHandler):
             self.send_header('Content-Length', str(audit.MAX_HTML + 1))
             self.end_headers()
             return
+        if self.path == '/large2':
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html')
+            self.send_header('Content-Length', str(2 * audit.MAX_HTML + 1))
+            self.end_headers()
+            return
+        if self.path == '/truncated':
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html')
+            self.send_header('Content-Length', '1000')
+            self.end_headers()
+            self.wfile.write(b'<html>incomplete</html>')
+            self.close_connection = True
+            return
         if self.path.startswith('/large-stream'):
             self.send_response(200)
             self.send_header('Content-Type', 'text/html')
@@ -115,6 +129,31 @@ class StaticUIInventoryTest(unittest.TestCase):
         report = json.dumps(result)
         for secret in ('EXAMPLE-PRIVATE-USER-CONTENT', 'private-query-value', self.base, '/html'):
             self.assertNotIn(secret, report)
+
+    def test_larger_limit_is_restricted_to_exact_miniui_target(self):
+        self.assertEqual(audit.HTML_SIZE_EXCEPTIONS,
+                         {('miniui', 'http://192.168.68.221:8000/extensions/miniui/index.html'): 2 * audit.MAX_HTML})
+        url = self.base + '/large-stream'
+        with patch.dict(audit.HTML_SIZE_EXCEPTIONS, {('miniui', url): 2 * audit.MAX_HTML}, clear=True):
+            target = {'id': 'miniui', 'url': url, 'documentation': False}
+            accepted = audit.fetch_one(target, self.opener, timeout=2, allowed_origins=self.allowed)
+            self.assertEqual(accepted['outcome'], 'html')
+            self.assertNotIn('x' * 256, json.dumps(accepted))
+            target['id'] = 'another-app'
+            self.assertEqual(audit.fetch_one(target, self.opener, 2, self.allowed)['outcome'], 'too_large')
+            target.update(id='miniui', url=self.base + '/large')
+            self.assertEqual(audit.fetch_one(target, self.opener, 2, self.allowed)['outcome'], 'too_large')
+
+    def test_miniui_exception_retains_a_hard_size_limit(self):
+        url = self.base + '/large2'
+        with patch.dict(audit.HTML_SIZE_EXCEPTIONS, {('miniui', url): 2 * audit.MAX_HTML}, clear=True):
+            target = {'id': 'miniui', 'url': url, 'documentation': False}
+            self.assertEqual(audit.fetch_one(target, self.opener, 2, self.allowed)['outcome'], 'too_large')
+
+    def test_truncated_html_is_not_reported_as_a_valid_page(self):
+        result = self.fetch('/truncated')
+        self.assertEqual(result['outcome'], 'read_error')
+        self.assertTrue(all(value == 'unknown' for value in result['static'].values()))
 
     def test_redirect_is_not_followed(self):
         result = self.fetch('/redirect')
