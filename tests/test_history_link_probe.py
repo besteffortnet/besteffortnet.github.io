@@ -103,11 +103,30 @@ class HistoryProbeTest(unittest.TestCase):
         self.assertEqual(Fixture.requests_seen, [])
 
     def test_query_exception_is_bound_to_app_and_origin(self):
-        self.assertEqual(audit.HISTORY_RULES['duo'][0], ('https', audit.LAN, 8016))
-        self.assertEqual(audit.EXACT_HISTORY_QUERIES[('duo', 'ui')], ('/', 'view=releases'))
+        for app, port in [('duo', 8016), ('audiobook', 8015), ('ai-activity', 8014)]:
+            with self.subTest(app=app):
+                self.assertEqual(audit.HISTORY_RULES[app][0], ('https', audit.LAN, port))
+                self.assertEqual(audit.EXACT_HISTORY_QUERIES[(app, 'ui')], ('/', 'view=releases'))
+        self.assertEqual(len(audit.EXACT_HISTORY_QUERIES), 3)
         rules = {'fixture': (self.origin, {'ui': r'/'})}
         result = self.probe([self.base + '/?view=releases'], rules)
         self.assertEqual(result['unapproved_count'], 1)
+        self.assertEqual(Fixture.requests_seen, [])
+
+    def test_miniui_history_is_limited_to_its_versioned_path(self):
+        origin, patterns = audit.HISTORY_RULES['miniui']
+        self.assertEqual(origin, ('http', audit.LAN, 8000))
+        rules = {'fixture': (self.origin, patterns)}
+        valid = '/extensions/miniui/release-history-ui-2026.11.04.1.html'
+        result = self.probe([self.base + valid], rules)
+        self.assertEqual(result['links'][0]['outcome'], 'html_response')
+        self.assertEqual([p for p, _ in Fixture.requests_seen], [valid])
+        Fixture.requests_seen.clear()
+        variants = [valid + '?delete=1', valid + '#fragment',
+                    '/extensions/other/release-history-ui-2026.11.04.1.html',
+                    '/extensions/miniui/release-history-ui-latest.html']
+        result = self.probe([self.base + path for path in variants], rules)
+        self.assertEqual(result['unapproved_count'], len(variants))
         self.assertEqual(Fixture.requests_seen, [])
 
     def test_multiple_matching_links_are_ambiguous_and_not_fetched(self):

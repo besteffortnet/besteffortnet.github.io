@@ -49,10 +49,13 @@ HISTORY_RULES = {
     'toeic': (('https', LAN, 8009), {'app': r'/version-history\.html'}),
     'equalification': (('https', LAN, 8010), {'ui': r'/webui-history\.ui-[0-9]{4}\.[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,3}\.html'}),
     'duo': (('https', LAN, 8016), {'ui': r'/'}),
+    'audiobook': (('https', LAN, 8015), {'ui': r'/'}),
+    'ai-activity': (('https', LAN, 8014), {'ui': r'/'}),
     'vr': (('http', LAN, 8006), {'ui': r'/release-history-ui-[0-9]{4}\.[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,3}\.html'}),
     'bsmap': (('https', LAN, 8007), {'app': r'/history'}),
     'hubterm': (('https', LAN, 8004), {'app': r'/releases\.html'}),
     '9mile': (('http', LAN, 3000), {'app': r'/version-history\.html'}),
+    'miniui': (('http', LAN, 8000), {'ui': r'/extensions/miniui/release-history-ui-[0-9]{4}\.[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,3}\.html'}),
     'webapp-common': (('https', LAN, 8013), {'ui': r'/catalog-release-history-v[0-9]{3,6}\.html'}),
     'comic': (('http', LAN, 8012), {'app': r'/version-history\.html',
                                   'ui': r'/comic-http-ui-history-[0-9]{8}-[0-9]{1,3}\.html'}),
@@ -63,7 +66,9 @@ HISTORY_RULES = {
 }
 
 # 固定の画面切替だけを例外として許可する。任意のqueryは許可しない。
-EXACT_HISTORY_QUERIES = {('duo', 'ui'): ('/', 'view=releases')}
+EXACT_HISTORY_QUERIES = {
+    (app, 'ui'): ('/', 'view=releases') for app in ('duo', 'audiobook', 'ai-activity')
+}
 
 
 def unknown_features():
