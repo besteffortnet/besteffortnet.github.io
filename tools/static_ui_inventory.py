@@ -44,6 +44,7 @@ LAN = '192.168.68.221'
 HISTORY_RULES = {
     'toeic': (('https', LAN, 8009), {'app': r'/version-history\.html'}),
     'equalification': (('https', LAN, 8010), {'ui': r'/webui-history\.ui-[0-9]{4}\.[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,3}\.html'}),
+    'duo': (('https', LAN, 8016), {'ui': r'/'}),
     'vr': (('http', LAN, 8006), {'ui': r'/release-history-ui-[0-9]{4}\.[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,3}\.html'}),
     'bsmap': (('https', LAN, 8007), {'app': r'/history'}),
     'hubterm': (('https', LAN, 8004), {'app': r'/releases\.html'}),
@@ -56,6 +57,9 @@ HISTORY_RULES = {
     'video-player-2d': (('https', LAN, 8017), {'ui': r'/static/releases\.html'}),
     'ebook-reader': (('https', LAN, 8018), {'ui': r'/static/releases-ui-[0-9]{1,4}\.[0-9]{1,4}\.[0-9]{1,4}\.html'}),
 }
+
+# 固定の画面切替だけを例外として許可する。任意のqueryは許可しない。
+EXACT_HISTORY_QUERIES = {('duo', 'ui'): ('/', 'view=releases')}
 
 
 def unknown_features():
@@ -345,8 +349,10 @@ def probe_history_links(target, parser, opener, timeout, allowed_origins):
             p = parse.urlsplit(url)
             url_origin = (p.scheme, p.hostname, p.port or (443 if p.scheme == 'https' else 80))
             matches = [name for name, pattern in rules.items()
-                       if (url_origin == origin and not p.query and not p.fragment and
-                           p.username is None and p.password is None and re.fullmatch(pattern, p.path))]
+                       if (url_origin == origin and not p.fragment and
+                           p.username is None and p.password is None and re.fullmatch(pattern, p.path) and
+                           ((p.path, p.query) == EXACT_HISTORY_QUERIES[(target['id'], name)]
+                            if (target['id'], name) in EXACT_HISTORY_QUERIES else not p.query))]
         except ValueError:
             matches = []
         if len(matches) == 1:

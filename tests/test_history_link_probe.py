@@ -83,6 +83,33 @@ class HistoryProbeTest(unittest.TestCase):
         self.assertEqual(result['links'][0]['outcome'], 'not_observed')
         self.assertEqual(Fixture.requests_seen, [])
 
+    def test_only_the_explicit_history_query_is_fetched(self):
+        rules = {'fixture': (self.origin, {'ui': r'/'})}
+        with patch.dict(audit.EXACT_HISTORY_QUERIES, {('fixture', 'ui'): ('/', 'view=releases')}, clear=True):
+            result = self.probe([self.base + '/?view=releases'], rules)
+        self.assertEqual(result['links'][0]['outcome'], 'html_response')
+        self.assertEqual([p for p, _ in Fixture.requests_seen], ['/?view=releases'])
+        self.assertNotIn('view=releases', json.dumps(result))
+
+    def test_history_query_exception_rejects_homepage_and_modified_queries(self):
+        rules = {'fixture': (self.origin, {'ui': r'/'})}
+        urls = [self.base + '/', self.base + '/?view=other',
+                self.base + '/?view=releases&delete=1', self.base + '/?view=releases&view=releases',
+                self.base + '/?view=releases#section', self.base + '/?view=%72eleases']
+        with patch.dict(audit.EXACT_HISTORY_QUERIES, {('fixture', 'ui'): ('/', 'view=releases')}, clear=True):
+            result = self.probe(urls, rules)
+        self.assertEqual(result['unapproved_count'], len(urls))
+        self.assertEqual(result['links'][0]['outcome'], 'not_observed')
+        self.assertEqual(Fixture.requests_seen, [])
+
+    def test_query_exception_is_bound_to_app_and_origin(self):
+        self.assertEqual(audit.HISTORY_RULES['duo'][0], ('https', audit.LAN, 8016))
+        self.assertEqual(audit.EXACT_HISTORY_QUERIES[('duo', 'ui')], ('/', 'view=releases'))
+        rules = {'fixture': (self.origin, {'ui': r'/'})}
+        result = self.probe([self.base + '/?view=releases'], rules)
+        self.assertEqual(result['unapproved_count'], 1)
+        self.assertEqual(Fixture.requests_seen, [])
+
     def test_multiple_matching_links_are_ambiguous_and_not_fetched(self):
         rules = {'fixture': (self.origin, {'ui': r'/history-[0-9]+\.html'})}
         result = self.probe([self.base + '/history-1.html', self.base + '/history-2.html'], rules)
