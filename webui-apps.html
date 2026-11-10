@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ja">
+<html lang="ja" data-theme="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,15 +7,22 @@
   <title>WebUIアプリ一覧 | besteffortnet</title>
   <script>
     (function () {
-      var saved = null;
+      const choices = ['light', 'dark', 'system'];
+      let preference;
       try {
-        saved = localStorage.getItem('webui.theme');
-      } catch (e) {}
-      var theme = saved;
-      if (!theme || (theme !== 'light' && theme !== 'dark')) {
-        theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      }
-      document.documentElement.dataset.theme = theme;
+        const saved = localStorage.getItem('webui.theme');
+        if (choices.includes(saved)) preference = saved;
+        else if (saved !== null) {
+          const decoded = JSON.parse(saved);
+          const theme = typeof decoded === 'string' ? decoded : decoded?.theme;
+          if (choices.includes(theme)) preference = theme;
+        }
+      } catch (_) {}
+      const root = document.documentElement;
+      root.dataset.themePreference = preference || 'light';
+      root.dataset.theme = root.dataset.themePreference === 'system'
+        ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+        : root.dataset.themePreference;
     })();
   </script>
   <style>
@@ -616,7 +623,7 @@
         </div>
       </details>
     </div>
-    <a class="version-link" href="webui-releases.html" aria-label="バージョン履歴と復元方法を開く">v2026.11.10.3</a>
+    <a class="version-link" href="webui-releases.html" aria-label="バージョン履歴と復元方法を開く">v2026.11.10.4</a>
     <button type="button" id="theme-toggle" class="theme-toggle" aria-label="ダークモードに切り替え" title="ダークモードに切り替え">
           <svg class="icon-sun" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
             <circle cx="12" cy="12" r="4"></circle>
@@ -1001,49 +1008,33 @@
   <script>
     (function () {
       const toggle = document.getElementById('theme-toggle');
+      const root = document.documentElement;
       const media = window.matchMedia('(prefers-color-scheme: dark)');
 
-      function updateAria(theme) {
-        if (!toggle) return;
-        const isDark = theme === 'dark';
-        const label = isDark ? 'ライトモードに切り替え' : 'ダークモードに切り替え';
-        toggle.setAttribute('aria-label', label);
-        toggle.setAttribute('title', label);
+      function applyTheme() {
+        const preference = root.dataset.themePreference;
+        const theme = preference === 'system' ? (media.matches ? 'dark' : 'light') : preference;
+        root.dataset.theme = theme;
+        if (toggle) {
+          const label = theme === 'dark' ? 'ライトモードに切り替え' : 'ダークモードに切り替え';
+          toggle.setAttribute('aria-label', label);
+          toggle.setAttribute('title', label);
+        }
       }
 
-      function applyTheme(theme) {
-        document.documentElement.dataset.theme = theme;
-        updateAria(theme);
-        try {
-          localStorage.setItem('webui.theme', theme);
-        } catch (e) {}
-      }
-
-      let saved = null;
-      try {
-        saved = localStorage.getItem('webui.theme');
-      } catch (e) {}
-
-      let initial = saved;
-      if (!initial || (initial !== 'light' && initial !== 'dark')) {
-        initial = media.matches ? 'dark' : 'light';
-      }
-      applyTheme(initial);
-
+      applyTheme();
       if (toggle) {
         toggle.addEventListener('click', function () {
-          const current = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
-          const next = current === 'dark' ? 'light' : 'dark';
-          applyTheme(next);
+          const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+          root.dataset.themePreference = next;
+          try {
+            localStorage.setItem('webui.theme', next);
+          } catch (_) {}
+          applyTheme();
         });
       }
-
-      media.addEventListener('change', function (e) {
-        try {
-          if (!localStorage.getItem('webui.theme')) {
-            applyTheme(e.matches ? 'dark' : 'light');
-          }
-        } catch (_) {}
+      media.addEventListener('change', function () {
+        if (root.dataset.themePreference === 'system') applyTheme();
       });
     })();
   </script>
