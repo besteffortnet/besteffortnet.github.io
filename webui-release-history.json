@@ -2,6 +2,20 @@
   "schema": 1,
   "versions": [
     {
+      "version": "2026.11.10.3",
+      "ref": "webui-apps-v2026.11.10.3",
+      "timestamp": "2026-11-10T17:03:35+09:00",
+      "actor": "Codex",
+      "summary": "B層とC層を初期状態で閉じた個別のグループにまとめる。各グループ内で並べ替えでき、以前の保存順と隙間を引き継ぐ。",
+      "files": [
+        "webui-apps.html",
+        "row-order.js",
+        "webui-release-history.json",
+        "tests/compact-header-browser.cjs",
+        "tests/layer-groups-browser.cjs"
+      ]
+    },
+    {
       "version": "2026.11.10.2",
       "ref": "webui-apps-v2026.11.10.2",
       "timestamp": "2026-11-10T16:23:05+09:00",
