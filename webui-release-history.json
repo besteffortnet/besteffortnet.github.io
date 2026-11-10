@@ -2,6 +2,20 @@
   "schema": 1,
   "versions": [
     {
+      "version": "2026.11.10.1",
+      "ref": "webui-apps-v2026.11.10.1",
+      "timestamp": "2026-11-10T15:36:16+09:00",
+      "actor": "Codex",
+      "summary": "本棚カテゴリに音楽の本棚（HTTPS・PORT 8021）を追加。追加前の一覧に戻す場合は、直前の固定版 2026.11.04.10 の「この版へ戻す方法」を使用する。",
+      "files": [
+        "webui-apps.html",
+        "webui-release-history.json",
+        "tests/webui-releases.test.cjs",
+        "tests/compact-header-browser.cjs",
+        "tests/test_observation_mapping.py"
+      ]
+    },
+    {
       "version": "2026.11.04.10",
       "ref": "webui-apps-v2026.11.04.10",
       "timestamp": "2026-11-04T14:14:23+09:00",

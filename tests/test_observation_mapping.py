@@ -36,7 +36,11 @@ class ObservationMappingTests(unittest.TestCase):
         result = audit_directory(html)
         self.assertEqual(result['errors'], [])
         self.assertEqual(result['linked_observations'], 21)
-        self.assertEqual(len(result['cards_without_observation']), 1)
+        self.assertCountEqual(
+            [card['repository'] for card in result['cards_without_observation']],
+            ['https://github.com/besteffortnet/lan-direct-transfer',
+             'https://github.com/besteffortnet/music-shelf'],
+        )
         parser = DirectoryParser()
         parser.feed(html)
         rows = [row for row in parser.cards if any('comic-reader' in repo for repo in row['repos'])]
