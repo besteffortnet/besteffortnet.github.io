@@ -6,7 +6,8 @@
   const orderStates = new Map();
   document.querySelectorAll('tbody[data-order-group]').forEach(function (body) {
   const original = Array.from(body.rows);
-  const key = 'webui.row-order.v2.' + body.dataset.orderGroup;
+  const prefix = 'webui.row-order.v2.';
+  const key = prefix + (body.dataset.orderStorage || body.dataset.orderGroup);
   const status = document.getElementById('order-status');
   const reset = document.getElementById('reset-order');
   const addSpacer = document.getElementById('add-spacer');
@@ -99,7 +100,9 @@
   try {
     let raw = localStorage.getItem(key);
     const legacy = raw === null;
-    if (legacy) raw = localStorage.getItem('webui.row-order.v1');
+    // Read the old group without overwriting it so the other groups can still inherit their order.
+    if (legacy && body.dataset.orderFrom) raw = localStorage.getItem(prefix + body.dataset.orderFrom);
+    if (raw === null) raw = localStorage.getItem('webui.row-order.v1');
     let saved = raw === null ? null : JSON.parse(raw);
     if (legacy && Array.isArray(saved) && saved.every(id => typeof id === 'string') && new Set(saved).size === saved.length && saved.filter(id => id.startsWith('spacer:')).length <= maxSpacers) {
       const ids = new Set(original.map(r => r.dataset.orderId));

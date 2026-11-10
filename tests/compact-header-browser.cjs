@@ -69,7 +69,7 @@ function contrast(rgb1, rgb2) {
           assert.equal(await music.locator('.status-link').getAttribute('href'), 'https://192.168.68.221:8013/service-status.html?app=music-shelf');
           assert.equal(await music.locator('[data-observation-id="music-shelf"]').count(), 1);
           assert.equal(await page.locator('tbody .port-badge').count(), 23);
-          const gridColumns = await page.locator('tbody[data-order-group]').evaluateAll(groups =>
+          const gridColumns = await page.locator('.app-group[open] tbody[data-order-group]').evaluateAll(groups =>
             groups.map(group => getComputedStyle(group).gridTemplateColumns.split(' ').length));
           assert.deepEqual(gridColumns, Array(3).fill(width <= 800 ? 2 : 3));
           const first = await rows.first().boundingBox();

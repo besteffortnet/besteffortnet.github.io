@@ -610,13 +610,13 @@
         </summary>
         <div class="help-content">
           <p>アイコンは左から、共通化・観測時刻・隙間追加・初期順・使い方です。</p>
-          <p>ドラッグ、または行にフォーカスして Alt＋↑／↓ で並べ替えます。順序はこのブラウザに保存されます。</p>
+          <p>各グループ内で、ドラッグまたは Alt＋↑／↓ で並べ替えます。順序はこのブラウザに保存されます。隙間は「その他」に追加されます。</p>
           <p>ポートはリンク先の接続ポートです。HTTPS 443はURLの標準ポートで、サービス内部のポートとは限りません。</p>
           <p>観測時刻の取得にはLAN接続と証明書の信頼が必要です。</p>
         </div>
       </details>
     </div>
-    <a class="version-link" href="webui-releases.html" aria-label="バージョン履歴と復元方法を開く">v2026.11.10.2</a>
+    <a class="version-link" href="webui-releases.html" aria-label="バージョン履歴と復元方法を開く">v2026.11.10.3</a>
     <button type="button" id="theme-toggle" class="theme-toggle" aria-label="ダークモードに切り替え" title="ダークモードに切り替え">
           <svg class="icon-sun" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
             <circle cx="12" cy="12" r="4"></circle>
@@ -795,8 +795,8 @@
       </tbody></table></div>
     </details>
     <details class="app-group panel" data-group="other" open>
-      <summary>その他 <span class="group-count">12件</span></summary>
-      <div class="table-wrap"><table aria-label="その他"><thead><tr><th>#</th><th>アプリ（サービス）</th><th>GitHubリポジトリ</th><th>概要</th></tr></thead><tbody data-order-group="other">
+      <summary>その他 <span class="group-count">7件</span></summary>
+      <div class="table-wrap"><table aria-label="その他"><thead><tr><th>#</th><th>アプリ（サービス）</th><th>GitHubリポジトリ</th><th>概要</th></tr></thead><tbody data-order-group="other" data-order-storage="other-a" data-order-from="other">
             <tr class="app-card">
               <td>3</td>
               <td><a class="service-link" href="http://192.168.68.221:8000/extensions/miniui/index.html">miniui</a><span class="port-badge" aria-label="ポート番号 8000" title="接続先の指定ポート">PORT 8000</span> <a class="status-link" aria-label="miniuiの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=miniui">状態を見る</a> <span class="note" data-observation-id="miniui">観測時刻：未確認（遷移先で確認）</span></td>
@@ -815,40 +815,6 @@
               </td>
             </tr>
             <tr class="app-card">
-              <td>5</td>
-              <td><a class="service-link" href="https://script.google.com/a/macros/focus88.co.jp/s/AKfycbwD_l9IRLfisTixvVOn1BGxIGm7pTXxiOy3R3Zl3_e9y9P6Whm-gu9uHNbVAoB8aCIa/exec">AllTimeBest Navigator</a><span class="port-badge port-badge-standard" aria-label="接続先 URL の HTTPS 標準ポート 443。サービス内部のポートは不明" title="URLの標準ポート。サービス内部のポートは不明">HTTPS 443</span> <a class="status-link" aria-label="AllTimeBest Navigatorの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=alltimebest">状態を見る</a> <span class="note" data-observation-id="alltimebest">観測時刻：未確認（遷移先で確認）</span></td>
-              <td><a class="repo-link" href="https://github.com/besteffortnet/geminispark" target="_blank" rel="noopener">besteffortnet/geminispark</a></td>
-              <td>
-                <div class="desc-toggle-row">
-                  <span class="desc-title">概要</span>
-                  <label class="switch" title="概要の表示切替">
-                    <input type="checkbox" class="desc-switch" aria-label="概要の表示切替">
-                    <span class="slider"></span>
-                  </label>
-                </div>
-                <div class="desc-text" hidden>
-                  作品の検索・進捗・履歴・推薦を行うGoogle Apps Script Webアプリ。
-                </div>
-              </td>
-            </tr>
-            <tr class="app-card">
-              <td>6</td>
-              <td><a class="service-link" href="http://192.168.68.221:8008/chat/cwnAdLrZvKG3Odix">Fireworks</a><span class="port-badge" aria-label="ポート番号 8008" title="接続先の指定ポート">PORT 8008</span> <a class="status-link" aria-label="Fireworksの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=fireworks">状態を見る</a> <span class="note" data-observation-id="fireworks">観測時刻：未確認（遷移先で確認）</span></td>
-              <td><a class="repo-link" href="https://github.com/besteffortnet/fireworks" target="_blank" rel="noopener">besteffortnet/fireworks</a></td>
-              <td>
-                <div class="desc-toggle-row">
-                  <span class="desc-title">概要</span>
-                  <label class="switch" title="概要の表示切替">
-                    <input type="checkbox" class="desc-switch" aria-label="概要の表示切替">
-                    <span class="slider"></span>
-                  </label>
-                </div>
-                <div class="desc-text" hidden>
-                  Difyのチャットフローアプリ。<span class="note">221:8008へ移設準備中・未稼働（ポート予約済み）</span>
-                </div>
-              </td>
-            </tr>
-            <tr class="app-card">
               <td>7</td>
               <td><a class="service-link" href="https://192.168.68.221:8007/">BSMapGen</a><span class="port-badge" aria-label="ポート番号 8007" title="接続先の指定ポート">PORT 8007</span> <a class="status-link" aria-label="BSMapGenの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=bsmap">状態を見る</a> <span class="note" data-observation-id="bsmap">観測時刻：未確認（遷移先で確認）</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/beatsaber-map-generator" target="_blank" rel="noopener">besteffortnet/beatsaber-map-generator</a></td>
@@ -862,23 +828,6 @@
                 </div>
                 <div class="desc-text" hidden>
                   好みを学習するBeat Saberカスタムマップ生成器。
-                </div>
-              </td>
-            </tr>
-            <tr class="app-card">
-              <td>8</td>
-              <td><a class="service-link" href="https://192.168.68.221:8004">hubterm</a><span class="port-badge" aria-label="ポート番号 8004" title="接続先の指定ポート">PORT 8004</span> <a class="status-link" aria-label="hubtermの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=hubterm">状態を見る</a> <span class="note" data-observation-id="hubterm">観測時刻：未確認（遷移先で確認）</span></td>
-              <td><a class="repo-link" href="https://github.com/besteffortnet/home-network/tree/main/webterm" target="_blank" rel="noopener">besteffortnet/home-network/webterm</a></td>
-              <td>
-                <div class="desc-toggle-row">
-                  <span class="desc-title">概要</span>
-                  <label class="switch" title="概要の表示切替">
-                    <input type="checkbox" class="desc-switch" aria-label="概要の表示切替">
-                    <span class="slider"></span>
-                  </label>
-                </div>
-                <div class="desc-text" hidden>
-                  ブラウザターミナル。4端末へのSSH、エージェントAPI、WOLに対応。
                 </div>
               </td>
             </tr>
@@ -913,40 +862,6 @@
                 </div>
                 <div class="desc-text" hidden>
                   Ono_Anna固定・検証済み声色10種・読み方7種・品質診断付きQwen3-TTS WebUI（v1.0.0／改善50件）。
-                </div>
-              </td>
-            </tr>
-            <tr class="app-card">
-              <td>11</td>
-              <td><a class="service-link" href="https://narrative-tsuzuri.akioueki.chatgpt.site/">Narrative Tsuzuri</a><span class="port-badge port-badge-standard" aria-label="接続先 URL の HTTPS 標準ポート 443。サービス内部のポートは不明" title="URLの標準ポート。サービス内部のポートは不明">HTTPS 443</span> <a class="status-link" aria-label="Narrative Tsuzuriの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=narrative">状態を見る</a> <span class="note" data-observation-id="narrative">観測時刻：未確認（遷移先で確認）</span></td>
-              <td><a class="repo-link" href="https://github.com/besteffortnet/narrative-reframe" target="_blank" rel="noopener">besteffortnet/narrative-reframe</a></td>
-              <td>
-                <div class="desc-toggle-row">
-                  <span class="desc-title">概要</span>
-                  <label class="switch" title="概要の表示切替">
-                    <input type="checkbox" class="desc-switch" aria-label="概要の表示切替">
-                    <span class="slider"></span>
-                  </label>
-                </div>
-                <div class="desc-text" hidden>
-                  ChatGPT Sitesで公開されているナラティブ制作Webアプリ。
-                </div>
-              </td>
-            </tr>
-            <tr class="app-card">
-              <td>12</td>
-              <td><a class="service-link" href="https://uekiakio.com/">uekiakio.com</a><span class="port-badge port-badge-standard" aria-label="接続先 URL の HTTPS 標準ポート 443。サービス内部のポートは不明" title="URLの標準ポート。サービス内部のポートは不明">HTTPS 443</span> <a class="status-link" aria-label="uekiakio.comの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=uekiakio">状態を見る</a> <span class="note" data-observation-id="uekiakio">観測時刻：未確認（遷移先で確認）</span></td>
-              <td><a class="repo-link" href="https://github.com/besteffortnet/uekiHP" target="_blank" rel="noopener">besteffortnet/uekiHP</a></td>
-              <td>
-                <div class="desc-toggle-row">
-                  <span class="desc-title">概要</span>
-                  <label class="switch" title="概要の表示切替">
-                    <input type="checkbox" class="desc-switch" aria-label="概要の表示切替">
-                    <span class="slider"></span>
-                  </label>
-                </div>
-                <div class="desc-text" hidden>
-                  植木あきおのプロフィール・ブログ・活動記録
                 </div>
               </td>
             </tr>
@@ -985,7 +900,103 @@
       </tbody></table></div>
     </details>
 
-    <footer>最終更新: 2026-10-28</footer>
+    <details class="app-group panel" data-group="layer-b">
+      <summary>B層 <span class="group-count">2件</span></summary>
+      <div class="table-wrap"><table aria-label="B層"><thead><tr><th>#</th><th>アプリ（サービス）</th><th>GitHubリポジトリ</th><th>概要</th></tr></thead><tbody data-order-group="layer-b" data-order-from="other">
+            <tr class="app-card">
+              <td>6</td>
+              <td><a class="service-link" href="http://192.168.68.221:8008/chat/cwnAdLrZvKG3Odix">Fireworks</a><span class="port-badge" aria-label="ポート番号 8008" title="接続先の指定ポート">PORT 8008</span> <a class="status-link" aria-label="Fireworksの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=fireworks">状態を見る</a> <span class="note" data-observation-id="fireworks">観測時刻：未確認（遷移先で確認）</span></td>
+              <td><a class="repo-link" href="https://github.com/besteffortnet/fireworks" target="_blank" rel="noopener">besteffortnet/fireworks</a></td>
+              <td>
+                <div class="desc-toggle-row">
+                  <span class="desc-title">概要</span>
+                  <label class="switch" title="概要の表示切替">
+                    <input type="checkbox" class="desc-switch" aria-label="概要の表示切替">
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                <div class="desc-text" hidden>
+                  Difyのチャットフローアプリ。<span class="note">221:8008へ移設準備中・未稼働（ポート予約済み）</span>
+                </div>
+              </td>
+            </tr>
+            <tr class="app-card">
+              <td>8</td>
+              <td><a class="service-link" href="https://192.168.68.221:8004">hubterm</a><span class="port-badge" aria-label="ポート番号 8004" title="接続先の指定ポート">PORT 8004</span> <a class="status-link" aria-label="hubtermの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=hubterm">状態を見る</a> <span class="note" data-observation-id="hubterm">観測時刻：未確認（遷移先で確認）</span></td>
+              <td><a class="repo-link" href="https://github.com/besteffortnet/home-network/tree/main/webterm" target="_blank" rel="noopener">besteffortnet/home-network/webterm</a></td>
+              <td>
+                <div class="desc-toggle-row">
+                  <span class="desc-title">概要</span>
+                  <label class="switch" title="概要の表示切替">
+                    <input type="checkbox" class="desc-switch" aria-label="概要の表示切替">
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                <div class="desc-text" hidden>
+                  ブラウザターミナル。4端末へのSSH、エージェントAPI、WOLに対応。
+                </div>
+              </td>
+            </tr>
+      </tbody></table></div>
+    </details>
+    <details class="app-group panel" data-group="layer-c">
+      <summary>C層 <span class="group-count">3件</span></summary>
+      <div class="table-wrap"><table aria-label="C層"><thead><tr><th>#</th><th>アプリ（サービス）</th><th>GitHubリポジトリ</th><th>概要</th></tr></thead><tbody data-order-group="layer-c" data-order-from="other">
+            <tr class="app-card">
+              <td>5</td>
+              <td><a class="service-link" href="https://script.google.com/a/macros/focus88.co.jp/s/AKfycbwD_l9IRLfisTixvVOn1BGxIGm7pTXxiOy3R3Zl3_e9y9P6Whm-gu9uHNbVAoB8aCIa/exec">AllTimeBest Navigator</a><span class="port-badge port-badge-standard" aria-label="接続先 URL の HTTPS 標準ポート 443。サービス内部のポートは不明" title="URLの標準ポート。サービス内部のポートは不明">HTTPS 443</span> <a class="status-link" aria-label="AllTimeBest Navigatorの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=alltimebest">状態を見る</a> <span class="note" data-observation-id="alltimebest">観測時刻：未確認（遷移先で確認）</span></td>
+              <td><a class="repo-link" href="https://github.com/besteffortnet/geminispark" target="_blank" rel="noopener">besteffortnet/geminispark</a></td>
+              <td>
+                <div class="desc-toggle-row">
+                  <span class="desc-title">概要</span>
+                  <label class="switch" title="概要の表示切替">
+                    <input type="checkbox" class="desc-switch" aria-label="概要の表示切替">
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                <div class="desc-text" hidden>
+                  作品の検索・進捗・履歴・推薦を行うGoogle Apps Script Webアプリ。
+                </div>
+              </td>
+            </tr>
+            <tr class="app-card">
+              <td>11</td>
+              <td><a class="service-link" href="https://narrative-tsuzuri.akioueki.chatgpt.site/">Narrative Tsuzuri</a><span class="port-badge port-badge-standard" aria-label="接続先 URL の HTTPS 標準ポート 443。サービス内部のポートは不明" title="URLの標準ポート。サービス内部のポートは不明">HTTPS 443</span> <a class="status-link" aria-label="Narrative Tsuzuriの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=narrative">状態を見る</a> <span class="note" data-observation-id="narrative">観測時刻：未確認（遷移先で確認）</span></td>
+              <td><a class="repo-link" href="https://github.com/besteffortnet/narrative-reframe" target="_blank" rel="noopener">besteffortnet/narrative-reframe</a></td>
+              <td>
+                <div class="desc-toggle-row">
+                  <span class="desc-title">概要</span>
+                  <label class="switch" title="概要の表示切替">
+                    <input type="checkbox" class="desc-switch" aria-label="概要の表示切替">
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                <div class="desc-text" hidden>
+                  ChatGPT Sitesで公開されているナラティブ制作Webアプリ。
+                </div>
+              </td>
+            </tr>
+            <tr class="app-card">
+              <td>12</td>
+              <td><a class="service-link" href="https://uekiakio.com/">uekiakio.com</a><span class="port-badge port-badge-standard" aria-label="接続先 URL の HTTPS 標準ポート 443。サービス内部のポートは不明" title="URLの標準ポート。サービス内部のポートは不明">HTTPS 443</span> <a class="status-link" aria-label="uekiakio.comの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=uekiakio">状態を見る</a> <span class="note" data-observation-id="uekiakio">観測時刻：未確認（遷移先で確認）</span></td>
+              <td><a class="repo-link" href="https://github.com/besteffortnet/uekiHP" target="_blank" rel="noopener">besteffortnet/uekiHP</a></td>
+              <td>
+                <div class="desc-toggle-row">
+                  <span class="desc-title">概要</span>
+                  <label class="switch" title="概要の表示切替">
+                    <input type="checkbox" class="desc-switch" aria-label="概要の表示切替">
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                <div class="desc-text" hidden>
+                  植木あきおのプロフィール・ブログ・活動記録
+                </div>
+              </td>
+            </tr>
+      </tbody></table></div>
+    </details>
+
+    <footer>最終更新: 2026-11-10</footer>
   </main>
   <script>
     (function () {
@@ -1054,13 +1065,13 @@
 <script>
     document.querySelectorAll('.app-group').forEach(function (group) {
       const key = 'webui.group.' + group.dataset.group;
-      try { const saved = localStorage.getItem(key); if (saved === 'closed') group.open = false; } catch (_) {}
+      try { const saved = localStorage.getItem(key); if (saved === 'closed' || saved === 'open') group.open = saved === 'open'; } catch (_) {}
       group.addEventListener('toggle', function () {
         try { localStorage.setItem(key, group.open ? 'open' : 'closed'); } catch (_) {}
       });
     });
   </script>
-<script src="row-order.js?v=15"></script>
+<script src="row-order.js?v=16"></script>
 <script src="observation-times.js?v=2026.11.04.10"></script>
 </body>
 </html>
