@@ -2,6 +2,19 @@
   "schema": 1,
   "versions": [
     {
+      "version": "2026.11.10.4",
+      "ref": "webui-apps-v2026.11.10.4",
+      "timestamp": "2026-11-10T18:47:54+09:00",
+      "actor": "Codex",
+      "summary": "公開一覧の初期テーマをライトにする。保存済みテーマを保持し、システム設定はOSの表示に追従する。",
+      "files": [
+        "webui-apps.html",
+        "webui-release-history.json",
+        "tests/theme-toggle.test.cjs",
+        "tests/theme-default-browser.cjs"
+      ]
+    },
+    {
       "version": "2026.11.10.3",
       "ref": "webui-apps-v2026.11.10.3",
       "timestamp": "2026-11-10T17:03:35+09:00",
