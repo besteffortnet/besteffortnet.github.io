@@ -2,6 +2,20 @@
   "schema": 1,
   "versions": [
     {
+      "version": "2026.11.10.2",
+      "ref": "webui-apps-v2026.11.10.2",
+      "timestamp": "2026-11-10T16:23:05+09:00",
+      "actor": "Codex",
+      "summary": "音楽の本棚に状態画面と観測時刻への導線を追加。未取得や接続不能は未確認として扱う。",
+      "files": [
+        "webui-apps.html",
+        "webui-release-history.json",
+        "tests/test_observation_mapping.py",
+        "tests/compact-header-browser.cjs",
+        "tests/test_vr_service_scope.py"
+      ]
+    },
+    {
       "version": "2026.11.10.1",
       "ref": "webui-apps-v2026.11.10.1",
       "timestamp": "2026-11-10T15:36:16+09:00",

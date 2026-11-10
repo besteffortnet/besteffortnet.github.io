@@ -45,7 +45,7 @@ function contrast(rgb1, rgb2) {
                 return route.abort().catch(() => {});
               }
               const collected_at = new Date(Date.now() - 120000).toISOString();
-              return route.fulfill({json: [{id: 'toeic', collected_at}, {id: 'comic', collected_at}]});
+              return route.fulfill({json: [{id: 'toeic', collected_at}, {id: 'comic', collected_at}, {id: 'music-shelf', collected_at}]});
             }
             if (req.method() !== 'GET' || url.origin !== origin) return route.abort();
             if (live) return route.continue();
@@ -66,6 +66,8 @@ function contrast(rgb1, rgb2) {
           assert.equal(await music.count(), 1);
           assert.equal(await music.locator('.service-link').getAttribute('href'), 'https://192.168.68.221:8021/');
           assert.equal(await music.locator('.port-badge').innerText(), 'PORT 8021');
+          assert.equal(await music.locator('.status-link').getAttribute('href'), 'https://192.168.68.221:8013/service-status.html?app=music-shelf');
+          assert.equal(await music.locator('[data-observation-id="music-shelf"]').count(), 1);
           assert.equal(await page.locator('tbody .port-badge').count(), 23);
           const gridColumns = await page.locator('tbody[data-order-group]').evaluateAll(groups =>
             groups.map(group => getComputedStyle(group).gridTemplateColumns.split(' ').length));
@@ -218,6 +220,7 @@ function contrast(rgb1, rgb2) {
           await page.locator('#observation-times').tap();
           await page.waitForFunction(() => document.querySelector('#observation-times-result').textContent.includes('取得しました'));
           assert.match(await page.locator('[data-observation-id="toeic"]').innerText(), /観測時刻/);
+          assert.match(await page.locator('[data-observation-id="music-shelf"]').innerText(), /観測時刻/);
           assert.equal(await page.locator('#observation-times').isEnabled(), true);
           observation = 'error';
           await openActions();
