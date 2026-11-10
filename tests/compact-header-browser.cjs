@@ -61,12 +61,21 @@ function contrast(rgb1, rgb2) {
           page.on('pageerror', e => errors.push(e.message));
           await page.goto(`${origin}/webui-apps.html`, {waitUntil: 'load'});
           const rows = page.locator('tbody .app-card');
-          assert.equal(await rows.count(), 21);
-          assert.equal(await page.locator('tbody .port-badge').count(), 22);
-          assert.equal(await page.locator('tbody').evaluate(el => getComputedStyle(el).gridTemplateColumns.split(' ').length), width <= 800 ? 2 : 3);
+          assert.equal(await rows.count(), 22);
+          const music = page.locator('tbody[data-order-group="library"] .app-card').filter({hasText:'音楽の本棚'});
+          assert.equal(await music.count(), 1);
+          assert.equal(await music.locator('.service-link').getAttribute('href'), 'https://192.168.68.221:8021/');
+          assert.equal(await music.locator('.port-badge').innerText(), 'PORT 8021');
+          assert.equal(await page.locator('tbody .port-badge').count(), 23);
+          const gridColumns = await page.locator('tbody[data-order-group]').evaluateAll(groups =>
+            groups.map(group => getComputedStyle(group).gridTemplateColumns.split(' ').length));
+          assert.deepEqual(gridColumns, Array(3).fill(width <= 800 ? 2 : 3));
           const first = await rows.first().boundingBox();
           const nav = await page.locator('.theme-bar').boundingBox();
-          assert(first && nav && first.y <= 75, `${name} ${width}: first card ${first?.y}`);
+          const groupHeading = await page.locator('.app-group[data-group="study"] > summary').boundingBox();
+          assert(first && nav && groupHeading && groupHeading.y >= nav.y + nav.height - 1);
+          const gap = first.y - groupHeading.y - groupHeading.height;
+          assert(gap >= 0 && gap <= 20, `${name} ${width}: first card gap ${gap}`);
           assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1), true);
           assert.equal(await page.locator('h1').innerText(), 'WebUIアプリ一覧');
           assert.equal(await page.locator('h1').getAttribute('aria-label'), 'WebUIアプリ一覧');
