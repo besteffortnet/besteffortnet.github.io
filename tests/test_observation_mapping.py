@@ -35,11 +35,10 @@ class ObservationMappingTests(unittest.TestCase):
         html = (ROOT / 'webui-apps.html').read_text(encoding='utf-8')
         result = audit_directory(html)
         self.assertEqual(result['errors'], [])
-        self.assertEqual(result['linked_observations'], 21)
+        self.assertEqual(result['linked_observations'], 22)
         self.assertCountEqual(
             [card['repository'] for card in result['cards_without_observation']],
-            ['https://github.com/besteffortnet/lan-direct-transfer',
-             'https://github.com/besteffortnet/music-shelf'],
+            ['https://github.com/besteffortnet/lan-direct-transfer'],
         )
         parser = DirectoryParser()
         parser.feed(html)
@@ -51,6 +50,10 @@ class ObservationMappingTests(unittest.TestCase):
         self.assertEqual([status_id(link['href']) for link in row['statuses']], row['observations'])
         self.assertIn('8012', row['statuses'][0]['label'])
         self.assertIn('8019', row['statuses'][1]['label'])
+        music = [row for row in parser.cards if any('music-shelf' in repo for repo in row['repos'])]
+        self.assertEqual(len(music), 1)
+        self.assertEqual(music[0]['observations'], ['music-shelf'])
+        self.assertEqual([status_id(link['href']) for link in music[0]['statuses']], ['music-shelf'])
 
     def test_missing_and_extra_snapshot_ids_are_not_reported_as_stopped(self):
         result = audit_directory(BUTTON + card(), snapshot('comic-https'))
