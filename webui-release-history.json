@@ -2,6 +2,21 @@
   "schema": 1,
   "versions": [
     {
+      "version": "2026.11.13.1",
+      "ref": "webui-apps-v2026.11.13.1",
+      "timestamp": "2026-11-13T16:20:00+09:00",
+      "actor": "Claude",
+      "summary": "公開一覧に検索と絞り込み（グループ、URL共有、検索中の並べ替え保護）を追加し、概要の先出し、カード階層、スマホ1列表示を整える。配色は Common UI 0.4.2 のトークンへ揃える。",
+      "files": [
+        "webui-apps.html",
+        "webui-release-history.json",
+        "tests/directory-search-browser.cjs",
+        "tests/compact-header-browser.cjs",
+        "tests/layer-groups-browser.cjs",
+        "tests/observation-endpoints-browser.cjs"
+      ]
+    },
+    {
       "version": "2026.11.10.4",
       "ref": "webui-apps-v2026.11.10.4",
       "timestamp": "2026-11-10T18:47:54+09:00",

@@ -58,7 +58,7 @@ const legacyKey = 'webui.row-order.v2.other';
           assert.equal(await other.locator('.spacer-slot').count(), 1);
           assert.equal(await groupB.locator('.spacer-slot').count(), 0);
           assert.equal(await groupC.locator('.spacer-slot').count(), 0);
-          const columns = width <= 800 ? 2 : 3;
+          const columns = width <= 560 ? 1 : width <= 800 ? 2 : 3;
           for (const group of [groupB, groupC]) {
             assert.equal(await group.locator('tbody').evaluate(body => getComputedStyle(body).gridTemplateColumns.split(' ').length), columns);
             assert.equal(await group.locator('.port-badge').count(), await links(group).count());
