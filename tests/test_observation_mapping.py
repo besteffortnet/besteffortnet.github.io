@@ -38,7 +38,8 @@ class ObservationMappingTests(unittest.TestCase):
         self.assertEqual(result['linked_observations'], 22)
         self.assertCountEqual(
             [card['repository'] for card in result['cards_without_observation']],
-            ['https://github.com/besteffortnet/lan-direct-transfer'],
+            ['https://github.com/besteffortnet/lan-direct-transfer',
+             'https://github.com/besteffortnet/irodori-playground'],
         )
         parser = DirectoryParser()
         parser.feed(html)

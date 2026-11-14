@@ -62,7 +62,7 @@ const engines = [
             const rows = page.locator('tbody .app-card');
             const card = rows.filter({has:page.locator('a.repo-link[href="https://github.com/besteffortnet/comic-reader"]')});
             assert.equal(await card.count(), 1);
-            assert.equal(await rows.count(), 22);
+            assert.equal(await rows.count(), 23);
             assert.equal(await page.locator('[data-observation-id]').count(), 22);
             const httpStatus = card.locator('.status-link').nth(0);
             const httpsStatus = card.locator('.status-link').nth(1);

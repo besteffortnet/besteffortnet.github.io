@@ -2,6 +2,21 @@
   "schema": 1,
   "versions": [
     {
+      "version": "2026.11.14.1",
+      "ref": "webui-apps-v2026.11.14.1",
+      "timestamp": "2026-11-14T11:10:00+09:00",
+      "actor": "Claude",
+      "summary": "その他カテゴリにIrodori プレイグラウンド（HTTPS・PORT 8023）を追加。追加前の一覧に戻す場合は、直前の固定版 2026.11.13.1 の「この版へ戻す方法」を使用する。",
+      "files": [
+        "webui-apps.html",
+        "webui-release-history.json",
+        "tests/compact-header-browser.cjs",
+        "tests/directory-search-browser.cjs",
+        "tests/observation-endpoints-browser.cjs",
+        "tests/test_observation_mapping.py"
+      ]
+    },
+    {
       "version": "2026.11.13.1",
       "ref": "webui-apps-v2026.11.13.1",
       "timestamp": "2026-11-13T16:20:00+09:00",
