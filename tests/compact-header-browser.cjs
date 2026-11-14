@@ -76,7 +76,7 @@ function contrast(rgb1, rgb2) {
           assert.equal(await page.locator('tbody .port-badge').count(), 24);
           const gridColumns = await page.locator('.app-group[open] tbody[data-order-group]').evaluateAll(groups =>
             groups.map(group => getComputedStyle(group).gridTemplateColumns.split(' ').length));
-          assert.deepEqual(gridColumns, Array(3).fill(width <= 560 ? 1 : width <= 800 ? 2 : 3));
+          assert.deepEqual(gridColumns, Array(3).fill(width <= 800 ? 2 : 3));
           const first = await rows.first().boundingBox();
           const nav = await page.locator('.theme-bar').boundingBox();
           const groupHeading = await page.locator('.app-group[data-group="study"] > summary').boundingBox();

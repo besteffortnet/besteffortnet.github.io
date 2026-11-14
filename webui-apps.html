@@ -678,14 +678,83 @@
       tbody { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
 
-    @media (max-width: 560px) {
-      tbody { grid-template-columns: minmax(0, 1fr); }
-      .filter-meta { align-items: flex-start; }
-    }
-
     @media (max-width: 620px) {
       main { padding: 8px 12px 40px; }
       tbody tr.app-card { padding: 12px; }
+    }
+
+    /* スマートフォンも2列を維持し、長い名称やポート情報はカード内で折り返す。 */
+    @media (max-width: 560px) {
+      tbody {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        width: 100%;
+        min-width: 0;
+      }
+
+      tbody tr.app-card {
+        min-width: 0;
+        max-width: 100%;
+        padding: 8px;
+        column-gap: 6px;
+        row-gap: 4px;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+      }
+
+      tbody tr.app-card > td,
+      tbody tr.app-card :where(a, span, p, summary, div, button) {
+        min-width: 0;
+        max-width: 100%;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+      }
+
+      tbody tr.app-card > td:nth-child(2) {
+        align-items: flex-start;
+        gap: 4px;
+        font-size: 12px;
+        line-height: 1.3;
+      }
+
+      tbody tr.app-card > td:nth-child(2) a {
+        flex: 1 1 auto;
+        min-width: 0;
+        max-width: 100%;
+        font-size: 12px;
+        line-height: 1.3;
+      }
+
+      tbody tr.app-card .card-meta {
+        min-width: 0;
+        gap: 4px;
+        font-size: 12px;
+        line-height: 1.3;
+      }
+
+      tbody tr.app-card .card-meta .status-link,
+      tbody tr.app-card .card-meta .port-badge {
+        max-width: 100%;
+        padding: 1px 5px;
+        font-size: 12px;
+        line-height: 1.3;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        box-sizing: border-box;
+      }
+
+      tbody tr.app-card > td:nth-child(4) {
+        font-size: 12px;
+        line-height: 1.35;
+      }
+
+      tbody tr.app-card > td:nth-child(2) .service-link { font-size: 14px; }
+      .filter-meta { align-items: flex-start; }
+      .filter-bar { grid-template-columns: minmax(0, 1fr); }
+      #group-chips { flex-wrap: nowrap; overflow-x: auto; width: 100%; min-width: 0; max-width: 100%; padding: 4px; scrollbar-width: thin; }
+      #group-chips > li { flex: 0 0 auto; }
+      #group-chips .chip { white-space: nowrap; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -791,7 +860,7 @@
         </div>
       </details>
     </div>
-    <a class="version-link" href="webui-releases.html" aria-label="バージョン履歴と復元方法を開く">v2026.11.14.1</a>
+    <a class="version-link" href="webui-releases.html" aria-label="バージョン履歴と復元方法を開く">v2026.11.14.2</a>
     <button type="button" id="theme-toggle" class="theme-toggle" aria-label="ダークモードに切り替え" title="ダークモードに切り替え">
           <svg class="icon-sun" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
             <circle cx="12" cy="12" r="4"></circle>
@@ -948,7 +1017,7 @@
             </tr>
             <tr class="app-card">
               <td>15</td>
-              <td><a class="service-link" href="http://192.168.68.221:8012/" rel="noopener">Comic Shelf</a><span class="port-badge" aria-label="ポート番号 8012" title="接続先の指定ポート">PORT 8012</span> <a class="status-link" aria-label="Comic Shelf の HTTP 8012 の状態を見る" href="https://192.168.68.221:8013/service-status.html?app=comic">8012 状態</a> <span class="note">8012 <span data-observation-id="comic" data-observation-compact="true">観測未確認</span></span> <a class="alternate-service-link" aria-label="Comic Shelf の HTTPS 入口（ポート8019）" href="https://192.168.68.221:8019/" rel="noopener">HTTPS</a><span class="port-badge" aria-label="HTTPS入口のポート番号 8019" title="追加HTTPS入口の指定ポート">PORT 8019</span> <a class="status-link" aria-label="Comic Shelf の HTTPS 8019 の状態を見る" href="https://192.168.68.221:8013/service-status.html?app=comic-https">8019 状態</a> <span class="note">8019 <span data-observation-id="comic-https" data-observation-compact="true">観測未確認</span></span></td>
+              <td><a class="service-link" href="http://192.168.68.221:8012/" rel="noopener">Comic Shelf</a><span class="port-badge" aria-label="ポート番号 8012" title="接続先の指定ポート">PORT 8012</span> <a class="status-link" aria-label="Comic Shelf の HTTP 8012 の状態を見る" href="https://192.168.68.221:8013/service-status.html?app=comic">8012 状態</a> <span class="note">8012 <span data-observation-id="comic" data-observation-compact="true">観測未確認</span></span> <a class="alternate-service-link" aria-label="Comic Shelf の HTTPS 入口（ポート8019、2026年11月14日確認時点で停止中）" title="2026-11-14確認: 停止中。HTTP 8012を利用してください" href="https://192.168.68.221:8019/" rel="noopener">HTTPS</a><span class="port-badge" aria-label="HTTPS入口のポート番号 8019" title="追加HTTPS入口の指定ポート">PORT 8019</span> <span class="note">停止中（11/14確認）。HTTP 8012を利用</span> <a class="status-link" aria-label="Comic Shelf の HTTPS 8019 の状態を見る" href="https://192.168.68.221:8013/service-status.html?app=comic-https">8019 状態</a> <span class="note">8019 <span data-observation-id="comic-https" data-observation-compact="true">観測未確認</span></span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/comic-reader" rel="noopener">besteffortnet/comic-reader</a> <span class="note">Private</span></td>
               <td>
                 <div class="desc-toggle-row">
@@ -1045,7 +1114,7 @@
             </tr>
             <tr class="app-card">
               <td>10</td>
-              <td><a class="service-link" href="http://192.168.68.221:8002/playground.html">Qwen3-TTS Playground / Local Studio</a><span class="port-badge" aria-label="ポート番号 8002" title="接続先の指定ポート">PORT 8002</span> <a class="status-link" aria-label="Qwen3-TTS Playground / Local Studioの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=qwen-tts">状態を見る</a> <span class="note" data-observation-id="qwen-tts">観測時刻：未確認（遷移先で確認）</span></td>
+              <td><a class="service-link" href="http://192.168.68.221:8002/playground.html">Qwen3-TTS Playground / Local Studio</a><span class="port-badge" aria-label="ポート番号 8002" title="接続先の指定ポート">PORT 8002</span> <a class="status-link" aria-label="Qwen3-TTS Playground / Local Studioの状態を見る" href="https://192.168.68.221:8013/service-status.html?app=qwen-tts">状態を見る</a> <span class="note" data-observation-id="qwen-tts">観測時刻：未確認（遷移先で確認）</span> <span class="note">停止中（11/14確認）</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/qwen3-tts-mlx" rel="noopener">besteffortnet/qwen3-tts-mlx</a> <span class="note">Private</span></td>
               <td>
                 <div class="desc-toggle-row">
@@ -1085,7 +1154,7 @@
             </tr>
             <tr class="app-card">
               <td>17</td>
-              <td><a class="service-link" href="https://github.com/besteffortnet/lan-direct-transfer#起動" rel="noopener">LAN間ファイル移動</a><span class="port-badge port-badge-standard" aria-label="接続先 URL の HTTPS 標準ポート 443。サービス内部のポートは不明" title="URLの標準ポート。サービス内部のポートは不明">HTTPS 443</span></td>
+              <td><a class="service-link" href="https://github.com/besteffortnet/lan-direct-transfer#起動" rel="noopener">LAN間ファイル移動</a><span class="port-badge port-badge-standard" aria-label="接続先 URL の HTTPS 標準ポート 443。サービス内部のポートは不明" title="URLの標準ポート。サービス内部のポートは不明">HTTPS 443</span> <span class="note" aria-label="アプリの待受ポート8401。ローカル接続専用"><b>LOCAL 8401</b>（SSH接続）</span></td>
               <td><a class="repo-link" href="https://github.com/besteffortnet/lan-direct-transfer" rel="noopener">besteffortnet/lan-direct-transfer</a> <span class="note">Private</span></td>
               <td>
                 <div class="desc-toggle-row"><span class="desc-title">概要</span><label class="switch" title="概要の表示切替"><input type="checkbox" class="desc-switch" aria-label="LAN間ファイル移動の概要の表示切替"><span class="slider"></span></label></div>
@@ -1203,7 +1272,7 @@
         <li><a href="https://192.168.68.221:8013/scoreboard.html" rel="noopener">標準化の進捗</a></li>
         <li><a href="https://192.168.68.221:8013/service-status.html" rel="noopener">全体の稼働状況</a></li>
       </ul>
-      <p>最終更新: 2026-11-13</p>
+      <p>最終更新: 2026-11-14</p>
     </footer>
   </main>
   <script>

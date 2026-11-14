@@ -7,7 +7,7 @@ const origin = 'https://fixture.invalid';
 const root = path.resolve(__dirname, '..');
 const orderKey = 'webui.row-order.v2.library';
 
-// 検索・絞り込み・概要の先出し・スマホ1列表示を、実ブラウザで確認する。
+// 検索・絞り込み・概要の先出し・スマホ2列表示を、実ブラウザで確認する。
 (async () => {
   for (const [name, engine, options] of [
     ['Chrome', chromium, process.env.DIRECTORY_CHROME ? {executablePath: process.env.DIRECTORY_CHROME} : {}],
@@ -51,10 +51,19 @@ const orderKey = 'webui.row-order.v2.library';
           assert.equal(await toeic.locator('.card-meta [data-observation-id="toeic"]').count(), 1);
           assert.equal(await toeic.locator('.desc-text').isVisible(), false);
 
-          // 列数: 560px 以下は1列、800px 以下は2列、それより広いと3列。
+          // 列数: 800px 以下は2列、それより広いと3列。
           const columns = await page.locator('.app-group[open] tbody').first().evaluate(el => getComputedStyle(el).gridTemplateColumns.split(' ').length);
-          assert.equal(columns, width <= 560 ? 1 : width <= 800 ? 2 : 3);
+          assert.equal(columns, width <= 800 ? 2 : 3);
           assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1), true);
+          // 二列化しても停止中表示、ローカル接続ポート、グループと検索を保持する。
+          const comic = page.locator('tbody tr.app-card').filter({hasText: 'Comic Shelf'});
+          assert.match(await comic.innerText(), /停止中（11\/14確認）/);
+          const ldt = page.locator('tbody tr.app-card').filter({hasText: 'LAN間ファイル移動'});
+          assert.match(await ldt.innerText(), /LOCAL 8401/);
+          for (const card of await page.locator('.app-group[open] tbody tr.app-card:not(.is-filtered-out)').all()) {
+            const box = await card.boundingBox();
+            assert(box && box.x >= -1 && box.x + box.width <= width + 1, 'カードが画面外に出ています');
+          }
 
           // 検索: 全角・大文字小文字を同一視し、複数語は AND で絞る。
           await search.fill('ＰＯＲＴ 8015');

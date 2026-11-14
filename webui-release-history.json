@@ -2,6 +2,19 @@
   "schema": 1,
   "versions": [
     {
+      "version": "2026.11.14.2",
+      "ref": "webui-apps-v2026.11.14.2",
+      "timestamp": "2026-11-14T12:41:49+09:00",
+      "actor": "Codex",
+      "summary": "スマートフォンのカード表示を指定どおり2列へ修正し、PCの3列を維持。スマートフォンではグループ選択を横スクロール1行にまとめ、上部の高さを削減。Comic Shelf HTTPS8019とQwen8002の停止中を確認日付きで表記。LAN間ファイル移動のローカル待受8401を、案内リンクのHTTPS443と区別して表示。",
+      "files": [
+        "webui-apps.html",
+        "webui-release-history.json",
+        "tests/directory-search-browser.cjs",
+        "tests/compact-header-browser.cjs"
+      ]
+    },
+    {
       "version": "2026.11.14.1",
       "ref": "webui-apps-v2026.11.14.1",
       "timestamp": "2026-11-14T11:10:00+09:00",
