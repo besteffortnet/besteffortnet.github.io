@@ -2,6 +2,19 @@
   "schema": 1,
   "versions": [
     {
+      "version": "2026.11.16.2",
+      "ref": "webui-apps-v2026.11.16.2",
+      "timestamp": "2026-11-16T13:47:50+09:00",
+      "actor": "Codex",
+      "summary": "検索結果からアプリのリンクを開けない不具合を修正。検索中の並べ替え防止と、通常のクリック・キーボード操作を維持する。",
+      "files": [
+        "webui-apps.html",
+        "row-order.js",
+        "webui-release-history.json",
+        "tests/directory-search-browser.cjs"
+      ]
+    },
+    {
       "version": "2026.11.16.1",
       "ref": "webui-apps-v2026.11.16.1",
       "timestamp": "2026-11-16T13:40:49+09:00",

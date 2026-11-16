@@ -57,7 +57,13 @@ const orderKey = 'webui.row-order.v2.library';
           await search.fill('8024');
           assert.equal(await visibleCards(), 1);
           assert.equal(await studio.isVisible(), true);
-          await search.fill('');
+          // 検索中もカードのリンクを普通に開ける。実サービスへの通信は発生させない。
+          const editorUrl = 'https://192.168.68.221:8024/';
+          await context.route(editorUrl, route => route.fulfill({status: 200, contentType: 'text/html', body: '<title>Video Studio 221</title>'}));
+          await Promise.all([page.waitForURL(editorUrl), studio.locator('.service-link').click()]);
+          assert.equal(await page.title(), 'Video Studio 221');
+          await context.unroute(editorUrl);
+          await page.goto(origin + '/webui-apps.html');
 
           // 列数: 800px 以下は2列、それより広いと3列。
           const columns = await page.locator('.app-group[open] tbody').first().evaluate(el => getComputedStyle(el).gridTemplateColumns.split(' ').length);
@@ -120,6 +126,16 @@ const orderKey = 'webui.row-order.v2.library';
           await page.keyboard.press('Alt+ArrowDown');
           assert.equal(await page.evaluate(key => localStorage.getItem(key), orderKey), beforeOrder);
           assert.match(await page.locator('#order-status').textContent(), /検索中は並べ替えできません/);
+          const handles = page.locator('tbody tr.app-card:not(.is-filtered-out) .row-handle');
+          assert(await handles.count() >= 2);
+          await handles.nth(1).scrollIntoViewIfNeeded();
+          const from = await handles.first().boundingBox(), to = await handles.nth(1).boundingBox();
+          await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
+          await page.mouse.down();
+          await page.mouse.move(to.x + to.width / 2, to.y + to.height / 2, {steps: 6});
+          await page.mouse.up();
+          assert.equal(await page.evaluate(key => localStorage.getItem(key), orderKey), beforeOrder);
+          assert.equal(await page.locator('.drag-placeholder').count(), 0);
           await search.fill('');
           const library = page.locator('tbody[data-order-group="library"] .service-link');
           const first = (await library.allTextContents())[0];

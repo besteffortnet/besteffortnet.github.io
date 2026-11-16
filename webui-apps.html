@@ -860,7 +860,7 @@
         </div>
       </details>
     </div>
-    <a class="version-link" href="webui-releases.html" aria-label="バージョン履歴と復元方法を開く">v2026.11.16.1</a>
+    <a class="version-link" href="webui-releases.html" aria-label="バージョン履歴と復元方法を開く">v2026.11.16.2</a>
     <button type="button" id="theme-toggle" class="theme-toggle" aria-label="ダークモードに切り替え" title="ダークモードに切り替え">
           <svg class="icon-sun" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
             <circle cx="12" cy="12" r="4"></circle>
@@ -1343,7 +1343,7 @@
       });
     });
   </script>
-<script src="row-order.js?v=16"></script>
+<script src="row-order.js?v=17"></script>
 <script src="observation-times.js?v=2026.11.04.10"></script>
 <script>
 /* 一覧の検索・絞り込み・概要の先出し。
@@ -1537,13 +1537,6 @@
   // 検索語で一覧が欠けている間は、保存順を壊さないよう並べ替えを止める。
   const searching = () => normalize(state.query) !== '';
   const blockOrdering = () => { if (orderStatus) orderStatus.textContent = '検索中は並べ替えできません。検索を解除してください。'; };
-  document.addEventListener('pointerdown', event => {
-    if (!searching() || !event.target.closest) return;
-    const handle = event.target.closest('tbody .row-handle');
-    if (!handle || event.target.closest('.spacer-remove')) return;
-    event.stopPropagation();
-    blockOrdering();
-  }, true);
   document.addEventListener('keydown', event => {
     if (!searching() || !event.altKey || !/^Arrow(Up|Down)$/.test(event.key)) return;
     if (!event.target.closest || !event.target.closest('tbody .row-handle')) return;

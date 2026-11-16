@@ -289,6 +289,10 @@
     if (e.target.closest('.spacer-remove')) return;
     const handle = e.target.closest('.row-handle');
     if (!handle || e.button !== 0 || !e.isPrimary || drag) return;
+    const search = document.getElementById('app-search');
+    if (search && String(search.value || '').normalize('NFKC').trim()) {
+      return;
+    }
     const row = handle.closest('tr');
     drag = {
       row,
