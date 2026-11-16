@@ -38,10 +38,10 @@ const orderKey = 'webui.row-order.v2.library';
 
           // 初期表示: 検索欄は JS 準備後に現れ、全件を表示する。
           assert.equal(await page.locator('#filter-bar').isVisible(), true);
-          assert.equal(await visibleCards(), 23);
-          assert.equal(await status.textContent(), '全23件を表示');
+          assert.equal(await visibleCards(), 24);
+          assert.equal(await status.textContent(), '全24件を表示');
           assert.equal(await chip('all').getAttribute('aria-pressed'), 'true');
-          assert.deepEqual(await page.locator('#group-chips .chip-count').allTextContents(), ['23', '3', '7', '8', '2', '3']);
+          assert.deepEqual(await page.locator('#group-chips .chip-count').allTextContents(), ['24', '3', '7', '9', '2', '3']);
 
           // カード: 先頭の一文、詳細トグル、メタ行（状態リンクと観測時刻）が揃っている。
           const toeic = page.locator('tbody tr.app-card').filter({hasText: 'TOEIC Study'});
@@ -50,6 +50,14 @@ const orderKey = 'webui.row-order.v2.library';
           assert.equal(await toeic.locator('.card-meta .status-link').count(), 1);
           assert.equal(await toeic.locator('.card-meta [data-observation-id="toeic"]').count(), 1);
           assert.equal(await toeic.locator('.desc-text').isVisible(), false);
+          const studio = page.locator('tbody[data-order-group="other"] tr.app-card').filter({hasText: 'Video Studio 221'});
+          assert.equal(await studio.count(), 1);
+          assert.equal(await studio.locator('.service-link').getAttribute('href'), 'https://192.168.68.221:8024/');
+          assert.equal(await studio.locator('.port-badge').innerText(), 'PORT 8024');
+          await search.fill('8024');
+          assert.equal(await visibleCards(), 1);
+          assert.equal(await studio.isVisible(), true);
+          await search.fill('');
 
           // 列数: 800px 以下は2列、それより広いと3列。
           const columns = await page.locator('.app-group[open] tbody').first().evaluate(el => getComputedStyle(el).gridTemplateColumns.split(' ').length);
@@ -69,7 +77,7 @@ const orderKey = 'webui.row-order.v2.library';
           await search.fill('ＰＯＲＴ 8015');
           assert.equal(await visibleCards(), 1);
           assert.equal(await page.locator('tbody tr.app-card:not(.is-filtered-out) .service-link').textContent(), '音の本棚');
-          assert.equal(await status.textContent(), '23件中 1件を表示');
+          assert.equal(await status.textContent(), '24件中 1件を表示');
           assert.equal(await page.locator('.app-group[data-group="library"] .group-count').textContent(), '1/7件');
           assert.equal(await page.locator('.app-group[data-group="study"]').isVisible(), false);
           assert.equal(new URL(page.url()).searchParams.get('q'), 'ＰＯＲＴ 8015');
@@ -84,7 +92,7 @@ const orderKey = 'webui.row-order.v2.library';
           assert.equal(await search.inputValue(), '');
           assert.equal(await layerB.evaluate(el => el.open), false);
           assert.equal(await storedGroup('layer-b'), null);
-          assert.equal(await visibleCards(), 23);
+          assert.equal(await visibleCards(), 24);
           assert.equal(new URL(page.url()).searchParams.has('q'), false);
 
           // 該当なし: 説明と解除ボタンを出す。
@@ -93,7 +101,7 @@ const orderKey = 'webui.row-order.v2.library';
           assert.equal(await page.locator('#empty-state').isVisible(), true);
           await page.locator('#empty-reset').click();
           assert.equal(await page.locator('#empty-state').isVisible(), false);
-          assert.equal(await visibleCards(), 23);
+          assert.equal(await visibleCards(), 24);
 
           // グループチップ: 1つに絞り、もう一度押すと全件へ戻る。
           await chip('library').click();
@@ -102,7 +110,7 @@ const orderKey = 'webui.row-order.v2.library';
           assert.equal(new URL(page.url()).searchParams.get('g'), 'library');
           assert.equal(await page.locator('.app-group[data-group="study"]').isVisible(), false);
           await chip('library').click();
-          assert.equal(await visibleCards(), 23);
+          assert.equal(await visibleCards(), 24);
 
           // 検索中は並べ替えを止め、検索解除後は従来どおり並べ替えられる。
           await search.fill('shelf');
@@ -146,7 +154,7 @@ const orderKey = 'webui.row-order.v2.library';
           assert.equal(await visibleCards(), 1);
           assert.equal(await chip('library').getAttribute('aria-pressed'), 'true');
           await page.goto(origin + '/webui-apps.html?g=unknown');
-          assert.equal(await visibleCards(), 23);
+          assert.equal(await visibleCards(), 24);
 
           assert.deepEqual(errors, []);
           console.log(`PASS ${name} ${width}×${height} search, filters, details and keyboard`);

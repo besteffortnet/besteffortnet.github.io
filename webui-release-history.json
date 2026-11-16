@@ -2,6 +2,22 @@
   "schema": 1,
   "versions": [
     {
+      "version": "2026.11.16.1",
+      "ref": "webui-apps-v2026.11.16.1",
+      "timestamp": "2026-11-16T13:40:49+09:00",
+      "actor": "Codex",
+      "summary": "その他カテゴリにVideo Studio 221（HTTPS・PORT 8024）を追加。動画のプレビュー・トリム、字幕編集とResolve連携、YouTube向け書き出しへアクセスできる。WebUIは認証なしで、LANやTailscaleサブネット経由で到達できる。",
+      "files": [
+        "webui-apps.html",
+        "webui-release-history.json",
+        "tests/compact-header-browser.cjs",
+        "tests/directory-search-browser.cjs",
+        "tests/layer-groups-browser.cjs",
+        "tests/observation-endpoints-browser.cjs",
+        "tests/test_observation_mapping.py"
+      ]
+    },
+    {
       "version": "2026.11.14.2",
       "ref": "webui-apps-v2026.11.14.2",
       "timestamp": "2026-11-14T12:41:49+09:00",
