@@ -40,7 +40,9 @@ class ObservationMappingTests(unittest.TestCase):
             [card['repository'] for card in result['cards_without_observation']],
             ['https://github.com/besteffortnet/lan-direct-transfer',
              'https://github.com/besteffortnet/irodori-playground',
-             'https://github.com/besteffortnet/home-network/blob/main/registry/ports.json'],
+             'https://github.com/besteffortnet/irodori-playground/blob/main/static/book.html',
+             'https://github.com/besteffortnet/home-network/blob/main/registry/ports.json',
+             'https://github.com/besteffortnet/backup-status-web'],
         )
         parser = DirectoryParser()
         parser.feed(html)
