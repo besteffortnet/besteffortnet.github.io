@@ -627,6 +627,25 @@
     .service-link:active,
     .row-dragging .service-link { cursor: grabbing; transform: translateY(1px); }
 
+    .copy-app-links {
+      display: inline-grid;
+      place-items: center;
+      flex: none;
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--paper);
+      color: var(--accent);
+      cursor: pointer;
+    }
+    .copy-app-links:hover, .copy-app-links[data-copied] { background: var(--accent-soft); }
+    .copy-app-links:focus-visible { outline: 2px solid var(--outline); outline-offset: 2px; }
+    .copy-app-links .copy-check, .copy-app-links[data-copied] .copy-icon { display: none; }
+    .copy-app-links[data-copied] .copy-check { display: block; }
+    .copy-error { flex-basis: 100%; color: var(--ink); word-break: normal; }
+
     .repo-link { font-weight: 600; font-size: .8rem; }
     .note { color: var(--muted); font-size: .78rem; font-weight: 400; }
 
@@ -912,6 +931,19 @@
     <p id="observation-help" class="visually-hidden">観測時刻の取得にはLANへの接続と証明書の信頼が必要です。</p>
     <p id="order-help" class="visually-hidden">ドラッグ、またはフォーカスして Alt と上下矢印キーで並べ替えます。順序はこのブラウザに保存されます。</p>
     <p id="observation-times-result" class="feedback" role="status" aria-live="polite"></p>
+    <template id="copy-app-links-template">
+      <button type="button" class="copy-app-links" title="サービスとGitHubのURLをコピー">
+        <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="8" y="8" width="12" height="12" rx="2"></rect>
+          <path d="M16 4H6a2 2 0 0 0-2 2v10"></path>
+        </svg>
+        <svg class="copy-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m5 12 4 4L19 6"></path>
+        </svg>
+      </button>
+      <span class="copy-error" hidden></span>
+    </template>
+    <p id="copy-app-status" class="visually-hidden" role="status"></p>
     <p id="order-status" class="feedback" role="status" aria-live="polite"></p>
     <section class="filter-bar" id="filter-bar" aria-label="アプリの検索と絞り込み" hidden>
       <div class="filter-row">
@@ -1387,6 +1419,37 @@
     return end > 0 ? text.slice(0, end + 1) : text;
   }
 
+  function addCopyButton(row, name) {
+    const service = row.querySelector('.service-link');
+    const repo = row.querySelector('.repo-link');
+    if (!service || !repo) return;
+
+    const controls = document.getElementById('copy-app-links-template').content.cloneNode(true);
+    const button = controls.querySelector('button');
+    const error = controls.querySelector('.copy-error');
+    const status = document.getElementById('copy-app-status');
+    button.setAttribute('aria-label', name + 'のサービスとGitHubのURLをコピー');
+
+    let timer;
+    button.addEventListener('click', async () => {
+      clearTimeout(timer);
+      delete button.dataset.copied;
+      error.hidden = true;
+      status.textContent = '';
+      try {
+        await navigator.clipboard.writeText([service.href, repo.href].join('\n'));
+        button.dataset.copied = '';
+        status.textContent = name + 'のURLを2件コピーしました。';
+        timer = setTimeout(() => { delete button.dataset.copied; }, 1800);
+      } catch (_) {
+        error.textContent = 'コピーできませんでした。ブラウザのクリップボード権限を確認してください。';
+        error.hidden = false;
+        status.textContent = name + 'のURLをコピーできませんでした。';
+      }
+    });
+    repo.after(controls);
+  }
+
   function enhanceCard(row, label) {
     const appCell = row.cells[1];
     const descCell = row.cells[row.cells.length - 1];
@@ -1421,6 +1484,7 @@
     const port = row.querySelector('.port-badge');
     const repo = row.cells[2] ? row.cells[2].textContent : '';
     row._search = normalize([name, port ? port.textContent : '', repo, text ? text.textContent : '', label].join(' '));
+    addCopyButton(row, name);
   }
 
   groups.forEach(group => {
