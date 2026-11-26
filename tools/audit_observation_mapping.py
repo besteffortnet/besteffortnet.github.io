@@ -36,7 +36,7 @@ class DirectoryParser(HTMLParser):
         if tag == 'tr' and 'app-card' in classes:
             if self.card is not None:
                 raise ValueError('nested app card')
-            self.card = {'services': [], 'repos': [], 'statuses': [], 'observations': [], 'description': []}
+            self.card = {'services': [], 'repos': [], 'statuses': [], 'observations': [], 'description': [], 'source': attrs.get('data-source')}
         if self.card is not None and tag == 'div':
             if self.description_depth:
                 self.description_depth += 1
@@ -138,7 +138,12 @@ def audit_directory(html, snapshot=UNSUPPLIED):
         repo = None
         if not card['services']:
             errors.append(prefix + 'service link is missing')
-        if len(card['repos']) != 1 or not card['repos'][0]:
+        is_hosted_site = (card['source'] == 'chatgpt-sites' and len(card['services']) == 1
+                          and urlsplit(card['services'][0]).scheme == 'https'
+                          and (urlsplit(card['services'][0]).hostname or '').endswith('.chatgpt.site'))
+        if not card['repos'] and is_hosted_site:
+            pass  # ChatGPT Sites は GitHub リポジトリがない場合がある。
+        elif len(card['repos']) != 1 or not card['repos'][0]:
             errors.append(prefix + 'exactly one repository link is required')
         else:
             repo = card['repos'][0]

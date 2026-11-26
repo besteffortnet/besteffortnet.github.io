@@ -42,7 +42,7 @@ class ObservationMappingTests(unittest.TestCase):
              'https://github.com/besteffortnet/irodori-playground',
              'https://github.com/besteffortnet/irodori-playground/blob/main/static/book.html',
              'https://github.com/besteffortnet/home-network/blob/main/registry/ports.json',
-             'https://github.com/besteffortnet/backup-status-web'],
+             'https://github.com/besteffortnet/backup-status-web', None],
         )
         parser = DirectoryParser()
         parser.feed(html)
@@ -73,6 +73,15 @@ class ObservationMappingTests(unittest.TestCase):
         self.assertFalse(audit_directory(BUTTON + card(repo='same') + card(repo='same', ids=('other',)))['ok'])
         self.assertFalse(audit_directory(BUTTON + card() + '<span data-observation-id="stray"></span>')['ok'])
         self.assertFalse(audit_directory(card())['ok'])
+
+    def test_chatgpt_site_without_repository_is_explicit_and_restricted(self):
+        hosted = ('<tr class="app-card" data-source="chatgpt-sites"><td>'
+                  '<a class="service-link" href="https://example.chatgpt.site/">app</a>'
+                  '</td><td>ChatGPT Sites</td></tr>')
+        self.assertTrue(audit_directory(BUTTON + hosted)['ok'])
+        self.assertFalse(audit_directory(BUTTON + hosted.replace(' data-source="chatgpt-sites"', ''))['ok'])
+        self.assertFalse(audit_directory(BUTTON + hosted.replace('https://example.chatgpt.site/', 'https://example.invalid/'))['ok'])
+        self.assertFalse(audit_directory(BUTTON + hosted.replace('https://example.chatgpt.site/', 'http://example.chatgpt.site/'))['ok'])
 
     def test_status_url_requires_expected_origin_path_and_single_id(self):
         good = 'https://192.168.68.221:8013/service-status.html?app=comic-https'
